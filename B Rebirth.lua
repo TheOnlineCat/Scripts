@@ -705,11 +705,15 @@ do
 
         local QuestList = {}
         for _, npc in ipairs(HiddenNPCsFolder:GetChildren()) do
-            if string.find(npc.Name, "Quest") and not string.find(npc.Name, "Boss") then
+            if string.find(npc.Name, "Quest") and not string.find(npc.Name, "Boss")  then
                 table.insert(QuestList, npc.Name)
             end
         end
-        table.sort(QuestList)
+        table.sort(QuestList, function(a, b)
+            local levelA = tonumber(a:match("%d+"))  
+            local levelB = tonumber(b:match("%d+"))
+            return levelA < levelB  
+        end)
         
         Tab:CreateDropdown({
             Name = "Select Quest",
