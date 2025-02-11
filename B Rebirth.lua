@@ -40,6 +40,7 @@ local EventsFolder = ReplicatedStorage.Events
 local BeybladesFolder = workspace.Beyblades
 local TrainingFolder = workspace.Training
 local NPCsFolder = workspace.NPCs
+local HiddenNPCsFolder = ReplicatedStorage.HiddenNPCs
 local RemotesFolder = ReplicatedStorage.Events
 
 local RNG = Random.new()
@@ -486,6 +487,8 @@ do
     UIController.OnHighestPriorityFarmChanged = Signal.new()
     UIController.OnRockTargetTypeChanged = Signal.new()
 
+    UIController.OnQuestChanged = Signal.new()
+
     UIController.OnTrainerLevelChanged = Signal.new()
 
     UIController.OnStaffAutoKickChanged = Signal.new()
@@ -500,11 +503,10 @@ do
                 SelectedRock = "Rock"
             },
 
-            TrainerFarm = {
+            QuestFarm = {
                 Enabled = false,
                 Priority = 10,
-                MinimumLevel = 5,
-                MaximumLevel = 5
+                SelectedQuest = "None"
             },
 
             BossFarm = {
@@ -582,6 +584,11 @@ do
         self.OnRockTargetTypeChanged:Fire()
     end
 
+    function UIController:SetSelectedQuest(QuestName: string)
+        self.State.ActiveFarms.QuestFarm.SelectedQuest = QuestName
+        self.OnQuestChanged:Fire()
+    end
+
     function UIController:SetFarmState(FarmType: string, IsEnabled: boolean, Priority: number?)
         if IsEnabled ~= nil then
             self.State.ActiveFarms[FarmType].Enabled = IsEnabled
@@ -602,7 +609,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: Jorsan",
+            LoadingSubtitle = "Script Credits: Jorsan Modified by OnlineCat",
     
             ConfigurationSaving = {
                 Enabled = true,
@@ -696,28 +703,21 @@ do
             MaxTrainerLevel = NPCLevel
         end
 
-        Tab:CreateSlider({
-            Name = "Minimum Trainer Level",
-            Range = {5, MaxTrainerLevel},
-            Increment = 5,
-            CurrentValue = self.State.ActiveFarms.TrainerFarm.MinimumLevel,
-            Flag = "MinimumTrainerLevel",
-            Callback = function(Value)
-                self.State.ActiveFarms.TrainerFarm.MinimumLevel = tonumber(Value)
-                self.OnTrainerLevelChanged:Fire()
-            end,
-        })
-
-        Tab:CreateSlider({
-            Name = "Maximum Trainer Level",
-            Range = {5, MaxTrainerLevel},
-            Increment = 5,
-            CurrentValue = self.State.ActiveFarms.TrainerFarm.MaximumLevel,
-            Flag = "MaximumTrainerLevel",
-            Callback = function(Value)
-                self.State.ActiveFarms.TrainerFarm.MaximumLevel = tonumber(Value)
-                self.OnTrainerLevelChanged:Fire()
-            end,
+        local QuestList = {}
+        for _, npc in HiddenNPCsFolder:GetChildren() do
+            if string.find(npc.name, "Quest") then
+                table.insert(QuestList, npc.name)
+            end
+        end
+        
+        Tab:CreateDropdown({
+            Name = "Select Quest",
+            Options = QuestList,
+            CurrentOption = {self.State.ActiveFarms.QuestFarm.SelectedQuest},
+            Flag = "SelectedQuest",
+            Callback = function(Option)
+                self:SetSelectedQuest(Option[1])
+            end
         })
 
         Tab:CreateToggle({
