@@ -1,4 +1,5 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/main/B%20Rebirth.lua"))()
+game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
 
 --[[
     @author Jorsan
@@ -16,7 +17,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
-local LogService = game:GetService("LogService")
 
 -- Packages
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
@@ -852,7 +852,7 @@ local function LoadControllers()
         if type(Upvalue) == "table" and Upvalue["Attack"] then            
             for RemoteName, RemoteObject in Upvalue do
                 if RemoteObject.Name ~= RemoteName then
-                    LogService:PrintMessage("Cowabunga", RemoteObject.Name, RemoteName)
+                    warn("Cowabunga", RemoteObject.Name, RemoteName)
                 end
                 RemoteObject.Name = RemoteName
             end
