@@ -257,11 +257,13 @@ do
         if not Character then return end
         
         for _, npc in HiddenNPCsFolder:GetChildren() do
-            if npc.name == UIController:GetSelectedQuest() then
+            if npc.Name == UIController:GetSelectedQuest() then
                 Character.HumanoidRootPart.CFrame = npc.PrimaryPart.CFrame
+                NPCsFolder:WaitForChild(npc.Name)
+                fireproximityprompt(npc.HumanoidRootPart.Dialogue)
             end
         end
-        print("HIIIII")
+
         task.wait(20)
                 
         self._CurrentNPC = self:FindAvailableNPC()
