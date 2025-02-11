@@ -1,11 +1,6 @@
--- loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/main/B%20Rebirth.lua"))()
-
 --[[
-    @author Jorsan
-    @date 11/12/2024
+loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/main/B%20Rebirth.lua"))()
 --]]
-
---!nonstrict
 
 if not game:IsLoaded() then
 	game.Loaded:Wait()
@@ -653,41 +648,41 @@ do
         })
         
         -- Rock Farm Section
-        Tab:CreateSection("Auto Rock Farm")
+        -- Tab:CreateSection("Auto Rock Farm")
 
-        local RockList = {
-            "Rock", "Large Rock", "Cobblestone", "Metal", "Large Metal Rock", 
-            "Blood Rock", "Bluesteel Rock", "Large Bluesteel Rock",
-            "Sandstone", "Sandcastle", "Cactus", "Glacier", "Ice Crystal", 
-            "Water Rock", "Giant Water Rock", "Ghost Tear", "Darkstone", 
-            "Molten Rock", "Large Darkstone", "Portable Crystal", "Boulder"
-        }
+        -- local RockList = {
+        --     "Rock", "Large Rock", "Cobblestone", "Metal", "Large Metal Rock", 
+        --     "Blood Rock", "Bluesteel Rock", "Large Bluesteel Rock",
+        --     "Sandstone", "Sandcastle", "Cactus", "Glacier", "Ice Crystal", 
+        --     "Water Rock", "Giant Water Rock", "Ghost Tear", "Darkstone", 
+        --     "Molten Rock", "Large Darkstone", "Portable Crystal", "Boulder"
+        -- }
 
-        -- Add anything extra we missed out
-        for _, Rock in TrainingFolder:GetChildren() do
-            if not table.find(RockList, Rock.Name) then continue end
-            table.insert(RockList, Rock.Name)        
-        end
+        -- -- Add anything extra we missed out
+        -- for _, Rock in TrainingFolder:GetChildren() do
+        --     if not table.find(RockList, Rock.Name) then continue end
+        --     table.insert(RockList, Rock.Name)        
+        -- end
         
-        Tab:CreateDropdown({
-            Name = "Select Rock to Farm",
-            Options = RockList,
-            CurrentOption = {self.State.ActiveFarms.RockFarm.SelectedRock},
-            Flag = "SelectedRockToFarm",
-            Callback = function(Option)
-                self:SetSelectedRock(Option[1])
-            end
-        })
+        -- Tab:CreateDropdown({
+        --     Name = "Select Rock to Farm",
+        --     Options = RockList,
+        --     CurrentOption = {self.State.ActiveFarms.RockFarm.SelectedRock},
+        --     Flag = "SelectedRockToFarm",
+        --     Callback = function(Option)
+        --         self:SetSelectedRock(Option[1])
+        --     end
+        -- })
         
-        Tab:CreateToggle({
-            Name = "Rock Autofarm",
-            CurrentValue = self.State.ActiveFarms.RockFarm.Enabled,
-            Flag = "RockAutofarmToggle",
-            Callback = function(State)
-                self:SetFarmState("RockFarm", State)
-                UIController.OnRockFarmToggled:Fire(State)
-            end,
-        })
+        -- Tab:CreateToggle({
+        --     Name = "Rock Autofarm",
+        --     CurrentValue = self.State.ActiveFarms.RockFarm.Enabled,
+        --     Flag = "RockAutofarmToggle",
+        --     Callback = function(State)
+        --         self:SetFarmState("RockFarm", State)
+        --         UIController.OnRockFarmToggled:Fire(State)
+        --     end,
+        -- })
 
         -- Trainer NPC Autofarm Section
         Tab:CreateSection("Auto Trainer Farm")
@@ -736,32 +731,32 @@ do
         })
 
         -- Boss NPC Autofarm Section
-        Tab:CreateSection("Auto Boss Farm")
+        -- Tab:CreateSection("Auto Boss Farm")
 	
-        local BossList = {}
-        for _, NPC in ipairs(NPCsFolder:GetChildren()) do
-            if not string.find(NPC.Name, "Boss") then continue end
-            table.insert(BossList, NPC:GetAttribute("Name"))
-        end
+        -- local BossList = {}
+        -- for _, NPC in ipairs(NPCsFolder:GetChildren()) do
+        --     if not string.find(NPC.Name, "Boss") then continue end
+        --     table.insert(BossList, NPC:GetAttribute("Name"))
+        -- end
         
-        Tab:CreateDropdown({
-            Name = "Select Bosses to Farm",
-            Options = BossList,
-            CurrentOption = {BossList[1]},
-            Flag = "SelectedBossToFarm",
-            MultipleOptions = true,
-            Callback = function() end
-        })
+        -- Tab:CreateDropdown({
+        --     Name = "Select Bosses to Farm",
+        --     Options = BossList,
+        --     CurrentOption = {BossList[1]},
+        --     Flag = "SelectedBossToFarm",
+        --     MultipleOptions = true,
+        --     Callback = function() end
+        -- })
         
-        Tab:CreateToggle({
-            Name = "Boss Autofarm",
-            CurrentValue = false,
-            Flag = "BossAutofarmToggle",
-            Callback = function(State)
-                self:SetFarmState("BossFarm", State)
-                self.OnBossFarmToggled:Fire(State)
-            end,
-        })
+        -- Tab:CreateToggle({
+        --     Name = "Boss Autofarm",
+        --     CurrentValue = false,
+        --     Flag = "BossAutofarmToggle",
+        --     Callback = function(State)
+        --         self:SetFarmState("BossFarm", State)
+        --         self.OnBossFarmToggled:Fire(State)
+        --     end,
+        -- })
     end
 
     function UIController:Notify(MessageData)
@@ -850,9 +845,6 @@ local function LoadControllers()
     for _, Upvalue in getupvalues(NetworkFireMethod) do
         if type(Upvalue) == "table" and Upvalue["Attack"] then            
             for RemoteName, RemoteObject in Upvalue do
-                if RemoteObject.Name ~= RemoteName then
-                    warn("Cowabunga", RemoteObject.Name, RemoteName)
-                end
                 RemoteObject.Name = RemoteName
             end
             break
