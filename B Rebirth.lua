@@ -30,7 +30,7 @@ local BaseFarmStrategy = {}
 local RockFarmStrategy = {}
 
 local BaseNPCBattleStrategy = {}
-local TrainerFarmStrategy = {}
+local QuestFarmStrategy = {}
 local BossFarmStrategy = {}
 
 -- Variables
@@ -252,15 +252,23 @@ do
 
     function BaseNPCBattleStrategy:BeginFarming()
         AutofarmController:UnlaunchBeyblade()
+
+        local Character = Client.Character
+        if not Character then return end
+        
+        for _, npc in HiddenNPCsFolder:GetChildren() do
+            if npc.name == UIController:GetSelectedQuest() then
+                Character.HumanoidRootPart.CFrame = npc.PrimaryPart.CFrame
+            end
+        end
+        print("HIIIII")
+        task.wait(20)
                 
         self._CurrentNPC = self:FindAvailableNPC()
         self._NPCBeyblade = nil
 
         if not self._CurrentNPC then return end
-        
-        local Character = Client.Character
-        if not Character then return end
-        
+
         task.wait(4)
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
         task.wait(0.5)
@@ -272,14 +280,14 @@ do
 end
 
 do
-    setmetatable(TrainerFarmStrategy, BaseNPCBattleStrategy)
-    TrainerFarmStrategy.__index = TrainerFarmStrategy
+    setmetatable(QuestFarmStrategy, BaseNPCBattleStrategy)
+    QuestFarmStrategy.__index = QuestFarmStrategy
 
-    function TrainerFarmStrategy.new()
-        return setmetatable(BaseNPCBattleStrategy.new(), TrainerFarmStrategy)
+    function QuestFarmStrategy.new()
+        return setmetatable(BaseNPCBattleStrategy.new(), QuestFarmStrategy)
     end
 
-    function TrainerFarmStrategy:FindAvailableNPC()
+    function QuestFarmStrategy:FindAvailableNPC()
         for _, NPC in NPCsFolder:GetChildren() do
             if not string.find(NPC.Name, "Trainer") then continue end
 
@@ -326,7 +334,7 @@ end
 do
     local FarmStrategyClasses = {
         RockFarm = RockFarmStrategy,
-        TrainerFarm = TrainerFarmStrategy,
+        QuestFarm = QuestFarmStrategy,
         BossFarm = BossFarmStrategy
     }
     
@@ -363,15 +371,14 @@ do
         local TargetPrimaryPart = Target.PrimaryPart
         local TargetPosition = TargetPrimaryPart.Position
 
-        -- Better method of firing skills without having to
-        --  fire for every possible keybind regardless if it's equipped/unequipped
         for SkillIndex, _ in pairs(EquippedBeyblade.Skills) do
             -- RunSkill, returns debounce data which we could utilise
             -- FinishSkill, for 2nd arg I could've put any instance, since
             --  it doesn't affect the skill's performance
             RemotesFolder.SetPoint:FireServer(TargetPosition)
+
+            -- May yield, so process in a thread
             task.spawn(function()
-                -- May yield, so process in a thread
                 RemotesFolder.RunSkill:InvokeServer("Skill" .. SkillIndex)
             end)
             RemotesFolder.FinishSkill:FireServer(TargetPosition, TargetPrimaryPart)
@@ -444,8 +451,8 @@ do
             end))
             
             -- Handle priority changes
-            CharacterMaid:GiveTask(UIController.OnHighestPriorityFarmChanged:Connect(function(NewHighestFarmType: string?)
-                self:SwitchStrategy(NewHighestFarmType)
+            CharacterMaid:GiveTask(UIController.OnCurrentFarmChanged:Connect(function(NewFarmType: string?)
+                self:SwitchStrategy(NewFarmType)
             end))
 
             CharacterMaid:GiveTask(UIController.OnBeybladeAutofarmToggled:Connect(function(IsEnabled: boolean)
@@ -458,7 +465,7 @@ do
                         self:SwitchStrategy(nil)
                     end
                 elseif IsEnabled then
-                    self:SwitchStrategy(UIController:GetHighestPriorityFarm())
+                    self:SwitchStrategy(UIController:GetCurrentValidFarm())
                 end
             end))
 
@@ -480,15 +487,13 @@ do
 
     UIController.OnBeybladeAutofarmToggled = Signal.new()
 
-    UIController.OnTrainerFarmToggled = Signal.new() 
+    UIController.OnQuestFarmToggled = Signal.new() 
     UIController.OnBossFarmToggled = Signal.new()
     UIController.OnRockFarmToggled = Signal.new() 
 
-    UIController.OnHighestPriorityFarmChanged = Signal.new()
+    UIController.OnCurrentFarmChanged = Signal.new()
     UIController.OnRockTargetTypeChanged = Signal.new()
-
     UIController.OnQuestChanged = Signal.new()
-
     UIController.OnTrainerLevelChanged = Signal.new()
 
     UIController.OnStaffAutoKickChanged = Signal.new()
@@ -517,19 +522,19 @@ do
     }
 
     -- Helpers
-    function UIController:_CheckAndFirePriorityChange()
-        local NewHighestPriorityFarm = self:GetHighestPriorityFarm()
+    function UIController:_UpdateFarmHierarchy()
+        local NewHighestPriorityFarm = self:GetCurrentValidFarm()
 
         -- Store the last highest priority farm if we haven't yet
         if not self._LastHighestPriorityFarm then
             self._LastHighestPriorityFarm = NewHighestPriorityFarm
-            self.OnHighestPriorityFarmChanged:Fire(NewHighestPriorityFarm, nil)
+            self.OnCurrentFarmChanged:Fire(NewHighestPriorityFarm, nil)
             return
         end
         
         -- If the highest priority farm has changed, fire the signal
         if self._LastHighestPriorityFarm ~= NewHighestPriorityFarm then
-            self.OnHighestPriorityFarmChanged:Fire(NewHighestPriorityFarm, self._LastHighestPriorityFarm)
+            self.OnCurrentFarmChanged:Fire(NewHighestPriorityFarm, self._LastHighestPriorityFarm)
             self._LastHighestPriorityFarm = NewHighestPriorityFarm
         end
     end
@@ -543,19 +548,15 @@ do
         return self.State.ActiveFarms.RockFarm.SelectedRock
     end
 
-    function UIController:GetMaximumTrainerLevel()
-        return self.State.ActiveFarms.TrainerFarm.MaximumLevel
+    function UIController:GetSelectedQuest(): string
+        return self.State.ActiveFarms.QuestFarm.SelectedQuest
     end
-
-    function UIController:GetMinimumTrainerLevel()
-        return self.State.ActiveFarms.TrainerFarm.MinimumLevel
-    end
-
+    
     function UIController:GetTargetBossNames()
         return Rayfield.Flags.SelectedBossToFarm.CurrentOption
     end
 
-    function UIController:GetHighestPriorityFarm(): nil | string
+    function UIController:GetCurrentValidFarm(): nil | string
         local HighestPriority: number = -1
         local SelectedFarm: (nil | string) = nil
         
@@ -589,17 +590,11 @@ do
         self.OnQuestChanged:Fire()
     end
 
-    function UIController:SetFarmState(FarmType: string, IsEnabled: boolean, Priority: number?)
+    function UIController:SetFarmState(FarmType: string, IsEnabled: boolean)
         if IsEnabled ~= nil then
             self.State.ActiveFarms[FarmType].Enabled = IsEnabled
         end
-
-        if Priority then
-            self.State.ActiveFarms[FarmType].Priority = Priority
-        end
-
-        -- Check if this change affected the highest priority farm
-        self:_CheckAndFirePriorityChange()
+        self:_UpdateFarmHierarchy()
     end
 
     function UIController:Start()
@@ -653,43 +648,44 @@ do
                 self:SetAutofarmEnabled(State)
             end,
         })
-        
+        --[[
         -- Rock Farm Section
-        -- Tab:CreateSection("Auto Rock Farm")
+        Tab:CreateSection("Auto Rock Farm")
 
-        -- local RockList = {
-        --     "Rock", "Large Rock", "Cobblestone", "Metal", "Large Metal Rock", 
-        --     "Blood Rock", "Bluesteel Rock", "Large Bluesteel Rock",
-        --     "Sandstone", "Sandcastle", "Cactus", "Glacier", "Ice Crystal", 
-        --     "Water Rock", "Giant Water Rock", "Ghost Tear", "Darkstone", 
-        --     "Molten Rock", "Large Darkstone", "Portable Crystal", "Boulder"
-        -- }
+        local RockList = {
+            "Rock", "Large Rock", "Cobblestone", "Metal", "Large Metal Rock", 
+            "Blood Rock", "Bluesteel Rock", "Large Bluesteel Rock",
+            "Sandstone", "Sandcastle", "Cactus", "Glacier", "Ice Crystal", 
+            "Water Rock", "Giant Water Rock", "Ghost Tear", "Darkstone", 
+            "Molten Rock", "Large Darkstone", "Portable Crystal", "Boulder"
+        }
 
-        -- -- Add anything extra we missed out
-        -- for _, Rock in TrainingFolder:GetChildren() do
-        --     if not table.find(RockList, Rock.Name) then continue end
-        --     table.insert(RockList, Rock.Name)        
-        -- end
+        -- Add anything extra we missed out
+        for _, Rock in TrainingFolder:GetChildren() do
+            if not table.find(RockList, Rock.Name) then continue end
+            table.insert(RockList, Rock.Name)        
+        end
         
-        -- Tab:CreateDropdown({
-        --     Name = "Select Rock to Farm",
-        --     Options = RockList,
-        --     CurrentOption = {self.State.ActiveFarms.RockFarm.SelectedRock},
-        --     Flag = "SelectedRockToFarm",
-        --     Callback = function(Option)
-        --         self:SetSelectedRock(Option[1])
-        --     end
-        -- })
+        Tab:CreateDropdown({
+            Name = "Select Rock to Farm",
+            Options = RockList,
+            CurrentOption = {self.State.ActiveFarms.RockFarm.SelectedRock},
+            Flag = "SelectedRockToFarm",
+            Callback = function(Option)
+                self:SetSelectedRock(Option[1])
+            end
+        })
         
-        -- Tab:CreateToggle({
-        --     Name = "Rock Autofarm",
-        --     CurrentValue = self.State.ActiveFarms.RockFarm.Enabled,
-        --     Flag = "RockAutofarmToggle",
-        --     Callback = function(State)
-        --         self:SetFarmState("RockFarm", State)
-        --         UIController.OnRockFarmToggled:Fire(State)
-        --     end,
-        -- })
+        Tab:CreateToggle({
+            Name = "Rock Autofarm",
+            CurrentValue = self.State.ActiveFarms.RockFarm.Enabled,
+            Flag = "RockAutofarmToggle",
+            Callback = function(State)
+                self:SetFarmState("RockFarm", State)
+                UIController.OnRockFarmToggled:Fire(State)
+            end,
+        })
+        --]]
 
         -- Trainer NPC Autofarm Section
         Tab:CreateSection("Auto Trainer Farm")
@@ -726,12 +722,12 @@ do
         })
 
         Tab:CreateToggle({
-            Name = "Trainer Autofarm",
+            Name = "Quest Autofarm",
             CurrentValue = false,
-            Flag = "TrainerAutofarmToggle",
+            Flag = "QuestAutofarmToggle",
             Callback = function(State)
-                self:SetFarmState("TrainerFarm", State)
-                self.OnTrainerFarmToggled:Fire(State)
+                self:SetFarmState("QuestFarm", State)
+                self.OnQuestFarmToggled:Fire(State)
             end,
         })
 
@@ -796,6 +792,7 @@ do
     end
 
     function MiscController:Init()
+        --immediate check
         UIController.OnStaffAutoKickChanged:Connect(function(IsEnabled)
             if not IsEnabled then return end
             for _, Player in Players:GetPlayers() do
@@ -805,10 +802,13 @@ do
             end    
         end)
 
+        --Recurring check on new joins
         Players.PlayerAdded:Connect(function(Player)
             self:OnPlayerAdded(Player)
         end)
 
+
+        --initial startup check
         for _, Player in Players:GetPlayers() do
             task.spawn(function()
                 self:OnPlayerAdded(Player)
