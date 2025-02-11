@@ -42,6 +42,7 @@ local TrainingFolder = workspace.Training
 local NPCsFolder = workspace.NPCs
 local HiddenNPCsFolder = ReplicatedStorage.HiddenNPCs
 local RemotesFolder = ReplicatedStorage.Events
+local Stats = require(ReplicatedStorage.Modules.Stats)
 
 local RNG = Random.new()
 
@@ -702,11 +703,17 @@ do
         end
 
         local QuestList = {}
+        for _, npc in ipairs(NPCsFolder:GetChildren()) do
+            if string.find(npc.Name, "Quest") then
+                table.insert(QuestList, npc.Name)
+            end
+        end
         for _, npc in ipairs(HiddenNPCsFolder:GetChildren()) do
             if string.find(npc.Name, "Quest") and not string.find(npc.Name, "Boss")  then
                 table.insert(QuestList, npc.Name)
             end
         end
+
         table.sort(QuestList, function(a, b)
             local levelA = tonumber(a:match("%d+"))  
             local levelB = tonumber(b:match("%d+"))
