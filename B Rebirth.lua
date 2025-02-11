@@ -259,13 +259,13 @@ do
         
         for _, npc in HiddenNPCsFolder:GetChildren() do
             if npc.Name == UIController:GetSelectedQuest() then
-                Character.HumanoidRootPart.CFrame = npc.PrimaryPart.CFrame
+                Character.HumanoidRootPart.CFrame = CFrame.new(npc.PrimaryPart.Position)
                 NPCsFolder:WaitForChild(npc.Name)
                 fireproximityprompt(npc.HumanoidRootPart.Dialogue)
             end
         end
 
-        task.wait(20)
+        task.wait(60)
                 
         self._CurrentNPC = self:FindAvailableNPC()
         self._NPCBeyblade = nil
@@ -298,8 +298,6 @@ do
             if CooldownEndTime and os.time() < CooldownEndTime then continue end
 
             local NPCLevel = NPC:GetAttribute("Level")
-            if NPCLevel < UIController:GetMinimumTrainerLevel() then continue end
-            if NPCLevel > UIController:GetMaximumTrainerLevel() then continue end
             
             return NPC
         end
@@ -607,7 +605,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat",
+            LoadingSubtitle = "Script Credits: OnlineCat v1.4",
     
             ConfigurationSaving = {
                 Enabled = true,
@@ -704,12 +702,12 @@ do
 
         local QuestList = {}
         for _, npc in ipairs(NPCsFolder:GetChildren()) do
-            if string.find(npc.Name, "Quest") then
+            if string.find(npc.Name, "Quest") and not string.find(npc.Name, "Boss") then
                 table.insert(QuestList, npc.Name)
             end
         end
         for _, npc in ipairs(HiddenNPCsFolder:GetChildren()) do
-            if string.find(npc.Name, "Quest") and not string.find(npc.Name, "Boss")  then
+            if string.find(npc.Name, "Quest") and not string.find(npc.Name, "Boss") then
                 table.insert(QuestList, npc.Name)
             end
         end
