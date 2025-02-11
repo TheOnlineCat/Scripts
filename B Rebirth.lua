@@ -609,7 +609,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: Jorsan Modified by OnlineCat",
+            LoadingSubtitle = "Script Credits: OnlineCat",
     
             ConfigurationSaving = {
                 Enabled = true,
@@ -705,10 +705,11 @@ do
 
         local QuestList = {}
         for _, npc in HiddenNPCsFolder:GetChildren() do
-            if string.find(npc.name, "Quest") then
+            if string.find(npc.name, "Quest") and not string.find(npc.name, "Boss") then
                 table.insert(QuestList, npc.name)
             end
         end
+        table.sort(QuestList)
         
         Tab:CreateDropdown({
             Name = "Select Quest",
