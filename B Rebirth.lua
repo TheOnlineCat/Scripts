@@ -706,7 +706,7 @@ do
         local QuestList = {}
         for _, npc in HiddenNPCsFolder:GetChildren() do
             if string.find(npc.name, "Quest") and not string.find(npc.name, "Boss") then
-                table.insert(QuestList, npc.name)
+                table.insert(QuestList, string.gsub(npc.name, " Giver", ""))
             end
         end
         table.sort(QuestList)
