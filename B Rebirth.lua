@@ -1,3 +1,5 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/main/B%20Rebirth.lua"))()
+
 --[[
     @author Jorsan
     @date 11/12/2024
@@ -14,6 +16,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
+local LogService = game:GetService("LogService")
 
 -- Packages
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
@@ -848,7 +851,9 @@ local function LoadControllers()
     for _, Upvalue in getupvalues(NetworkFireMethod) do
         if type(Upvalue) == "table" and Upvalue["Attack"] then            
             for RemoteName, RemoteObject in Upvalue do
-                print(RemoteObject.Name, RemoteName)
+                if RemoteObject.Name ~= RemoteName then
+                    LogService:PrintMessage("Cowabunga", RemoteObject.Name, RemoteName)
+                end
                 RemoteObject.Name = RemoteName
             end
             break
