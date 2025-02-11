@@ -257,14 +257,14 @@ do
         local Character = Client.Character
         if not Character then return end
         
-        for _, npc in HiddenNPCsFolder:GetChildren() do
-            if npc.Name == UIController:GetSelectedQuest() then
-                Character.HumanoidRootPart.CFrame = CFrame.new(npc.PrimaryPart.Position)
-                NPCsFolder:WaitForChild(npc.Name)
-                fireproximityprompt(npc.HumanoidRootPart.Dialogue)
-            end
-        end
+        local Quest = UIController:GetSelectedQuest()
+        local QuestGiver = NPCsFolder:FindFirstChild(Quest) or HiddenNPCsFolder:FindFirstChild(Quest)
 
+        if QuestGiver and QuestGiver.PrimaryPart then
+            Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
+        end
+        NPCsFolder:WaitForChild(QuestGiver.Name)
+        fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
         task.wait(60)
                 
         self._CurrentNPC = self:FindAvailableNPC()
@@ -605,7 +605,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v1.4",
+            LoadingSubtitle = "Script Credits: OnlineCat v1.5",
     
             ConfigurationSaving = {
                 Enabled = true,
@@ -701,21 +701,16 @@ do
         end
 
         local QuestList = {}
-        for _, npc in ipairs(NPCsFolder:GetChildren()) do
-            if string.find(npc.Name, "Quest") and not string.find(npc.Name, "Boss") then
-                table.insert(QuestList, npc.Name)
+        for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
+            for _, npc in ipairs(folder:GetChildren()) do
+                if npc.Name:find("Quest") and not npc.Name:find("Boss") then
+                    table.insert(QuestList, npc.Name)
+                end
             end
         end
-        for _, npc in ipairs(HiddenNPCsFolder:GetChildren()) do
-            if string.find(npc.Name, "Quest") and not string.find(npc.Name, "Boss") then
-                table.insert(QuestList, npc.Name)
-            end
-        end
-
+        
         table.sort(QuestList, function(a, b)
-            local levelA = tonumber(a:match("%d+"))  
-            local levelB = tonumber(b:match("%d+"))
-            return levelA < levelB  
+            return tonumber(a:match("%d+")) < tonumber(b:match("%d+"))
         end)
         
         Tab:CreateDropdown({
