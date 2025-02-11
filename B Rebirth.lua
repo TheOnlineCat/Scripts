@@ -1,5 +1,4 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/main/B%20Rebirth.lua"))()
-game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
+-- loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/main/B%20Rebirth.lua"))()
 
 --[[
     @author Jorsan
