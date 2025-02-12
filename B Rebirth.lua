@@ -300,7 +300,8 @@ do
         fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
 
         repeat 
-            task.wait(0.1)
+            task.wait(1)
+            print("hi")
         until #Stats.Quest.Data > oldQuestCount
     end
 
@@ -646,7 +647,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v1.8",
+            LoadingSubtitle = "Script Credits: OnlineCat v1.85",
     
             ConfigurationSaving = {
                 Enabled = true,
