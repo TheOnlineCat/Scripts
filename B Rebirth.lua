@@ -198,6 +198,10 @@ do
         
         task.wait(DelayTime)
         AutofarmController:FireServer("DialogueChoice", ChoiceId)
+        self:BossAccept()
+    end
+
+    function BaseNPCBattleStrategy:BossAccept(Responses: { DialogueChoice }, NPC: Model)
     end
 
     function BaseNPCBattleStrategy:Update()
@@ -362,6 +366,16 @@ do
 
         return nil
     end
+
+    function BossFarmStrategy:BossAccept()
+        task.wait(1)
+
+        local args = {
+            [1] = "Easy"
+        }
+        
+        EventsFolder.StartBossBattle:FireServer(unpack(args))
+    end
 end
 
 -- Controller Definitions
@@ -508,6 +522,7 @@ do
                         self:SwitchStrategy(nil)
                     end
                 elseif IsEnabled then
+                    warn("test")
                     self:SwitchStrategy(self:QueueNextStrategy())
                 end
             end))
@@ -649,9 +664,9 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth",
+            Name = "Blader's Rebirth v3.2",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v3.1",
+            LoadingSubtitle = "Script Credits: OnlineCat",
     
             ConfigurationSaving = {
                 Enabled = true,
