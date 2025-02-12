@@ -310,7 +310,6 @@ do
                         Amount = quest_data.Objectives[i].Amount,
                         Progress = quest_data.Progress[i]
                     })
-                    warn(quest_data.Objectives[i].Name, quest_data.Progress[i])
                 end
                 break
             end
@@ -320,6 +319,8 @@ do
             self:GetQuest()
             return
         end        
+
+        warn("woop")
 
         for _, NPC in NPCsFolder:GetChildren() do
             if not string.find(NPC.Name, "Trainer") then continue end
@@ -334,6 +335,8 @@ do
                 end
             end
         end
+
+        warn("see")
 
         return nil
     end
@@ -640,7 +643,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.2",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.21",
     
             ConfigurationSaving = {
                 Enabled = true,
