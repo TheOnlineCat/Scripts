@@ -110,7 +110,7 @@ do
         end
         
         -- Teleport logic
-        ClientBeyblade.HumanoidRootPart.CFrame = self._CurrentTarget.PrimaryPart.CFrame * CFrame.new(0, 1, 0)
+        ClientBeyblade.HumanoidRootPart.CFrame = self._CurrentTarget.PrimaryPart.CFrame * CFrame.new(0, UIController:GetFarmDistance(), 0)
     end
     
     function RockFarmStrategy:Start()
@@ -213,7 +213,7 @@ do
         end
 
         -- Teleport logic
-        ClientBeyblade.HumanoidRootPart.CFrame = self._NPCBeyblade.HumanoidRootPart.CFrame * CFrame.new(0, 1, 0)
+        ClientBeyblade.HumanoidRootPart.CFrame = self._NPCBeyblade.HumanoidRootPart.CFrame * CFrame.new(0, UIController:GetFarmDistance(), 0)
     end
 
     function BaseNPCBattleStrategy:Start()
@@ -295,7 +295,7 @@ do
             return 
         end
 
-        task.wait(4)
+        task.wait(4 + UIController:GetFarmDelay())
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
         NPCsFolder:WaitForChild(QuestGiver.Name)
         task.wait(0.5)
@@ -340,30 +340,30 @@ do
     end
 end
 
-do
-    setmetatable(BossFarmStrategy, BaseNPCBattleStrategy)
-    BossFarmStrategy.__index = BossFarmStrategy
+-- do
+--     setmetatable(BossFarmStrategy, BaseNPCBattleStrategy)
+--     BossFarmStrategy.__index = BossFarmStrategy
 
-    function BossFarmStrategy.new()
-        return setmetatable(BaseNPCBattleStrategy.new(), BossFarmStrategy)
-    end
+--     function BossFarmStrategy.new()
+--         return setmetatable(BaseNPCBattleStrategy.new(), BossFarmStrategy)
+--     end
 
-    function BossFarmStrategy:FindAvailableNPC()
-        for _, NPC in NPCsFolder:GetChildren() do
-            if not string.find(NPC.Name, "Boss") then continue end
-            if not table.find(UIController:GetTargetBossNames(), NPC:GetAttribute("Name")) then
-                continue
-            end
+--     function BossFarmStrategy:FindAvailableNPC()
+--         for _, NPC in NPCsFolder:GetChildren() do
+--             if not string.find(NPC.Name, "Boss") then continue end
+--             if not table.find(UIController:GetTargetBossNames(), NPC:GetAttribute("Name")) then
+--                 continue
+--             end
 
-            local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
-            if CooldownEndTime and os.time() < CooldownEndTime then continue end
+--             local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
+--             if CooldownEndTime and os.time() < CooldownEndTime then continue end
                         
-            return NPC
-        end
+--             return NPC
+--         end
 
-        return nil
-    end
-end
+--         return nil
+--     end
+-- end
 
 -- Controller Definitions
 do
@@ -536,22 +536,26 @@ do
     -- State management
     UIController.State = {
         IsAutofarmEnabled = false,
+        FarmConfig = {
+            Distance = 1,
+            Delay = 0
+        },
         ActiveFarms = {
             RockFarm = {
                 Enabled = false,
-                Priority = 10,
+                Priority = 1,
                 SelectedRock = "Rock"
             },
 
             QuestFarm = {
                 Enabled = false,
-                Priority = 10,
+                Priority = 2,
                 SelectedQuest = "None"
             },
 
             BossFarm = {
                 Enabled = false,
-                Priority = 10
+                Priority = 3
             }
         }
     }
@@ -589,6 +593,14 @@ do
     
     function UIController:GetTargetBossNames()
         return Rayfield.Flags.SelectedBossToFarm.CurrentOption
+    end
+
+    function UIController:GetFarmDistance(): string
+        return self.State.FarmConfig.Distance
+    end
+
+    function UIController:GetFarmDelay(): string
+        return self.State.FarmConfig.Delay
     end
 
     function UIController:GetCurrentValidFarm(): nil | string
@@ -639,7 +651,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.7",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.8",
     
             ConfigurationSaving = {
                 Enabled = true,
@@ -650,8 +662,37 @@ do
         })
 
         UIController:_CreateFarmTab(Window)
+        UIController:_CreateConfigTab(Window)
         UIController:_CreateMiscTab(Window)
         Rayfield:LoadConfiguration()
+    end
+
+    function UIController:_CreateConfigTab(Window)
+        local Tab = Window:CreateTab("Config", 4483362458)
+        
+        -- Staff Management Section
+        Tab:CreateSection("Farm Settings")
+        Tab:CreateSlider({
+            Name = "Distance to Target",
+            Range = {1, 10},
+            Increment = 1,
+            CurrentValue = self.State.FarmConfig.Distance,
+            Flag = "FarmDistance",
+            Callback = function(Value)
+                self.State.FarmConfig.Distance = tonumber(Value)
+            end,
+        })
+        Tab:CreateSlider({
+            Name = "Delay After Battle",
+            Range = {0, 10},
+            Increment = 1,
+            CurrentValue = self.State.FarmConfig.Delay,
+            Flag = "FarmDelay",
+            Callback = function(Value)
+                self.State.FarmConfig.Delay = tonumber(Value)
+                self.OnTrainerLevelChanged:Fire()
+            end,
+        })
     end
 
     function UIController:_CreateMiscTab(Window)
@@ -767,7 +808,7 @@ do
             end,
         })
 
-        -- Boss NPC Autofarm Section
+        -- -- Boss NPC Autofarm Section
         -- Tab:CreateSection("Auto Boss Farm")
 	
         -- local BossList = {}
