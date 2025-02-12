@@ -289,7 +289,6 @@ do
         local QuestGiver = NPCsFolder:FindFirstChild(Quest) or HiddenNPCsFolder:FindFirstChild(Quest)
 
         if not QuestGiver or not QuestGiver.PrimaryPart then 
-            warn("Quest Giver not found or missing PrimaryPart")
             return 
         end
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
@@ -317,6 +316,7 @@ do
                         Amount = quest_data.Objectives[i].Amount,
                         Progress = quest_data.Progress[i]
                     })
+                    warn(quest_data.Objectives[i].Name, quest_data.Progress[i])
                 end
                 break
             end
@@ -332,11 +332,10 @@ do
 
             local NPCLevel = NPC:GetAttribute("Level")
 
-            for trainer in QuestData do
+            for _, trainer in QuestData do
                 if trainer.Progress < trainer.Amount and NPCLevel == trainer.Level then
                     local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
                     if CooldownEndTime and os.time() < CooldownEndTime then continue end
-
                     return NPC
                 end
             end
@@ -647,7 +646,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v1.7",
+            LoadingSubtitle = "Script Credits: OnlineCat v1.8",
     
             ConfigurationSaving = {
                 Enabled = true,
