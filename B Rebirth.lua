@@ -647,7 +647,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.92",
+            LoadingSubtitle = "Script Credits: OnlineCat v3",
     
             ConfigurationSaving = {
                 Enabled = true,
@@ -773,9 +773,9 @@ do
 
         local QuestList = {}
         for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
-            for _, npc in ipairs(folder:GetChildren()) do
-                if npc.Name:find("Quest") and not npc.Name:find("Boss") then
-                    table.insert(QuestList, npc.Name)
+            for _, NPC in ipairs(folder:GetChildren()) do
+                if NPC.Name:find("Quest") and not NPC.Name:find("Boss") then
+                    table.insert(QuestList, NPC.Name)
                 end
             end
         end
@@ -808,11 +808,11 @@ do
         -- Boss NPC Autofarm Section
         Tab:CreateSection("Auto Boss Farm")
 	
-        local BossList = {}
+        local BossList = {"Volt", "Shin", "Ryuke", "Jinka"}
         for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
-            for _, npc in ipairs(folder:GetChildren()) do
-                if npc.Name:find("^Boss") then
-                    table.insert(BossList, npc.Name)
+            for _, NPC in ipairs(folder:GetChildren()) do
+                if NPC.Name:find("^Boss") then
+                    table.insert(BossList, NPC:GetAttribute("Name"))
                 end
             end
         end
