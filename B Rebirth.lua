@@ -249,6 +249,8 @@ do
         self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
             if Beyblade == self._NPCBeyblade then
                 self._NPCBeyblade = nil
+                task.wait(1)
+                self:BeginFarming()
             end
         end))
         
@@ -683,7 +685,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3.9",
+            Name = "Blader's Rebirth v3.91",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
