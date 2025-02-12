@@ -295,21 +295,8 @@ do
 
         NPCsFolder:WaitForChild(QuestGiver.Name)
 
-        local function countQuests()
-            local count = 0
-            for _ in pairs(Stats.Quest.Data) do
-                count = count + 1
-            end
-            return count
-        end
-        local oldQuestCount = countQuests()
-
         fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
-
-        repeat 
-            task.wait(1)
-            print(countQuests(), oldQuestCount)
-        until countQuests() > oldQuestCount
+        EventsFolder.UpdateAllQuests.OnClientEvent:Wait()
     end
 
     function QuestFarmStrategy:FindAvailableNPC()
@@ -332,7 +319,6 @@ do
         end
 
         if QuestData == nil then
-            print("No Quest Currently")
             self:GetQuest()
             return
         end        
@@ -656,7 +642,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.1",
     
             ConfigurationSaving = {
                 Enabled = true,
