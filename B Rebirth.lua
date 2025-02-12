@@ -256,16 +256,6 @@ do
 
         local Character = Client.Character
         if not Character then return end
-        
-        local Quest = UIController:GetSelectedQuest()
-        local QuestGiver = NPCsFolder:FindFirstChild(Quest) or HiddenNPCsFolder:FindFirstChild(Quest)
-
-        if QuestGiver and QuestGiver.PrimaryPart then
-            Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
-        end
-        NPCsFolder:WaitForChild(QuestGiver.Name)
-        fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
-        task.wait(60)
                 
         self._CurrentNPC = self:FindAvailableNPC()
         self._NPCBeyblade = nil
@@ -290,20 +280,63 @@ do
         return setmetatable(BaseNPCBattleStrategy.new(), QuestFarmStrategy)
     end
 
+    function QuestFarmStrategy:GetQuest() 
+        AutofarmController:UnlaunchBeyblade()
+        local Character = Client.Character
+        if not Character then return end
+        
+        local Quest = UIController:GetSelectedQuest()
+        local QuestGiver = NPCsFolder:FindFirstChild(Quest) or HiddenNPCsFolder:FindFirstChild(Quest)
+
+        if QuestGiver and QuestGiver.PrimaryPart then
+            Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
+        end
+
+        NPCsFolder:WaitForChild(QuestGiver.Name)
+        fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
+    end
+
     function QuestFarmStrategy:FindAvailableNPC()
+        local SelectedQuest = UIController:GetSelectedQuest()
+        local QuestData = nil
+        for _, quest_data in pairs(Stats.Quest.Data) do
+            if string.find(quest_data.Name, SelectedQuest:match("%d+")) then
+                QuestData = {}
+                for i = 1, #quest_data.Objectives do
+                    table.insert(QuestData, {
+                        Level = quest_data.Objectives[i].Name, 
+                        Amount = quest_data.Objectives[i].Amount,
+                        Progress = quest_data.Progress[i]
+                    })
+                end
+                break
+            end
+        end
+
+        if QuestData == nil then
+            self:GetQuest()
+            return
+        end        
+
         for _, NPC in NPCsFolder:GetChildren() do
             if not string.find(NPC.Name, "Trainer") then continue end
 
-            local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
-            if CooldownEndTime and os.time() < CooldownEndTime then continue end
-
             local NPCLevel = NPC:GetAttribute("Level")
-            
-            return NPC
+
+            for trainer in QuestData do
+                if trainer.Progress < trainer.Amount and NPCLevel == trainer.Level then
+                    local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
+                    if CooldownEndTime and os.time() < CooldownEndTime then continue end
+
+                    return NPC
+                end
+            end
         end
 
         return nil
     end
+
+
 end
 
 do
@@ -605,7 +638,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v1.5",
+            LoadingSubtitle = "Script Credits: OnlineCat v1.6",
     
             ConfigurationSaving = {
                 Enabled = true,
