@@ -344,14 +344,18 @@ do
     function BossFarmStrategy:FindAvailableNPC()
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, NPC in folder:GetChildren() do
-                if not string.find(NPC.Name, "^Boss") then continue end
+                if string.find(NPC.Name, "Trainer") or string.find(NPC.Name, "Quest") then continue end
                 if not table.find(UIController:GetTargetBossNames(), NPC:GetAttribute("Name")) then
+                    warn(NPC:GetAttribute("Name"), "is not valid boss")
                     continue
                 end
+                warn(NPC:GetAttribute("Name"), "is valid boss")
     
                 local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
                 if CooldownEndTime and os.time() < CooldownEndTime then continue end
-                            
+                
+                warn(NPC:GetAttribute("Name"), "can be fought")
+
                 return NPC
             end
         end
@@ -647,7 +651,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v3",
+            LoadingSubtitle = "Script Credits: OnlineCat v3.1",
     
             ConfigurationSaving = {
                 Enabled = true,
@@ -808,7 +812,7 @@ do
         -- Boss NPC Autofarm Section
         Tab:CreateSection("Auto Boss Farm")
 	
-        local BossList = {"Volt", "Shin", "Ryuke", "Jinka"}
+        local BossList = {"Volt", "Shin", "Ryuke", "Jinka", "Boss 1"}
         for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
             for _, NPC in ipairs(folder:GetChildren()) do
                 if NPC.Name:find("^Boss") then
