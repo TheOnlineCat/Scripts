@@ -301,7 +301,7 @@ do
 
         repeat 
             task.wait(1)
-            print("hi")
+            print(#Stats.Quest.Data, oldQuestCount)
         until #Stats.Quest.Data > oldQuestCount
     end
 
