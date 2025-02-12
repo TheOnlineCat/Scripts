@@ -241,16 +241,6 @@ do
                 self._NPCBeyblade = Beyblade
             end
         end))
-
-        self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
-            if Beyblade == self._NPCBeyblade then
-                self._NPCBeyblade = nil
-                task.wait(1)
-                self:BeginFarming()
-            end
-        end))
-        
-        self:BeginFarming()
     end
 
     function BaseNPCBattleStrategy:BeginFarming()
@@ -262,9 +252,12 @@ do
         self._CurrentNPC = self:FindAvailableNPC()
         self._NPCBeyblade = nil
     
-        if not self._CurrentNPC then return end
+        if not self._CurrentNPC then
+            AutofarmController:QueueNextStrategy()
+            return
+        end
     
-        task.wait(4)
+        task.wait(4 + UIController:GetFarmDelay())
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
         task.wait(0.5)
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
@@ -340,30 +333,32 @@ do
     end
 end
 
--- do
---     setmetatable(BossFarmStrategy, BaseNPCBattleStrategy)
---     BossFarmStrategy.__index = BossFarmStrategy
+do
+    setmetatable(BossFarmStrategy, BaseNPCBattleStrategy)
+    BossFarmStrategy.__index = BossFarmStrategy
 
---     function BossFarmStrategy.new()
---         return setmetatable(BaseNPCBattleStrategy.new(), BossFarmStrategy)
---     end
+    function BossFarmStrategy.new()
+        return setmetatable(BaseNPCBattleStrategy.new(), BossFarmStrategy)
+    end
 
---     function BossFarmStrategy:FindAvailableNPC()
---         for _, NPC in NPCsFolder:GetChildren() do
---             if not string.find(NPC.Name, "Boss") then continue end
---             if not table.find(UIController:GetTargetBossNames(), NPC:GetAttribute("Name")) then
---                 continue
---             end
+    function BossFarmStrategy:FindAvailableNPC()
+        for _, folder in {NPCsFolder, HiddenNPCsFolder} do
+            for _, NPC in folder:GetChildren() do
+                if not string.find(NPC.Name, "^Boss") then continue end
+                if not table.find(UIController:GetTargetBossNames(), NPC:GetAttribute("Name")) then
+                    continue
+                end
+    
+                local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
+                if CooldownEndTime and os.time() < CooldownEndTime then continue end
+                            
+                return NPC
+            end
+        end
 
---             local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
---             if CooldownEndTime and os.time() < CooldownEndTime then continue end
-                        
---             return NPC
---         end
-
---         return nil
---     end
--- end
+        return nil
+    end
+end
 
 -- Controller Definitions
 do
@@ -464,6 +459,11 @@ do
         end
     end
 
+    function AutofarmController:QueueNextStrategy()
+        warn("Switching off from", self.CurrentFarmStrategy, "and going to", UIController:GetNextFarm(self.CurrentFarmStrategy))
+        self:SwitchStrategy(UIController:GetNextFarm(self.CurrentFarmStrategy))
+    end
+
     function AutofarmController:Init()
         self.CurrentFarmStrategy = nil
     end
@@ -485,7 +485,7 @@ do
                 end
             end))
             
-            -- Handle priority changes
+            -- Handle Strategy changes
             CharacterMaid:GiveTask(UIController.OnCurrentFarmChanged:Connect(function(NewFarmType: string?)
                 self:SwitchStrategy(NewFarmType)
             end))
@@ -500,7 +500,7 @@ do
                         self:SwitchStrategy(nil)
                     end
                 elseif IsEnabled then
-                    self:SwitchStrategy(UIController:GetCurrentValidFarm())
+                    self:SwitchStrategy(self:QueueNextStrategy())
                 end
             end))
 
@@ -540,7 +540,7 @@ do
             Distance = 1,
             Delay = 0
         },
-        ActiveFarms = {
+        Farms = {
             RockFarm = {
                 Enabled = false,
                 Priority = 1,
@@ -562,20 +562,9 @@ do
 
     -- Helpers
     function UIController:_UpdateFarmHierarchy()
-        local NewHighestPriorityFarm = self:GetCurrentValidFarm()
+        local FarmStrategy = self:GetNextFarm()
 
-        -- Store the last highest priority farm if we haven't yet
-        if not self._LastHighestPriorityFarm then
-            self._LastHighestPriorityFarm = NewHighestPriorityFarm
-            self.OnCurrentFarmChanged:Fire(NewHighestPriorityFarm, nil)
-            return
-        end
         
-        -- If the highest priority farm has changed, fire the signal
-        if self._LastHighestPriorityFarm ~= NewHighestPriorityFarm then
-            self.OnCurrentFarmChanged:Fire(NewHighestPriorityFarm, self._LastHighestPriorityFarm)
-            self._LastHighestPriorityFarm = NewHighestPriorityFarm
-        end
     end
 
     -- State getters
@@ -584,11 +573,11 @@ do
     end
 
     function UIController:GetSelectedRockName(): string
-        return self.State.ActiveFarms.RockFarm.SelectedRock
+        return self.State.Farms.RockFarm.SelectedRock
     end
 
     function UIController:GetSelectedQuest(): string
-        return self.State.ActiveFarms.QuestFarm.SelectedQuest
+        return self.State.Farms.QuestFarm.SelectedQuest
     end
     
     function UIController:GetTargetBossNames()
@@ -603,12 +592,15 @@ do
         return self.State.FarmConfig.Delay
     end
 
-    function UIController:GetCurrentValidFarm(): nil | string
+    function UIController:GetNextFarm(currentFarm): nil | string
+        local Farms = self.State.Farms
+
         local HighestPriority: number = -1
         local SelectedFarm: (nil | string) = nil
+        local CurrentPriority: number = (Farms[currentFarm] and Farms[currentFarm].Priority) or math.huge
         
-        for FarmType: string, FarmData in self.State.ActiveFarms do
-            if FarmData.Enabled and FarmData.Priority > HighestPriority then
+        for FarmType: string, FarmData in Farms do
+            if FarmData.Enabled and FarmData.Priority > HighestPriority and FarmData.Priority <= CurrentPriority then
                 HighestPriority = FarmData.Priority
                 SelectedFarm = FarmType
             end
@@ -628,20 +620,20 @@ do
     end
 
     function UIController:SetSelectedRock(RockName: string)
-        self.State.ActiveFarms.RockFarm.SelectedRock = RockName
+        self.State.Farms.RockFarm.SelectedRock = RockName
         self.OnRockTargetTypeChanged:Fire()
     end
 
     function UIController:SetSelectedQuest(QuestName: string)
-        self.State.ActiveFarms.QuestFarm.SelectedQuest = QuestName
+        self.State.Farms.QuestFarm.SelectedQuest = QuestName
         self.OnQuestChanged:Fire()
     end
 
     function UIController:SetFarmState(FarmType: string, IsEnabled: boolean)
         if IsEnabled ~= nil then
-            self.State.ActiveFarms[FarmType].Enabled = IsEnabled
+            self.State.Farms[FarmType].Enabled = IsEnabled
         end
-        self:_UpdateFarmHierarchy()
+        self.OnCurrentFarmChanged:Fire(self:GetNextFarm())
     end
 
     function UIController:Start()
@@ -651,7 +643,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.8",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.9",
     
             ConfigurationSaving = {
                 Enabled = true,
@@ -787,11 +779,12 @@ do
         table.sort(QuestList, function(a, b)
             return tonumber(a:match("%d+")) < tonumber(b:match("%d+"))
         end)
-        
+
+
         Tab:CreateDropdown({
             Name = "Select Quest",
             Options = QuestList,
-            CurrentOption = {self.State.ActiveFarms.QuestFarm.SelectedQuest},
+            CurrentOption = {self.State.Farms.QuestFarm.SelectedQuest},
             Flag = "SelectedQuest",
             Callback = function(Option)
                 self:SetSelectedQuest(Option[1])
@@ -808,33 +801,37 @@ do
             end,
         })
 
-        -- -- Boss NPC Autofarm Section
-        -- Tab:CreateSection("Auto Boss Farm")
+        -- Boss NPC Autofarm Section
+        Tab:CreateSection("Auto Boss Farm")
 	
-        -- local BossList = {}
-        -- for _, NPC in ipairs(NPCsFolder:GetChildren()) do
-        --     if not string.find(NPC.Name, "Boss") then continue end
-        --     table.insert(BossList, NPC:GetAttribute("Name"))
-        -- end
+        local BossList = {}
+        for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
+            for _, npc in ipairs(folder:GetChildren()) do
+                if npc.Name:find("^Boss") then
+                    table.insert(BossList, npc.Name)
+                end
+            end
+        end
+        table.sort(BossList)
         
-        -- Tab:CreateDropdown({
-        --     Name = "Select Bosses to Farm",
-        --     Options = BossList,
-        --     CurrentOption = {BossList[1]},
-        --     Flag = "SelectedBossToFarm",
-        --     MultipleOptions = true,
-        --     Callback = function() end
-        -- })
+        Tab:CreateDropdown({
+            Name = "Select Bosses to Farm",
+            Options = BossList,
+            CurrentOption = {BossList[1]},
+            Flag = "SelectedBossToFarm",
+            MultipleOptions = true,
+            Callback = function() end
+        })
         
-        -- Tab:CreateToggle({
-        --     Name = "Boss Autofarm",
-        --     CurrentValue = false,
-        --     Flag = "BossAutofarmToggle",
-        --     Callback = function(State)
-        --         self:SetFarmState("BossFarm", State)
-        --         self.OnBossFarmToggled:Fire(State)
-        --     end,
-        -- })
+        Tab:CreateToggle({
+            Name = "Boss Autofarm",
+            CurrentValue = false,
+            Flag = "BossAutofarmToggle",
+            Callback = function(State)
+                self:SetFarmState("BossFarm", State)
+                self.OnBossFarmToggled:Fire(State)
+            end,
+        })
     end
 
     function UIController:Notify(MessageData)
