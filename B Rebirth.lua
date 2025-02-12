@@ -205,8 +205,6 @@ do
         
         if not ClientBeyblade or not self._NPCBeyblade then return end
 
-        self._IsBattling = true
-        
         -- Attack logic
         if os.clock() - self._LastAttack >= GENERAL_POLL_DELAY then
             self._LastAttack = os.clock()
