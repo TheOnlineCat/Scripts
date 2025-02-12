@@ -265,6 +265,7 @@ do
             local connection
             connection = EventsFolder.BattleTransition.OnClientEvent:Connect(function(arg1, arg2)
                 if arg1 == true and arg2 == false then
+                    task.wait(3)
                     self._IsBattling = false
                     connection:Disconnect()
                 end
@@ -283,6 +284,7 @@ do
 
         if not self._CurrentNPC then return end
 
+        task.wait(1)
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
         task.wait(0.5)
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
@@ -655,7 +657,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.4",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.5",
     
             ConfigurationSaving = {
                 Enabled = true,
