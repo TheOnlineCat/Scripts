@@ -294,15 +294,22 @@ do
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
 
         NPCsFolder:WaitForChild(QuestGiver.Name)
-        
-        local oldQuestCount = #Stats.Quest.Data
+
+        local function countQuests()
+            local count = 0
+            for _ in pairs(Stats.Quest.Data) do
+                count = count + 1
+            end
+            return count
+        end
+        local oldQuestCount = countQuests()
 
         fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
 
         repeat 
             task.wait(1)
-            print(#Stats.Quest.Data, oldQuestCount)
-        until #Stats.Quest.Data > oldQuestCount
+            print(countQuests(), oldQuestCount)
+        until countQuests() > oldQuestCount
     end
 
     function QuestFarmStrategy:FindAvailableNPC()
@@ -649,7 +656,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v1.9",
+            LoadingSubtitle = "Script Credits: OnlineCat v2",
     
             ConfigurationSaving = {
                 Enabled = true,
