@@ -300,11 +300,9 @@ do
     end
 
     function QuestFarmStrategy:FindAvailableNPC()
-        local SelectedQuest = UIController:GetSelectedQuest()
         local QuestData = nil
-        for _, quest_data in pairs(Stats.Quest.Data) do
-            print(quest_data.Name, SelectedQuest:match("%d+"), string.find(quest_data.Name, SelectedQuest:match("%d+")))
-            if string.find(quest_data.Name, SelectedQuest:match("%d+")) then
+        for name, quest_data in pairs(Stats.Quest.Data) do
+            if string.find(name, "Trainer") and quest_data.Type == nil then
                 QuestData = {}
                 for i = 1, #quest_data.Objectives do
                     table.insert(QuestData, {
@@ -642,7 +640,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.1",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.2",
     
             ConfigurationSaving = {
                 Enabled = true,
