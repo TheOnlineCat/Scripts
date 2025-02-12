@@ -288,12 +288,21 @@ do
         local Quest = UIController:GetSelectedQuest()
         local QuestGiver = NPCsFolder:FindFirstChild(Quest) or HiddenNPCsFolder:FindFirstChild(Quest)
 
-        if QuestGiver and QuestGiver.PrimaryPart then
-            Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
+        if not QuestGiver or not QuestGiver.PrimaryPart then 
+            warn("Quest Giver not found or missing PrimaryPart")
+            return 
         end
+        Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
 
         NPCsFolder:WaitForChild(QuestGiver.Name)
+        
+        local oldQuestCount = #Stats.Quest.Data
+
         fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
+
+        repeat 
+            task.wait(0.1)
+        until #Stats.Quest.Data > oldQuestCount
     end
 
     function QuestFarmStrategy:FindAvailableNPC()
@@ -638,7 +647,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v1.6",
+            LoadingSubtitle = "Script Credits: OnlineCat v1.7",
     
             ConfigurationSaving = {
                 Enabled = true,
