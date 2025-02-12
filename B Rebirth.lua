@@ -7,7 +7,7 @@ if not game:IsLoaded() then
 end
 
 -- Services
-local Players = game:GetService("Players")
+local Players = game:GetService("Players")1
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
@@ -370,6 +370,11 @@ do
     
     local StatsModule = require(ReplicatedStorage.Modules.Stats)
 
+    function AutofarmController:Init()
+        self.CurrentFarmStrategy = nil
+        self.CurrentFarm = nil
+    end
+
     function AutofarmController:FireServer(RemoteName, ...)
         RemotesFolder[RemoteName]:FireServer(...)
     end
@@ -447,11 +452,13 @@ do
         if self.CurrentFarmStrategy then
             self.CurrentFarmStrategy:Destroy()
             self.CurrentFarmStrategy = nil
+            self.CurrentFarm = nil
         end
 
         if NewStrategyType and FarmStrategyClasses[NewStrategyType] then
             -- Create a new instance of the strategy class
             self.CurrentFarmStrategy = FarmStrategyClasses[NewStrategyType].new()
+            self.CurrentFarm = NewStrategyType
 
             if UIController:IsBeybladeAutofarmToggled() then
                 self.CurrentFarmStrategy:Start()
@@ -460,14 +467,11 @@ do
     end
 
     function AutofarmController:QueueNextStrategy()
-        warn("Switching off from", self.CurrentFarmStrategy, "and going to", UIController:GetNextFarm(self.CurrentFarmStrategy))
-        self:SwitchStrategy(UIController:GetNextFarm(self.CurrentFarmStrategy))
+        warn("Switching off from", self.CurrentFarm, "and going to", UIController:GetNextFarm(self.CurrentFarm))
+        self:SwitchStrategy(UIController:GetNextFarm(self.CurrentFarm))
     end
 
-    function AutofarmController:Init()
-        self.CurrentFarmStrategy = nil
-    end
-    
+
     function AutofarmController:Start()
         local CharacterMaid = Maid.new()
         
@@ -643,7 +647,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.9",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.91",
     
             ConfigurationSaving = {
                 Enabled = true,
