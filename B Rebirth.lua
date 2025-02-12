@@ -7,7 +7,7 @@ if not game:IsLoaded() then
 end
 
 -- Services
-local Players = game:GetService("Players")1
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
@@ -647,7 +647,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.91",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.92",
     
             ConfigurationSaving = {
                 Enabled = true,
