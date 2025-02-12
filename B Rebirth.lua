@@ -309,6 +309,7 @@ do
         local SelectedQuest = UIController:GetSelectedQuest()
         local QuestData = nil
         for _, quest_data in pairs(Stats.Quest.Data) do
+            print(quest_data.Name, SelectedQuest:match("%d+"), string.find(quest_data.Name, SelectedQuest:match("%d+")))
             if string.find(quest_data.Name, SelectedQuest:match("%d+")) then
                 QuestData = {}
                 for i = 1, #quest_data.Objectives do
@@ -324,6 +325,7 @@ do
         end
 
         if QuestData == nil then
+            print("No Quest Currently")
             self:GetQuest()
             return
         end        
@@ -647,7 +649,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v1.85",
+            LoadingSubtitle = "Script Credits: OnlineCat v1.9",
     
             ConfigurationSaving = {
                 Enabled = true,
