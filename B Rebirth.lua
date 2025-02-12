@@ -198,7 +198,9 @@ do
         
         task.wait(DelayTime)
         AutofarmController:FireServer("DialogueChoice", ChoiceId)
-        self:BossAccept()
+        if FirstReplyId then
+            self:BossAccept()
+        end
     end
 
     function BaseNPCBattleStrategy:BossAccept()
@@ -685,7 +687,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3.91",
+            Name = "Blader's Rebirth v3.92",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
