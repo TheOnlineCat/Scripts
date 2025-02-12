@@ -634,7 +634,7 @@ do
         local CurrentPriority: number = (Farms[currentFarm] and Farms[currentFarm].Priority) or math.huge
         
         for FarmType: string, FarmData in Farms do
-            if FarmData.Enabled and FarmData.Priority > HighestPriority and FarmData.Priority <= CurrentPriority then
+            if FarmData.Enabled and FarmData.Priority > HighestPriority and FarmData.Priority < CurrentPriority then
                 HighestPriority = FarmData.Priority
                 SelectedFarm = FarmType
             end
@@ -675,7 +675,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3.6",
+            Name = "Blader's Rebirth v3.7",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -838,7 +838,7 @@ do
         -- Boss NPC Autofarm Section
         Tab:CreateSection("Auto Boss Farm")
 	
-        local BossList = {"Volt", "Shin", "Ryuke", "Jinka", "Boss 1"}
+        local BossList = {"Volt", "Shin", "Ryuke", "Jinka"}
         for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
             for _, NPC in ipairs(folder:GetChildren()) do
                 if NPC.Name:find("^Boss") then
