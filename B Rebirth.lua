@@ -245,6 +245,12 @@ do
                 self._NPCBeyblade = Beyblade
             end
         end))
+
+        self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
+            if Beyblade == self._NPCBeyblade then
+                self._NPCBeyblade = nil
+            end
+        end))
     end
 
     function BaseNPCBattleStrategy:BeginFarming()
@@ -349,7 +355,7 @@ do
     function BossFarmStrategy:FindAvailableNPC()
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, NPC in folder:GetChildren() do
-                if string.find(NPC.Name, "Trainer") or string.find(NPC.Name, "Quest") then continue end
+                if string.find(NPC.Name, "Trainer") or string.find(NPC.Name, "Quest") or string.len(NPC.Name) > 30 then continue end
                 if not table.find(UIController:GetTargetBossNames(), NPC:GetAttribute("Name")) then
                     warn(NPC:GetAttribute("Name"), "is not valid boss")
                     continue
@@ -665,7 +671,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3.3",
+            Name = "Blader's Rebirth v3.5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
