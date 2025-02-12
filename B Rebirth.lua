@@ -291,6 +291,7 @@ do
         if not QuestGiver or not QuestGiver.PrimaryPart then 
             return 
         end
+        task.wait(4)
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
 
         NPCsFolder:WaitForChild(QuestGiver.Name)
@@ -320,15 +321,10 @@ do
             return
         end        
 
-        warn("woop")
-
         for _, NPC in NPCsFolder:GetChildren() do
             if not string.find(NPC.Name, "Trainer") then continue end
-
             local NPCLevel = NPC:GetAttribute("Level")
-
             for _, trainer in QuestData do
-                warn(trainer.Progress,trainer.Amount, NPCLevel, trainer.Level, trainer.Progress < trainer.Amount, NPCLevel == trainer.Level)
                 if trainer.Progress < trainer.Amount and NPCLevel == trainer.Level then
                     local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
                     if CooldownEndTime and os.time() < CooldownEndTime then continue end
@@ -336,8 +332,6 @@ do
                 end
             end
         end
-
-        warn("see")
 
         return nil
     end
@@ -644,7 +638,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.22",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.3",
     
             ConfigurationSaving = {
                 Enabled = true,
