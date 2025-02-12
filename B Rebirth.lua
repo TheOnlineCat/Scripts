@@ -249,8 +249,6 @@ do
         self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
             if Beyblade == self._NPCBeyblade then
                 self._NPCBeyblade = nil
-                task.wait(1)
-                self:BeginFarming()
             end
         end))
         
@@ -635,12 +633,14 @@ do
         local CurrentPriority: number = (Farms[currentFarm] and Farms[currentFarm].Priority) or math.huge
         
         for FarmType: string, FarmData in Farms do
-            if not HighestFarm or Farms[HighestFarm].Priority < FarmData.Priority then
-                HighestFarm = FarmType
-            end
-            if FarmData.Enabled and FarmData.Priority > HighestPriority and FarmData.Priority < CurrentPriority then
-                HighestPriority = FarmData.Priority
-                SelectedFarm = FarmType
+            if FarmData.Enabled then
+                if not HighestFarm or Farms[HighestFarm].Priority < FarmData.Priority then
+                    HighestFarm = FarmType
+                end
+                if FarmData.Priority > HighestPriority and FarmData.Priority < CurrentPriority then
+                    HighestPriority = FarmData.Priority
+                    SelectedFarm = FarmType
+                end
             end
         end
         
@@ -683,7 +683,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3.8",
+            Name = "Blader's Rebirth v3.9",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
