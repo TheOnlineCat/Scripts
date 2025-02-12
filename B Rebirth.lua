@@ -201,7 +201,7 @@ do
         self:BossAccept()
     end
 
-    function BaseNPCBattleStrategy:BossAccept(Responses: { DialogueChoice }, NPC: Model)
+    function BaseNPCBattleStrategy:BossAccept()
     end
 
     function BaseNPCBattleStrategy:Update()
@@ -630,17 +630,25 @@ do
         local Farms = self.State.Farms
 
         local HighestPriority: number = -1
+        local HighestFarm = nil
         local SelectedFarm: (nil | string) = nil
         local CurrentPriority: number = (Farms[currentFarm] and Farms[currentFarm].Priority) or math.huge
         
         for FarmType: string, FarmData in Farms do
+            if not HighestFarm or Farms[HighestFarm].Priority < FarmData.Priority then
+                HighestFarm = FarmType
+            end
             if FarmData.Enabled and FarmData.Priority > HighestPriority and FarmData.Priority < CurrentPriority then
                 HighestPriority = FarmData.Priority
                 SelectedFarm = FarmType
             end
         end
         
-        return SelectedFarm
+        if SelectedFarm then
+            return SelectedFarm
+        else
+            return HighestFarm
+        end
     end
 
     function UIController:CanStaffAutoKick()
@@ -675,7 +683,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3.7",
+            Name = "Blader's Rebirth v3.8",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
