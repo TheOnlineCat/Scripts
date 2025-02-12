@@ -306,7 +306,7 @@ do
                 QuestData = {}
                 for i = 1, #quest_data.Objectives do
                     table.insert(QuestData, {
-                        Level = quest_data.Objectives[i].Name, 
+                        Level = tonumber(quest_data.Objectives[i].Name), 
                         Amount = quest_data.Objectives[i].Amount,
                         Progress = quest_data.Progress[i]
                     })
@@ -328,6 +328,7 @@ do
             local NPCLevel = NPC:GetAttribute("Level")
 
             for _, trainer in QuestData do
+                warn(trainer.Progress,trainer.Amount, NPCLevel, trainer.Level, trainer.Progress < trainer.Amount, NPCLevel == trainer.Level)
                 if trainer.Progress < trainer.Amount and NPCLevel == trainer.Level then
                     local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
                     if CooldownEndTime and os.time() < CooldownEndTime then continue end
@@ -643,7 +644,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.21",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.22",
     
             ConfigurationSaving = {
                 Enabled = true,
