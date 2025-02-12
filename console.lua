@@ -16,13 +16,18 @@ local function warnTable(tbl, indent)
     end
 end
 local connection
-connection = game:GetService("ReplicatedStorage").Events.BattleTransition.OnClientEvent:Connect(function(...)
+connection = game:GetService("ReplicatedStorage").Events.UpdateSpecificQuest.OnClientEvent:Connect(function(...)
     local args = {...} -- Capture all parameters
-    warn("BattleTransition event fired with parameters:")
+    warn("UpdateSpecificQuest event fired with parameters:")
 
     for i, v in ipairs(args) do
         warn(("\nArgument %d:"):format(i))
         warnTable(v, 4) -- warn recursively
+    end
+
+    -- Disconnect after first execution
+    if connection then
+        connection:Disconnect()
     end
 end)
 
