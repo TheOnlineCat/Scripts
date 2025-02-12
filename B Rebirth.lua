@@ -257,38 +257,44 @@ do
 
     function BaseNPCBattleStrategy:BeginFarming()
         AutofarmController:UnlaunchBeyblade()
-
+    
         local Character = Client.Character
         if not Character then return end
-
+    
         if self._IsBattling then
+            local finished = false
             local connection
+    
             connection = EventsFolder.BattleTransition.OnClientEvent:Connect(function(arg1, arg2)
                 if arg1 == true and arg2 == false then
                     task.wait(3)
                     self._IsBattling = false
+                    finished = true
                     connection:Disconnect()
                 end
             end)
+    
             self._Maid:GiveTask(connection)
-
-            while self._IsBattling do
+    
+            while not finished do
                 task.wait()
             end
-        else
-            self._IsBattling = true
         end
-                
+    
+        -- Mark as battling before starting the next fight
+        self._IsBattling = true
+    
         self._CurrentNPC = self:FindAvailableNPC()
         self._NPCBeyblade = nil
-
+    
         if not self._CurrentNPC then return end
-
+    
         task.wait(1)
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
         task.wait(0.5)
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
     end
+    
 
     function BaseNPCBattleStrategy:FindAvailableNPC()
     end
@@ -657,7 +663,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.5",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.6",
     
             ConfigurationSaving = {
                 Enabled = true,
