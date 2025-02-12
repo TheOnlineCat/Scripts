@@ -16,9 +16,37 @@ local function warnTable(tbl, indent)
     end
 end
 local connection
-connection = game:GetService("ReplicatedStorage").Events.DialogueEnded.OnClientEvent:Connect(function(...)
+connection = game:GetService("ReplicatedStorage").Events.BattleTransition.OnClientEvent:Connect(function(...)
     local args = {...} -- Capture all parameters
-    warn("DialogueEnded event fired with parameters:")
+    warn("BattleTransition event fired with parameters:")
+
+    for i, v in ipairs(args) do
+        warn(("\nArgument %d:"):format(i))
+        warnTable(v, 4) -- warn recursively
+    end
+end)
+
+
+-- local connection2
+-- connection2 = game:GetService("ReplicatedStorage").Events.Teleport.OnClientEvent:Connect(function(...)
+--     local args = {...} -- Capture all parameters
+--     warn("Teleport event fired with parameters:")
+
+--     for i, v in ipairs(args) do
+--         warn(("\nArgument %d:"):format(i))
+--         warnTable(v, 4) -- warn recursively
+--     end
+
+--     -- Disconnect after first execution
+--     if connection2 then
+--         connection2:Disconnect()
+--     end
+-- end)
+
+local connection3
+connection3 = game:GetService("ReplicatedStorage").Events.UpdateAllQuests.OnClientEvent:Connect(function(...)
+    local args = {...} -- Capture all parameters
+    warn("UpdateAllQuests event fired with parameters:")
 
     for i, v in ipairs(args) do
         warn(("\nArgument %d:"):format(i))
@@ -26,7 +54,7 @@ connection = game:GetService("ReplicatedStorage").Events.DialogueEnded.OnClientE
     end
 
     -- Disconnect after first execution
-    if connection then
-        connection:Disconnect()
+    if connection3 then
+        connection3:Disconnect()
     end
 end)

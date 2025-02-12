@@ -170,6 +170,8 @@ do
         self._CurrentNPC = nil
         self._NPCBeyblade = nil
 
+        self._HasBattled = false
+
         self._Maid:GiveTask(function()
             self._CurrentNPC = nil
             self._NPCBeyblade = nil
@@ -202,6 +204,8 @@ do
         local ClientBeyblade: Model = AutofarmController:GetClientBeyblade()
         
         if not ClientBeyblade or not self._NPCBeyblade then return end
+
+        self._IsBattling = true
         
         -- Attack logic
         if os.clock() - self._LastAttack >= GENERAL_POLL_DELAY then
@@ -234,7 +238,7 @@ do
         end))
         
         self._Maid:GiveTask(BeybladesFolder.ChildAdded:Connect(function(Beyblade)
-            task.wait(0.5)
+            task.wait(0.3)
             if Beyblade:GetAttribute("TargetPlayer") == Client.Name then
                 self._NPCBeyblade = Beyblade
             end
@@ -256,13 +260,29 @@ do
 
         local Character = Client.Character
         if not Character then return end
+
+        if self._IsBattling then
+            local connection
+            connection = EventsFolder.BattleTransition.OnClientEvent:Connect(function(arg1, arg2)
+                if arg1 == true and arg2 == false then
+                    self._IsBattling = false
+                    connection:Disconnect()
+                end
+            end)
+            self._Maid:GiveTask(connection)
+
+            while self._IsBattling do
+                task.wait()
+            end
+        else
+            self._IsBattling = true
+        end
                 
         self._CurrentNPC = self:FindAvailableNPC()
         self._NPCBeyblade = nil
 
         if not self._CurrentNPC then return end
 
-        task.wait(4)
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
         task.wait(0.5)
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
@@ -291,7 +311,6 @@ do
         if not QuestGiver or not QuestGiver.PrimaryPart then 
             return 
         end
-        task.wait(4)
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
 
         NPCsFolder:WaitForChild(QuestGiver.Name)
@@ -335,8 +354,6 @@ do
 
         return nil
     end
-
-
 end
 
 do
@@ -638,7 +655,7 @@ do
         local Window = Rayfield:CreateWindow({
             Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
-            LoadingSubtitle = "Script Credits: OnlineCat v2.3",
+            LoadingSubtitle = "Script Credits: OnlineCat v2.4",
     
             ConfigurationSaving = {
                 Enabled = true,
