@@ -257,6 +257,7 @@ do
         self._NPCBeyblade = nil
     
         if not self._CurrentNPC then
+            print("No Target")
             AutofarmController:QueueNextStrategy()
             return
         end
@@ -664,7 +665,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3.2",
+            Name = "Blader's Rebirth v3.3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
