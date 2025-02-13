@@ -462,7 +462,7 @@ do
                 end
             end))
 
-            CharacterMaid.GiveTask(Workspace.ChildAdded:Connect(function(child)
+            CharacterMaid.GiveTask(workspace.ChildAdded:Connect(function(child)
                 --workspace["572b341d-e0d9-4c75-8ad3-1258b5fdfd53"].Root.Crystal
                 local Root = child:FindFirstChild("Root")
                 if Root then
