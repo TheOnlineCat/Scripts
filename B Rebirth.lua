@@ -273,7 +273,6 @@ do
             return 
         end
 
-        task.wait(4 + UIController:GetFarmDelay())
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
         NPCsFolder:WaitForChild(QuestGiver.Name)
         task.wait(0.5)
