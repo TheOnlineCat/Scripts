@@ -231,6 +231,7 @@ do
         end)
         if not success then
             print("Function failed with error:", err)
+            print(self._CurrentNPC)
         else
             print("Function succeeded!")
         end
@@ -300,7 +301,7 @@ do
             for _, questTrainer in QuestData do
                 if questTrainer.Progress >= questTrainer.Amount then continue end
                 if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(NPC)then
-                    warn(NPC:GetAttribute("Name"), "can be fought")
+                    warn(NPC.Name, "can be fought")
                     return NPC
                 end
             end
@@ -614,7 +615,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.8",
+            Name = "Blader's Rebirth v4.9",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
