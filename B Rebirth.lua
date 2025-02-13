@@ -159,6 +159,7 @@ do
     end
 
     function BaseNPCBattleStrategy:Update()
+        error("Updated")
         if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
             AutofarmController:RunTask(function()
                 self:InitiateFight()
@@ -615,7 +616,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.9",
+            Name = "Blader's Rebirth v4.91",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
