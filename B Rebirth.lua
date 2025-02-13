@@ -210,13 +210,13 @@ do
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
                 task.wait(4.2 + UIController:GetFarmDelay())
                 AutofarmController:QueueNextStrategy(true)
-                self._isBattling = false
             end
         end))
 
         self:ChildHooks()
         
         AutofarmController:RunTask(function()
+            self._isBattling = false
             self:InitiateFight()
         end)
     end
@@ -672,7 +672,7 @@ do
         Tab:CreateSection("Farm Settings")
         Tab:CreateSlider({
             Name = "Distance to Target",
-            Range = {1, 10},
+            Range = {1, 20},
             Increment = 1,
             CurrentValue = self.State.FarmConfig.Distance,
             Flag = "FarmDistance",
