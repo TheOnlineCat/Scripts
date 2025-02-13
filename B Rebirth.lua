@@ -208,7 +208,7 @@ do
 
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
-                task.wait(4)
+                task.wait(6 + UIController:GetFarmDelay())
                 self._isBattling = false
             end
         end))
@@ -273,6 +273,7 @@ do
             return 
         end
 
+        task.wait(4 + UIController:GetFarmDelay())
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
         NPCsFolder:WaitForChild(QuestGiver.Name)
         task.wait(0.5)
