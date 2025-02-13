@@ -284,6 +284,8 @@ do
                 self:GetQuest()
             end 
         end
+
+        warn("start finding NPC for quest")
                    
         for _, NPC in NPCsFolder:GetChildren() do
             if not string.find(NPC.Name, "Trainer") then continue end
@@ -291,6 +293,7 @@ do
             for _, questTrainer in QuestData do
                 if questTrainer.Progress >= questTrainer.Amount then continue end
                 if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(NPC)then
+                    warn("found npc")
                     return NPC
                 end
             end
@@ -474,6 +477,7 @@ do
             self.CurrentFarm = NewStrategyType
 
             if UIController:IsBeybladeAutofarmToggled() then
+                warn(self.CurrentFarm)
                 self.CurrentFarmStrategy:Start()
             end
         end
@@ -603,7 +607,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.1",
+            Name = "Blader's Rebirth v4.2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
