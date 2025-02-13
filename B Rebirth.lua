@@ -209,7 +209,7 @@ do
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
                 task.wait(4.2 + UIController:GetFarmDelay())
-                AutofarmController:QueueNextStrategy()
+                AutofarmController:QueueNextStrategy(true)
                 self._isBattling = false
             end
         end))
@@ -234,6 +234,7 @@ do
         self._NPCBeyblade = nil
     
         if not self._CurrentNPC then
+            AutofarmController:QueueNextStrategy(false)
             return
         end
     
@@ -254,13 +255,6 @@ do
 
     function QuestFarmStrategy.new()
         return setmetatable(BaseNPCBattleStrategy.new(), QuestFarmStrategy)
-    end
-
-    function QuestFarmStrategy:ChildHooks()
-        -- self._Maid:GiveTask(EventsFolder.UpdateSpecificQuest.OnClientEvent:Connect(function(...)
-            
-            
-        -- end))
     end
 
     function QuestFarmStrategy:GetQuest() 
@@ -405,6 +399,21 @@ do
                 end
             end))
 
+            CharacterMaid:GiveTask(UIController.OnBeybladeAutofarmToggled:Connect(function(IsEnabled: boolean)
+                local CurrentStrategy = self.CurrentFarmStrategy
+
+                if not IsEnabled then
+                    self:SwitchStrategy(nil) --destroy all strategies
+                    return
+                end
+                
+                if CurrentStrategy then
+                    CurrentStrategy:Start()
+                else
+                    self:SwitchStrategy(UIController:GetNextFarm())
+                end
+            end))
+
             -- Cleanup
             CharacterMaid:GiveTask(function()
                 self:SwitchStrategy(nil) -- Clean up current strategy
@@ -509,9 +518,15 @@ do
         end
     end
 
-    function AutofarmController:QueueNextStrategy()
-        warn("Switching off from", self.CurrentFarm, "and going to", UIController:GetNextFarm(self.CurrentFarm))
-        self:SwitchStrategy(UIController:GetNextFarm(self.CurrentFarm))
+    function AutofarmController:QueueNextStrategy(restart)
+        if restart then
+            warn("Switching off from", self.CurrentFarm, "AND GOING BACK TO", UIController:GetNextFarm())
+            self:SwitchStrategy(UIController:GetNextFarm())
+        else
+            warn("Switching off from", self.CurrentFarm, "and going to", UIController:GetNextFarm(self.CurrentFarm))
+            self:SwitchStrategy(UIController:GetNextFarm(self.CurrentFarm))
+        end
+        
     end
 end
 
