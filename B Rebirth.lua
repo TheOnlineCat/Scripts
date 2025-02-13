@@ -11,6 +11,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
+local Workspace = game:GetService("Workspace")
 
 -- Packages
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
@@ -29,8 +30,10 @@ local UIController = {}
 local TaskRunner = {}
 
 local BaseFarmStrategy = {}
-local BaseNPCBattleStrategy = {}
 
+local CrystalFarmStrategy = {}
+
+local BaseNPCBattleStrategy = {}
 local QuestFarmStrategy = {}
 local BossFarmStrategy = {}
 
@@ -86,9 +89,6 @@ do
 
     function BaseFarmStrategy.new()
         local self = setmetatable({}, BaseFarmStrategy)
-        self._LastAttack = 0
-        self._isBattling = false
-
         self._Maid = Maid.new()
         return self
     end
@@ -104,6 +104,43 @@ do
     function BaseFarmStrategy:Destroy()
         self._Maid:DoCleaning()
         self._Maid = nil
+    end
+end
+
+do
+    setmetatable(CrystalFarmStrategy, BaseFarmStrategy)
+    CrystalFarmStrategy.__index = CrystalFarmStrategy
+
+    function CrystalFarmStrategy.new()
+        local self = setmetatable(BaseFarmStrategy.new(), CrystalFarmStrategy)
+
+        self.RandomSearchTime = RNG:NextInteger(3, 12)
+
+        return self
+    end
+
+    function CrystalFarmStrategy:Update()
+        AutofarmController:RunTask(function()
+            if AutofarmController.Crystal and AutofarmController.TimeOfCrystalSpawn + self.RandomSearchTime <= os.clock() then
+                local Character = Client.Character
+                if not Character then return end
+                local previousCFrame = Character.HumanoidRootPart.CFrame
+                Character.HumanoidRootPart.CFrame = AutofarmController.Crystal.CFrame
+                task.wait(0.1)
+                fireproximityprompt(AutofarmController.Crystal)
+                task.wait(0.1)
+                Character.HumanoidRootPart.CFrame = previousCFrame
+                AutofarmController.Crystal = nil
+                AutofarmController:QueueNextStrategy(true)
+
+            end
+        end)
+    end
+
+    function CrystalFarmStrategy:Start()
+        if not AutofarmController.Crystal then
+            AutofarmController:QueueNextStrategy(false)
+        end
     end
 end
 
@@ -123,11 +160,13 @@ do
         self._CurrentNPC = nil
         self._NPCBeyblade = nil
 
+        self._LastAttack = 0
+        self._isBattling = false
+
         -- self._Maid:GiveTask(function()
         --     self._CurrentNPC = nil
         --     self._NPCBeyblade = nil
         -- end)
-
         return self
     end
 
@@ -360,6 +399,7 @@ end
 -- Controller Definitions
 do
     local FarmStrategyClasses = {
+        CrystalFarm = CrystalFarmStrategy,
         QuestFarm = QuestFarmStrategy,
         BossFarm = BossFarmStrategy
     }
@@ -367,6 +407,8 @@ do
     function AutofarmController:Init()
         self.CurrentFarmStrategy = nil
         self.CurrentFarm = nil
+        self.Crystal = nil
+        self.TimeOfCrystalSpawn = nil
         self.TaskRunner = TaskRunner.new()
     end
 
@@ -417,6 +459,25 @@ do
                     CurrentStrategy:Start()
                 else
                     self:SwitchStrategy(UIController:GetNextFarm())
+                end
+            end))
+
+            CharacterMaid.GiveTask(Workspace.ChildAdded:Connect(function(child)
+                --workspace["572b341d-e0d9-4c75-8ad3-1258b5fdfd53"].Root.Crystal
+                local Root = child:FindFirstChild("Root")
+                if Root then
+                    local Crystal = Root.child:FindFirstChild("Crystal")
+                    if Crystal then
+                        self.Crystal = Crystal
+                        self.TimeOfCrystalSpawn = os.clock()
+                        local connection
+                        connection = child.AncestryChanged:Connect(function(_, parent)
+                            if not parent then
+                                print("Part was deleted!")
+                                connection:Disconnect() 
+                            end
+                        end)
+                    end
                 end
             end))
 
@@ -558,6 +619,7 @@ do
 
     UIController.OnQuestFarmToggled = Signal.new() 
     UIController.OnBossFarmToggled = Signal.new()
+    UIController.OnCrystalFarmToggled = Signal.new()
 
     UIController.OnCurrentFarmChanged = Signal.new()
     UIController.OnQuestChanged = Signal.new()
@@ -573,6 +635,11 @@ do
             Delay = 0
         },
         Farms = {
+            CrystalFarm = {
+                Enabled = false,
+                Priority = 4,
+            },
+
             QuestFarm = {
                 Enabled = false,
                 Priority = 2,
@@ -825,6 +892,19 @@ do
             Callback = function(State)
                 self:SetFarmState("BossFarm", State)
                 self.OnBossFarmToggled:Fire(State)
+            end,
+        })
+
+
+        -- Crystal Autofarm Section
+        Tab:CreateSection("Auto Crystal Collect")
+        Tab:CreateToggle({
+            Name = "Collect Crystals",
+            CurrentValue = false,
+            Flag = "CrystalAutofarmToggle",
+            Callback = function(State)
+                self:SetFarmState("CrystalFarm", State)
+                self.OnCrystalFarmToggled:Fire(State)
             end,
         })
     end
