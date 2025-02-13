@@ -183,7 +183,7 @@ do
 
     function BaseNPCBattleStrategy:Start()
         self._Maid:GiveTask(EventsFolder.UpdateDialogue.OnClientEvent:Connect(function(DialogueResponses, npc)
-            warn("hi")
+            warn("binded dialogue")
             self:HandleDialogue(DialogueResponses, npc)
         end))
 
