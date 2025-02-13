@@ -616,7 +616,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.91",
+            Name = "Blader's Rebirth v4.92",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -637,7 +637,6 @@ do
     function UIController:_CreateConfigTab(Window)
         local Tab = Window:CreateTab("Config", 4483362458)
         
-        -- Staff Management Section
         Tab:CreateSection("Farm Settings")
         Tab:CreateSlider({
             Name = "Distance to Target",
@@ -675,6 +674,12 @@ do
                 self.OnStaffAutoKickChanged:Fire(State)
             end,
         })
+        Tab:CreateButton({
+            Name = "Button Example",
+            Callback = function()
+                game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
+            end,
+         })
     end
     
     function UIController:_CreateFarmTab(Window)
