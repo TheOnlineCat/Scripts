@@ -61,8 +61,8 @@ do
     end
     
     function TaskRunner:Run(taskFunction, ...)
-        print("Running t asks")
         if self._isRunning then
+            print("Already Running")
             return
         end
     
@@ -159,7 +159,6 @@ do
     end
 
     function BaseNPCBattleStrategy:Update()
-        error("Updated")
         if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
             AutofarmController:RunTask(function()
                 self:InitiateFight()
@@ -617,7 +616,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.93",
+            Name = "Blader's Rebirth v4.94",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
