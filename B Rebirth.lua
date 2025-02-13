@@ -208,7 +208,7 @@ do
 
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
-                task.wait(0.5)
+                task.wait(4)
                 self._isBattling = false
             end
         end))
@@ -236,7 +236,6 @@ do
             return
         end
     
-        task.wait(4 + UIController:GetFarmDelay())
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
         NPCsFolder:WaitForChild(self._CurrentNPC.Name)
         task.wait(0.5)
