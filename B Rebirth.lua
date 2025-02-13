@@ -1,5 +1,5 @@
 --[[
-loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/refactor/B%20Rebirth.lua?t=" .. os.time()))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/refactor/B%20Rebirth.lua?", true))()
 --]]
 
 if not game:IsLoaded() then
@@ -205,7 +205,10 @@ do
             if Beyblade == self._NPCBeyblade then
                 self._NPCBeyblade = nil
                 self._CurrentNPC = nil
-                EventsFolder.BattleTransition.OnClientEvent:Wait()
+
+                --wait until back
+                EventsFolder.BattleTransition.OnClientEvent:Wait() 
+                task.wait(0.5)
                 self._isBattling = false
             end
         end))
@@ -235,6 +238,7 @@ do
     
         task.wait(4 + UIController:GetFarmDelay())
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
+        NPCsFolder:WaitForChild(self._CurrentNPC.Name)
         task.wait(0.5)
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
     end
@@ -276,6 +280,7 @@ do
         task.wait(0.5)
         fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
         EventsFolder.UpdateAllQuests.OnClientEvent:Wait()
+        warn("retrieved Quests")
     end
 
     function QuestFarmStrategy:FindAvailableNPC()
@@ -299,14 +304,16 @@ do
         end 
 
                    
-        for _, npc in NPCsFolder:GetChildren() do
-            if not string.find(npc.Name, "Trainer") then continue end
-            local NPCLevel = npc:GetAttribute("Level")
-            for _, questTrainer in QuestData do
-                if questTrainer.Progress >= questTrainer.Amount then continue end
-                if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(npc)then
-                    warn(npc.Name, "can be fought")
-                    return npc
+        for _, folder in {NPCsFolder, HiddenNPCsFolder} do
+            for _, npc in folder:GetChildren() do
+                if not string.find(npc.Name, "Trainer") then continue end
+                local NPCLevel = npc:GetAttribute("Level")
+                for _, questTrainer in QuestData do
+                    if questTrainer.Progress >= questTrainer.Amount then continue end
+                    if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(npc)then
+                        warn(npc.Name, "can be fought")
+                        return npc
+                    end
                 end
             end
         end
