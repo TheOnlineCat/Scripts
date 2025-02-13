@@ -186,10 +186,7 @@ do
             self:HandleDialogue(DialogueResponses, npc)
         end))
 
-        self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
-            task.wait(0.3)
-            AutofarmController:FireServer("StartBossBattle", "Easy")
-        end))
+
         
         self._Maid:GiveTask(BeybladesFolder.ChildAdded:Connect(function(Beyblade)
             task.wait(0.3)
@@ -204,6 +201,8 @@ do
                 self._CurrentNPC = nil
             end
         end))
+
+        self:ChildHooks()
         
         AutofarmController:RunTask(function()
             self:InitiateFight()
@@ -313,6 +312,13 @@ do
 
     function BossFarmStrategy.new()
         return setmetatable(BaseNPCBattleStrategy.new(), BossFarmStrategy)
+    end
+
+    function BossFarmStrategy:ChildHooks()
+        self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
+            task.wait(0.3)
+            AutofarmController:FireServer("StartBossBattle", "Easy")
+        end))
     end
 
     function BossFarmStrategy:FindAvailableNPC()
@@ -610,7 +616,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.96",
+            Name = "Blader's Rebirth v4.97",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
