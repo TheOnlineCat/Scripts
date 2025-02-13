@@ -1,5 +1,5 @@
 --[[
-loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/main/B%20Rebirth.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/refactor/B%20Rebirth.lua"))()
 --]]
 
 if not game:IsLoaded() then
@@ -149,9 +149,6 @@ do
         
         task.wait(DelayTime)
         AutofarmController:FireServer("DialogueChoice", ChoiceId)
-        if FirstResponseId then
-            self:BossAccept()
-        end
     end
 
     function BaseNPCBattleStrategy:BossAccept()
@@ -189,6 +186,11 @@ do
         self._Maid:GiveTask(EventsFolder.UpdateDialogue.OnClientEvent:Connect(function(DialogueResponses, NPC)
             self:HandleDialogue(DialogueResponses, NPC)
         end))
+
+        self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
+            task.wait(0.3)
+            AutofarmController:FireServer("StartBossBattle", "Easy")
+        end))
         
         self._Maid:GiveTask(BeybladesFolder.ChildAdded:Connect(function(Beyblade)
             task.wait(0.3)
@@ -218,8 +220,8 @@ do
         self._NPCBeyblade = nil
     
         if not self._CurrentNPC then
-            warn("No Target")
-            AutofarmController:QueueNextStrategy()
+            -- warn("No Target")
+            -- AutofarmController:QueueNextStrategy()
             return
         end
     
@@ -320,16 +322,6 @@ do
         end
 
         return nil
-    end
-
-    function BossFarmStrategy:BossAccept()
-        task.wait(1)
-
-        local args = {
-            [1] = "Easy"
-        }
-        
-        EventsFolder.StartBossBattle:FireServer(unpack(args))
     end
 end
 
