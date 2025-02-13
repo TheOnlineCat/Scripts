@@ -463,7 +463,7 @@ do
             end))
 
             CharacterMaid.GiveTask(workspace.ChildAdded:Connect(function(child)
-                
+                print("hi", child.Name)
             end))
 
             CharacterMaid:GiveTask(UIController.OnBeybladeAutofarmToggled:Connect(function(IsEnabled: boolean)
