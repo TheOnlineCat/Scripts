@@ -462,11 +462,11 @@ do
                 end
             end))
 
-            CharacterMaid.GiveTask(Workspace.ChildAdded:Connect(function(child)
+            CharacterMaid.GiveTask(game:GetService("Workspace").ChildAdded:Connect(function(child)
                 --workspace["572b341d-e0d9-4c75-8ad3-1258b5fdfd53"].Root.Crystal
                 local Root = child:FindFirstChild("Root")
                 if Root then
-                    local Crystal = Root.child:FindFirstChild("Crystal")
+                    local Crystal = Root:FindFirstChild("Crystal")
                     if Crystal then
                         self.Crystal = Crystal
                         self.TimeOfCrystalSpawn = os.clock()
@@ -477,6 +477,7 @@ do
                                 connection:Disconnect() 
                             end
                         end)
+                        self._Maid:GiveTask(connection)
                     end
                 end
             end))
