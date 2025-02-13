@@ -26,12 +26,15 @@ local MiscController = {}
 local UIController = {}
 
 -- Classes
-local BaseFarmStrategy = {}
-local RockFarmStrategy = {}
+local TaskRunner = {}
 
+local BaseFarmStrategy = {}
 local BaseNPCBattleStrategy = {}
+
 local QuestFarmStrategy = {}
 local BossFarmStrategy = {}
+
+
 
 -- Variables
 local Client = Players.LocalPlayer
@@ -47,6 +50,37 @@ local Stats = require(ReplicatedStorage.Modules.Stats)
 local RNG = Random.new()
 
 -- Class Definitions
+do
+    TaskRunner.__index = TaskRunner
+    
+    function TaskRunner.new()
+        local self = setmetatable({}, TaskRunner)
+        self._isRunning = false -- Lock to prevent multiple executions
+        self._Maid = Maid.new() 
+        return self
+    end
+    
+    function TaskRunner:Run(taskFunction, ...)
+        if self._isRunning then
+            return
+        end
+    
+        self._isRunning = true
+        local args = {...}
+    
+        self._Maid:GiveTask(task.spawn(function()
+            taskFunction(table.unpack(args)) 
+            self._isRunning = false 
+        end))
+    end
+    
+    function TaskRunner:Destroy()
+        self._Maid:DoCleaning() 
+        self._Maid = nil
+        self._isRunning = false
+    end
+end
+
 do
     BaseFarmStrategy.__index = BaseFarmStrategy
 
@@ -71,89 +105,6 @@ do
     end
 end
 
-do
-    setmetatable(RockFarmStrategy, BaseFarmStrategy)
-    RockFarmStrategy.__index = RockFarmStrategy
-    
-    function RockFarmStrategy.new()
-        local self = setmetatable(BaseFarmStrategy.new(), RockFarmStrategy)
-        self._CurrentTarget = nil
-
-        self._Maid:GiveTask(function()
-            self._CurrentTarget = nil
-            AutofarmController:UnlaunchBeyblade() 
-        end)
-        
-        return self
-    end
-    
-    function RockFarmStrategy:ScanForTarget()
-        local TargetRockName: string = UIController:GetSelectedRockName()
-        for _, Rock: Model in TrainingFolder:GetChildren() do
-            if Rock.PrimaryPart and Rock.PrimaryPart.Position.Y > 1000 then continue end
-            if Rock.Name ~= TargetRockName then continue end
-            if Rock:GetAttribute("Health") <= 0 then continue end
-            self._CurrentTarget = Rock
-            break
-        end
-    end
-    
-    function RockFarmStrategy:Update()
-        local ClientBeyblade: Model = AutofarmController:GetClientBeyblade()
-        if not ClientBeyblade or not self._CurrentTarget then return end
-        
-        -- Attack logic
-        if os.clock() - self._LastAttack >= GENERAL_POLL_DELAY then
-            self._LastAttack = os.clock()
-            AutofarmController:Attack(self._CurrentTarget)
-            AutofarmController:FireSkills(self._CurrentTarget)
-        end
-        
-        -- Teleport logic
-        ClientBeyblade.HumanoidRootPart.CFrame = self._CurrentTarget.PrimaryPart.CFrame * CFrame.new(0, UIController:GetFarmDistance(), 0)
-    end
-    
-    function RockFarmStrategy:Start()
-        -- Initial Beyblade launch
-        AutofarmController:LaunchBeyblade()
-
-        -- Initial scan for valid target
-        self:ScanForTarget()
-
-        -- Handle beyblade tracking
-        self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade: Model)
-            if Beyblade.Name == Client.Name then
-                task.wait(self.GENERAL_POLL_DELAY)
-                AutofarmController:LaunchBeyblade()
-            end
-        end))
-
-        -- Handle rock tracking
-        self._Maid:GiveTask(TrainingFolder.ChildAdded:Connect(function(Rock: Model)
-            task.wait()
-            local TargetRockName = UIController:GetSelectedRockName()
-            if Rock.Name ~= TargetRockName then return end
-            
-            if Rock.PrimaryPart and Rock.PrimaryPart.Position.Y < 1000 then
-                if not self._CurrentTarget then
-                    self._CurrentTarget = Rock
-                end
-            end
-        end))
-        
-        self._Maid:GiveTask(TrainingFolder.ChildRemoved:Connect(function(Rock: Model)
-            if Rock == self._CurrentTarget then
-                self._CurrentTarget = nil
-                self:ScanForTarget()
-            end
-        end))
-
-        self._Maid:GiveTask(UIController.OnRockTargetTypeChanged:Connect(function()
-            -- Scan for a new target after changing the type of rock we want to target
-            self:ScanForTarget()
-        end))
-    end
-end
 
 do
     setmetatable(BaseNPCBattleStrategy, BaseFarmStrategy)
@@ -206,10 +157,22 @@ do
     function BaseNPCBattleStrategy:BossAccept()
     end
 
+    function BaseNPCBattleStrategy:IsNpcOnCooldown(npc)
+        local CooldownEndTime = self._CurrentNPC:GetAttribute("CooldownEnd")                    
+        return CooldownEndTime and os.time() < CooldownEndTime
+    end
+
     function BaseNPCBattleStrategy:Update()
+        if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
+            AutofarmController:RunTask(function()
+                self:InitiateFight()
+            end)
+        end
+
+        if not self._NPCBeyblade then return end
+
         local ClientBeyblade: Model = AutofarmController:GetClientBeyblade()
-        
-        if not ClientBeyblade or not self._NPCBeyblade then return end
+        if not ClientBeyblade then return end
 
         -- Attack logic
         if os.clock() - self._LastAttack >= GENERAL_POLL_DELAY then
@@ -223,20 +186,6 @@ do
     end
 
     function BaseNPCBattleStrategy:Start()
-        self._Maid:GiveTask(task.spawn(function()
-            while true do
-                task.wait(1)
-                if self._CurrentNPC then
-                    local CooldownEndTime = self._CurrentNPC:GetAttribute("CooldownEnd")                    
-                    if CooldownEndTime and os.time() < CooldownEndTime then
-                        self:BeginFarming()
-                    end
-                else
-                    self:BeginFarming()
-                end
-            end
-        end))
-
         self._Maid:GiveTask(EventsFolder.UpdateDialogue.OnClientEvent:Connect(function(DialogueResponses, NPC)
             self:HandleDialogue(DialogueResponses, NPC)
         end))
@@ -251,15 +200,15 @@ do
         self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
             if Beyblade == self._NPCBeyblade then
                 self._NPCBeyblade = nil
-                task.wait(1)
-                self:BeginFarming()
             end
         end))
         
-        self:BeginFarming()
+        AutofarmController:RunTask(function()
+            self:InitiateFight()
+        end)
     end
 
-    function BaseNPCBattleStrategy:BeginFarming()
+    function BaseNPCBattleStrategy:InitiateFight()
         AutofarmController:UnlaunchBeyblade()
     
         local Character = Client.Character
@@ -269,7 +218,7 @@ do
         self._NPCBeyblade = nil
     
         if not self._CurrentNPC then
-            print("No Target")
+            warn("No Target")
             AutofarmController:QueueNextStrategy()
             return
         end
@@ -294,7 +243,6 @@ do
     end
 
     function QuestFarmStrategy:GetQuest() 
-        AutofarmController:UnlaunchBeyblade()
         local Character = Client.Character
         if not Character then return end
         
@@ -315,32 +263,32 @@ do
 
     function QuestFarmStrategy:FindAvailableNPC()
         local QuestData = nil
-        for name, quest_data in pairs(Stats.Quest.Data) do
-            if string.find(name, "Trainer") and quest_data.Type == nil then
-                QuestData = {}
-                for i = 1, #quest_data.Objectives do
-                    table.insert(QuestData, {
-                        Level = tonumber(quest_data.Objectives[i].Name), 
-                        Amount = quest_data.Objectives[i].Amount,
-                        Progress = quest_data.Progress[i]
-                    })
+        while not QuestData do
+            for name, quest_data in pairs(Stats.Quest.Data) do
+                if string.find(name, "Trainer") and quest_data.Type == nil then
+                    QuestData = {}
+                    for i = 1, #quest_data.Objectives do
+                        table.insert(QuestData, {
+                            Level = tonumber(quest_data.Objectives[i].Name), 
+                            Amount = quest_data.Objectives[i].Amount,
+                            Progress = quest_data.Progress[i]
+                        })
+                    end
+                    break
                 end
-                break
             end
+
+            if QuestData == nil then
+                self:GetQuest()
+            end 
         end
-
-        if QuestData == nil then
-            self:GetQuest()
-            return
-        end        
-
+                   
         for _, NPC in NPCsFolder:GetChildren() do
             if not string.find(NPC.Name, "Trainer") then continue end
             local NPCLevel = NPC:GetAttribute("Level")
-            for _, trainer in QuestData do
-                if trainer.Progress < trainer.Amount and NPCLevel == trainer.Level then
-                    local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
-                    if CooldownEndTime and os.time() < CooldownEndTime then continue end
+            for _, questTrainer in QuestData do
+                if questTrainer.Progress >= questTrainer.Amount then continue end
+                if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(NPC)then
                     return NPC
                 end
             end
@@ -360,20 +308,14 @@ do
 
     function BossFarmStrategy:FindAvailableNPC()
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
-            for _, NPC in folder:GetChildren() do
-                if string.find(NPC.Name, "Trainer") or string.find(NPC.Name, "Quest") or string.len(NPC.Name) > 30 then continue end
-                if not table.find(UIController:GetTargetBossNames(), NPC:GetAttribute("Name")) then
-                    warn(NPC:GetAttribute("Name"), "is not valid boss")
+            for _, boss in folder:GetChildren() do
+                if not table.find(UIController:GetTargetBossNames(), boss:GetAttribute("Name")) then
                     continue
                 end
-                warn(NPC:GetAttribute("Name"), "is valid boss")
-    
-                local CooldownEndTime = NPC:GetAttribute("CooldownEnd")            
-                if CooldownEndTime and os.time() < CooldownEndTime then continue end
-                
-                warn(NPC:GetAttribute("Name"), "can be fought")
-
-                return NPC
+                if not self:IsNpcOnCooldown(boss) then
+                    warn(boss:GetAttribute("Name"), "can be fought")
+                    return boss
+                end
             end
         end
 
@@ -394,16 +336,67 @@ end
 -- Controller Definitions
 do
     local FarmStrategyClasses = {
-        RockFarm = RockFarmStrategy,
         QuestFarm = QuestFarmStrategy,
         BossFarm = BossFarmStrategy
     }
     
-    local StatsModule = require(ReplicatedStorage.Modules.Stats)
-
     function AutofarmController:Init()
         self.CurrentFarmStrategy = nil
         self.CurrentFarm = nil
+        self.TaskRunner = TaskRunner.new()
+    end
+
+    function AutofarmController:Start()
+        local CharacterMaid = Maid.new()
+        
+        local function OnCharacterAdded(Character)
+            CharacterMaid:DoCleaning()
+
+            Character:WaitForChild("HumanoidRootPart")
+            Character:WaitForChild("Humanoid")
+
+            -- Handle Beyblade autofarm updates
+            CharacterMaid:GiveTask(RunService.Heartbeat:Connect(function()
+                if not UIController:IsBeybladeAutofarmToggled() then return end
+                if self.CurrentFarmStrategy then
+                    self.CurrentFarmStrategy:Update()
+                end
+            end))
+            
+            -- Handle Strategy changes
+            CharacterMaid:GiveTask(UIController.OnCurrentFarmChanged:Connect(function(NewFarmType: string?)
+                self:SwitchStrategy(NewFarmType)
+            end))
+
+            CharacterMaid:GiveTask(UIController.OnBeybladeAutofarmToggled:Connect(function(IsEnabled: boolean)
+                local CurrentStrategy = self.CurrentFarmStrategy
+
+                if not IsEnabled then
+                    self:SwitchStrategy(nil) --destroy all strategies
+                    return
+                end
+                
+                if CurrentStrategy then
+                    CurrentStrategy:Start()
+                else
+                    self:SwitchStrategy(self:QueueNextStrategy())
+                end
+            end))
+
+            -- Cleanup
+            CharacterMaid:GiveTask(function()
+                self:SwitchStrategy(nil) -- Clean up current strategy
+            end)
+        end
+
+        Client.CharacterAdded:Connect(OnCharacterAdded)
+        if Client.Character then
+            task.spawn(OnCharacterAdded, Client.Character)
+        end
+    end
+
+    function AutofarmController:RunTask(task)
+        self.TaskRunner:Run(task)
     end
 
     function AutofarmController:FireServer(RemoteName, ...)
@@ -411,21 +404,18 @@ do
     end
 
     function AutofarmController:Attack(Target: Model)
-        local AttackRemote = RemotesFolder:FindFirstChild("Attack")
-        if not AttackRemote then return end
-        
         local ClientBeyblade = self:GetClientBeyblade()
         if not ClientBeyblade then return end
 
         local TargetPosition = Target.PrimaryPart.Position
         local RandomValue = RNG:NextNumber(0.85, 0.9)
 
-        AttackRemote:FireServer("Attack", ClientBeyblade, Target, RandomValue, TargetPosition)
+        AutofarmController:FireServer("Attack", "Attack", ClientBeyblade, Target, RandomValue, TargetPosition)
     end
 
     function AutofarmController:FireSkills(Target: Model)
         local EquippedBeyblade = nil
-        for _, Item in StatsModule.Inventory.Items do
+        for _, Item in Stats.Inventory.Items do
             if Item.Name == "Beyblade" and Item.Equipped then
                 EquippedBeyblade = Item
                 break
@@ -501,56 +491,6 @@ do
         warn("Switching off from", self.CurrentFarm, "and going to", UIController:GetNextFarm(self.CurrentFarm))
         self:SwitchStrategy(UIController:GetNextFarm(self.CurrentFarm))
     end
-
-
-    function AutofarmController:Start()
-        local CharacterMaid = Maid.new()
-        
-        local function OnCharacterAdded(Character)
-            CharacterMaid:DoCleaning()
-
-            Character:WaitForChild("HumanoidRootPart")
-            Character:WaitForChild("Humanoid")
-
-            -- Handle Beyblade autofarm updates
-            CharacterMaid:GiveTask(RunService.Heartbeat:Connect(function()
-                if not UIController:IsBeybladeAutofarmToggled() then return end
-                if self.CurrentFarmStrategy then
-                    self.CurrentFarmStrategy:Update()
-                end
-            end))
-            
-            -- Handle Strategy changes
-            CharacterMaid:GiveTask(UIController.OnCurrentFarmChanged:Connect(function(NewFarmType: string?)
-                self:SwitchStrategy(NewFarmType)
-            end))
-
-            CharacterMaid:GiveTask(UIController.OnBeybladeAutofarmToggled:Connect(function(IsEnabled: boolean)
-                local CurrentStrategy = self.CurrentFarmStrategy
-                
-                if CurrentStrategy then
-                    if IsEnabled then
-                        CurrentStrategy:Start()
-                    else
-                        self:SwitchStrategy(nil)
-                    end
-                elseif IsEnabled then
-                    warn("test")
-                    self:SwitchStrategy(self:QueueNextStrategy())
-                end
-            end))
-
-            -- Cleanup
-            CharacterMaid:GiveTask(function()
-                self:SwitchStrategy(nil) -- Clean up current strategy
-            end)
-        end
-
-        Client.CharacterAdded:Connect(OnCharacterAdded)
-        if Client.Character then
-            task.spawn(OnCharacterAdded, Client.Character)
-        end
-    end
 end
 
 do 
@@ -560,10 +500,8 @@ do
 
     UIController.OnQuestFarmToggled = Signal.new() 
     UIController.OnBossFarmToggled = Signal.new()
-    UIController.OnRockFarmToggled = Signal.new() 
 
     UIController.OnCurrentFarmChanged = Signal.new()
-    UIController.OnRockTargetTypeChanged = Signal.new()
     UIController.OnQuestChanged = Signal.new()
     UIController.OnTrainerLevelChanged = Signal.new()
 
@@ -577,12 +515,6 @@ do
             Delay = 0
         },
         Farms = {
-            RockFarm = {
-                Enabled = false,
-                Priority = 1,
-                SelectedRock = "Rock"
-            },
-
             QuestFarm = {
                 Enabled = false,
                 Priority = 2,
@@ -608,9 +540,6 @@ do
         return self.State.IsAutofarmEnabled
     end
 
-    function UIController:GetSelectedRockName(): string
-        return self.State.Farms.RockFarm.SelectedRock
-    end
 
     function UIController:GetSelectedQuest(): string
         return self.State.Farms.QuestFarm.SelectedQuest
@@ -665,11 +594,6 @@ do
         self.OnBeybladeAutofarmToggled:Fire(IsEnabled)
     end
 
-    function UIController:SetSelectedRock(RockName: string)
-        self.State.Farms.RockFarm.SelectedRock = RockName
-        self.OnRockTargetTypeChanged:Fire()
-    end
-
     function UIController:SetSelectedQuest(QuestName: string)
         self.State.Farms.QuestFarm.SelectedQuest = QuestName
         self.OnQuestChanged:Fire()
@@ -687,7 +611,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3.93",
+            Name = "Blader's Rebirth v4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -762,44 +686,6 @@ do
                 self:SetAutofarmEnabled(State)
             end,
         })
-        --[[
-        -- Rock Farm Section
-        Tab:CreateSection("Auto Rock Farm")
-
-        local RockList = {
-            "Rock", "Large Rock", "Cobblestone", "Metal", "Large Metal Rock", 
-            "Blood Rock", "Bluesteel Rock", "Large Bluesteel Rock",
-            "Sandstone", "Sandcastle", "Cactus", "Glacier", "Ice Crystal", 
-            "Water Rock", "Giant Water Rock", "Ghost Tear", "Darkstone", 
-            "Molten Rock", "Large Darkstone", "Portable Crystal", "Boulder"
-        }
-
-        -- Add anything extra we missed out
-        for _, Rock in TrainingFolder:GetChildren() do
-            if not table.find(RockList, Rock.Name) then continue end
-            table.insert(RockList, Rock.Name)        
-        end
-        
-        Tab:CreateDropdown({
-            Name = "Select Rock to Farm",
-            Options = RockList,
-            CurrentOption = {self.State.ActiveFarms.RockFarm.SelectedRock},
-            Flag = "SelectedRockToFarm",
-            Callback = function(Option)
-                self:SetSelectedRock(Option[1])
-            end
-        })
-        
-        Tab:CreateToggle({
-            Name = "Rock Autofarm",
-            CurrentValue = self.State.ActiveFarms.RockFarm.Enabled,
-            Flag = "RockAutofarmToggle",
-            Callback = function(State)
-                self:SetFarmState("RockFarm", State)
-                UIController.OnRockFarmToggled:Fire(State)
-            end,
-        })
-        --]]
 
         -- Trainer NPC Autofarm Section
         Tab:CreateSection("Auto Trainer Farm")
