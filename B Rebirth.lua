@@ -241,6 +241,15 @@ do
         NPCsFolder:WaitForChild(self._CurrentNPC.Name)
         task.wait(0.5)
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
+
+        local TargetNPC = self._CurrentNPC 
+        task.delay(60, function()
+            -- Only reset if `_CurrentNPC` is still the same NPC
+            if self._CurrentNPC == TargetNPC then
+                print("Resetting _CurrentNPC due to timeout.")
+                self._CurrentNPC = nil
+            end
+        end)
     end
     
 
