@@ -434,8 +434,7 @@ do
 
         for SkillIndex, _ in pairs(EquippedBeyblade.Skills) do
             -- RunSkill, returns debounce data which we could utilise
-            -- FinishSkill, for 2nd arg I could've put any instance, since
-            --  it doesn't affect the skill's performance
+            -- FinishSkill, for 2nd arg I could've put any instance
             RemotesFolder.SetPoint:FireServer(TargetPosition)
 
             -- May yield, so process in a thread
