@@ -462,7 +462,7 @@ do
                 end
             end))
 
-            CharacterMaid.GiveTask(game:GetService("Workspace").ChildAdded:Connect(function(child)
+            CharacterMaid.GiveTask(Workspace.ChildAdded:Connect(function(child)
                 --workspace["572b341d-e0d9-4c75-8ad3-1258b5fdfd53"].Root.Crystal
                 local Root = child:FindFirstChild("Root")
                 if Root then
@@ -477,7 +477,9 @@ do
                                 connection:Disconnect() 
                             end
                         end)
-                        self._Maid:GiveTask(connection)
+                        if connection then
+                            self._Maid:GiveTask(connection)
+                        end
                     end
                 end
             end))
