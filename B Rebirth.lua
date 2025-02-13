@@ -301,6 +301,7 @@ do
 
         if QuestData == nil then
             self:GetQuest()
+            return
         end 
 
                    
