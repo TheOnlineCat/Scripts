@@ -208,12 +208,13 @@ do
 
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
-                task.wait(6 + UIController:GetFarmDelay())
+                task.wait(4.2 + UIController:GetFarmDelay())
+                AutofarmController:QueueNextStrategy()
                 self._isBattling = false
             end
         end))
 
-        -- self:ChildHooks()
+        self:ChildHooks()
         
         AutofarmController:RunTask(function()
             self:InitiateFight()
@@ -256,10 +257,10 @@ do
     end
 
     function QuestFarmStrategy:ChildHooks()
-        self._Maid:GiveTask(EventsFolder.UpdateSpecificQuest.OnClientEvent:Connect(function(...)
+        -- self._Maid:GiveTask(EventsFolder.UpdateSpecificQuest.OnClientEvent:Connect(function(...)
             
-            AutofarmController:QueueNextStrategy()
-        end))
+            
+        -- end))
     end
 
     function QuestFarmStrategy:GetQuest() 
@@ -332,7 +333,7 @@ do
 
     function BossFarmStrategy:ChildHooks()
         self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
-            task.wait(0.3)
+            task.wait(1)
             AutofarmController:FireServer("StartBossBattle", "Easy")
         end))
     end
