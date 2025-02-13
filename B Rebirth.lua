@@ -201,7 +201,6 @@ do
     function BaseNPCBattleStrategy:Update()
         if not self._isBattling then
             if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
-                print(self._isBattling)
                 AutofarmController:RunTask(function()
                     self:InitiateFight()
                 end)
@@ -473,7 +472,8 @@ do
                         local connection
                         connection = child.AncestryChanged:Connect(function(_, parent)
                             if not parent then
-                                print("Part was deleted!")
+                                self.Crystal = nil
+                                self.TimeOfCrystalSpawn = nil
                                 connection:Disconnect() 
                             end
                         end)
