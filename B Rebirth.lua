@@ -211,6 +211,8 @@ do
     end
 
     function BaseNPCBattleStrategy:InitiateFight()
+        warn("initiating fight. should only see this once")
+        task.wait(10)
         AutofarmController:UnlaunchBeyblade()
     
         local Character = Client.Character
@@ -220,7 +222,7 @@ do
         self._NPCBeyblade = nil
     
         if not self._CurrentNPC then
-            -- warn("No Target")
+            warn("No Target")
             -- AutofarmController:QueueNextStrategy()
             return
         end
@@ -607,7 +609,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.3",
+            Name = "Blader's Rebirth v4.4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
