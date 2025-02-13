@@ -250,15 +250,15 @@ do
             end
         end))
 
-        self:ChildHooks()
+        self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
+            task.wait(1)
+            AutofarmController:FireServer("StartBossBattle", "Easy")
+        end))
         
         AutofarmController:RunTask(function()
             self._isBattling = false
             self:InitiateFight()
         end)
-    end
-
-    function BaseNPCBattleStrategy:ChildHooks()
     end
 
     function BaseNPCBattleStrategy:InitiateFight()
@@ -368,13 +368,6 @@ do
 
     function BossFarmStrategy.new()
         return setmetatable(BaseNPCBattleStrategy.new(), BossFarmStrategy)
-    end
-
-    function BossFarmStrategy:ChildHooks()
-        self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
-            task.wait(1)
-            AutofarmController:FireServer("StartBossBattle", "Easy")
-        end))
     end
 
     function BossFarmStrategy:FindAvailableNPC()
