@@ -183,7 +183,6 @@ do
 
     function BaseNPCBattleStrategy:Start()
         self._Maid:GiveTask(EventsFolder.UpdateDialogue.OnClientEvent:Connect(function(DialogueResponses, npc)
-            warn("binded dialogue")
             self:HandleDialogue(DialogueResponses, npc)
         end))
 
@@ -211,8 +210,10 @@ do
         end)
     end
 
+    function BaseNPCBattleStrategy:ChildHooks()
+    end
+
     function BaseNPCBattleStrategy:InitiateFight()
-        warn("initiating fight. should only see this once")
         AutofarmController:UnlaunchBeyblade()
     
         local Character = Client.Character
@@ -222,22 +223,12 @@ do
         self._NPCBeyblade = nil
     
         if not self._CurrentNPC then
-            warn("No Target")
-            -- AutofarmController:QueueNextStrategy()
             return
         end
     
         task.wait(4 + UIController:GetFarmDelay())
-        local success, err = pcall(function()
-            Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
-        end)
-        if not success then
-            print("Function failed with error:", err)
-            print(self._CurrentNPC)
-        else
-            print("Function succeeded!")
-        end
-        task.wait(1)
+        Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
+        task.wait(0.5)
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
     end
     
@@ -252,6 +243,12 @@ do
 
     function QuestFarmStrategy.new()
         return setmetatable(BaseNPCBattleStrategy.new(), QuestFarmStrategy)
+    end
+
+    function QuestFarmStrategy:ChildHooks()
+        self._Maid:GiveTask(EventsFolder.UpdateSpecificQuest.OnClientEvent:Connect(function(...)
+            AutofarmController:QueueNextStrategy()
+        end))
     end
 
     function QuestFarmStrategy:GetQuest() 
@@ -271,30 +268,27 @@ do
         task.wait(0.5)
         fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
         EventsFolder.UpdateAllQuests.OnClientEvent:Wait()
-        print("retrieved quest")
     end
 
     function QuestFarmStrategy:FindAvailableNPC()
         local QuestData = nil
-        while not QuestData do
-            for name, quest_data in pairs(Stats.Quest.Data) do
-                if string.find(name, "Trainer") and quest_data.Type == nil then
-                    QuestData = {}
-                    for i = 1, #quest_data.Objectives do
-                        table.insert(QuestData, {
-                            Level = tonumber(quest_data.Objectives[i].Name), 
-                            Amount = quest_data.Objectives[i].Amount,
-                            Progress = quest_data.Progress[i]
-                        })
-                    end
-                    break
+        for name, quest_data in pairs(Stats.Quest.Data) do
+            if string.find(name, "Trainer") and quest_data.Type == nil then
+                QuestData = {}
+                for i = 1, #quest_data.Objectives do
+                    table.insert(QuestData, {
+                        Level = tonumber(quest_data.Objectives[i].Name), 
+                        Amount = quest_data.Objectives[i].Amount,
+                        Progress = quest_data.Progress[i]
+                    })
                 end
+                break
             end
-
-            if QuestData == nil then
-                self:GetQuest()
-            end 
         end
+
+        if QuestData == nil then
+            self:GetQuest()
+        end 
 
                    
         for _, npc in NPCsFolder:GetChildren() do
