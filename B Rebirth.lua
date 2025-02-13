@@ -228,7 +228,18 @@ do
         end
     
         task.wait(4 + UIController:GetFarmDelay())
-        Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
+        local success, err = pcall(function()
+            Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
+        end)
+        if not success then
+            print("Function failed with error:", err)
+            print(self._CurrentNPC.Name)
+            print(self._CurrentNPC.HumanoidRootPart)
+            self._CurrentNPC:WaitForChild("HumanoidRootPart")
+            print(self._CurrentNPC.HumanoidRootPart)
+        else
+            print("Function succeeded!")
+        end
         task.wait(1)
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
     end
@@ -295,25 +306,6 @@ do
             for _, questTrainer in QuestData do
                 if questTrainer.Progress >= questTrainer.Amount then continue end
                 if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(NPC)then
-                    local function warnTable(tbl, indent)
-                        indent = indent or 0
-                        if type(tbl) ~= "table" then
-                            warn(("[INDENT] %s%s"):format((" "):rep(indent), tostring(tbl)))
-                            return
-                        end
-                    
-                        for k, v in pairs(tbl) do
-                            if type(v) == "table" then
-                                warn(("%s[%s] = {"):format((" "):rep(indent), tostring(k)))
-                                warnTable(v, indent + 4)
-                                warn(("%s}"):format((" "):rep(indent)))
-                            else
-                                warn(("%s[%s] = %s"):format((" "):rep(indent), tostring(k), tostring(v)))
-                            end
-                        end
-                    end
-                    warnTable(NPC)
-
                     return NPC
                 end
             end
@@ -627,7 +619,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.6",
+            Name = "Blader's Rebirth v4.7",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
