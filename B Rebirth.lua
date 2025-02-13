@@ -62,7 +62,6 @@ do
     
     function TaskRunner:Run(taskFunction, ...)
         if self._isRunning then
-            print("Already Running")
             return
         end
     
@@ -208,7 +207,7 @@ do
 
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
-                task.wait(4.2 + UIController:GetFarmDelay())
+                task.wait(2 + UIController:GetFarmDelay())
                 AutofarmController:QueueNextStrategy(true)
             end
         end))
@@ -268,7 +267,6 @@ do
             return 
         end
 
-        task.wait(4 + UIController:GetFarmDelay())
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
         NPCsFolder:WaitForChild(QuestGiver.Name)
         task.wait(0.5)
@@ -379,6 +377,19 @@ do
                     self.CurrentFarmStrategy:Update()
                 end
             end))
+
+            --Noclip when farming (to avoid getting pushed away from dialogue)
+            CharacterMaid:GiveTask(RunService.Stepped:Connect(function()
+                for _, part in pairs(Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        if (UIController:IsBeybladeAutofarmToggled()) then
+                            part.CanCollide = false
+                        else
+                            part.CanCollide = true
+                        end
+                    end
+                end
+            end))
             
             -- Handle Strategy changes
             CharacterMaid:GiveTask(UIController.OnCurrentFarmChanged:Connect(function(NewFarmType: string?)
@@ -414,6 +425,8 @@ do
                     self:SwitchStrategy(UIController:GetNextFarm())
                 end
             end))
+
+            
 
             -- Cleanup
             CharacterMaid:GiveTask(function()
@@ -521,10 +534,8 @@ do
 
     function AutofarmController:QueueNextStrategy(restart)
         if restart then
-            warn("Switching off from", self.CurrentFarm, "AND GOING BACK TO", UIController:GetNextFarm())
             self:SwitchStrategy(UIController:GetNextFarm())
         else
-            warn("Switching off from", self.CurrentFarm, "and going to", UIController:GetNextFarm(self.CurrentFarm))
             self:SwitchStrategy(UIController:GetNextFarm(self.CurrentFarm))
         end
         
@@ -673,7 +684,7 @@ do
         Tab:CreateSection("Farm Settings")
         Tab:CreateSlider({
             Name = "Distance to Target",
-            Range = {1, 20},
+            Range = {1, 30},
             Increment = 1,
             CurrentValue = self.State.FarmConfig.Distance,
             Flag = "FarmDistance",
