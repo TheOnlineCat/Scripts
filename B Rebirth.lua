@@ -335,6 +335,7 @@ do
     function BossFarmStrategy:FindAvailableNPC()
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, boss in folder:GetChildren() do
+                if string.len(boss.Name) > 30 then return end
                 if not table.find(UIController:GetTargetBossNames(), boss:GetAttribute("Name")) then
                     continue
                 end
