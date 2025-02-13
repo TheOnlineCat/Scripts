@@ -462,8 +462,26 @@ do
                 end
             end))
 
-            CharacterMaid.GiveTask(workspace.ChildAdded:Connect(function(child)
-                print("hi", child.Name)
+            CharacterMaid:GiveTask(workspace.ChildAdded:Connect(function(child)
+                --workspace["572b341d-e0d9-4c75-8ad3-1258b5fdfd53"].Root.Crystal
+                local Root = child:FindFirstChild("Root")
+                if Root then
+                    local Crystal = Root:FindFirstChild("Crystal")
+                    if Crystal then
+                        self.Crystal = Crystal
+                        self.TimeOfCrystalSpawn = os.clock()
+                        local connection
+                        connection = child.AncestryChanged:Connect(function(_, parent)
+                            if not parent then
+                                print("Part was deleted!")
+                                connection:Disconnect() 
+                            end
+                        end)
+                        if connection then
+                            self._Maid:GiveTask(connection)
+                        end
+                    end
+                end
             end))
 
             CharacterMaid:GiveTask(UIController.OnBeybladeAutofarmToggled:Connect(function(IsEnabled: boolean)
