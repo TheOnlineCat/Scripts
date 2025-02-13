@@ -1,5 +1,5 @@
 --[[
-loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/refactor/B%20Rebirth.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/refactor/B%20Rebirth.lua?t=" .. os.time()))()
 --]]
 
 if not game:IsLoaded() then
@@ -130,8 +130,8 @@ do
         return self
     end
 
-    function BaseNPCBattleStrategy:HandleDialogue(Responses: { DialogueChoice }, NPC: Model)
-        if not Responses or not NPC then return end
+    function BaseNPCBattleStrategy:HandleDialogue(Responses: { DialogueChoice }, npc: Model)
+        if not Responses or not npc then return end
 
         local FirstResponseId, FirstReplyId
         
@@ -182,8 +182,9 @@ do
     end
 
     function BaseNPCBattleStrategy:Start()
-        self._Maid:GiveTask(EventsFolder.UpdateDialogue.OnClientEvent:Connect(function(DialogueResponses, NPC)
-            self:HandleDialogue(DialogueResponses, NPC)
+        self._Maid:GiveTask(EventsFolder.UpdateDialogue.OnClientEvent:Connect(function(DialogueResponses, npc)
+            warn("hi")
+            self:HandleDialogue(DialogueResponses, npc)
         end))
 
         self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
@@ -296,14 +297,14 @@ do
         end
 
                    
-        for _, NPC in NPCsFolder:GetChildren() do
-            if not string.find(NPC.Name, "Trainer") then continue end
-            local NPCLevel = NPC:GetAttribute("Level")
+        for _, npc in NPCsFolder:GetChildren() do
+            if not string.find(npc.Name, "Trainer") then continue end
+            local NPCLevel = npc:GetAttribute("Level")
             for _, questTrainer in QuestData do
                 if questTrainer.Progress >= questTrainer.Amount then continue end
-                if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(NPC)then
-                    warn(NPC.Name, "can be fought")
-                    return NPC
+                if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(npc)then
+                    warn(npc.Name, "can be fought")
+                    return npc
                 end
             end
         end
@@ -616,7 +617,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.94",
+            Name = "Blader's Rebirth v4.95",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -702,18 +703,18 @@ do
 
         -- Get the highest level trainer in the game
         local MaxTrainerLevel = -math.huge
-        for _, NPC in NPCsFolder:GetChildren() do
-            if not string.find(NPC.Name, "Trainer") then continue end
-            local NPCLevel = NPC:GetAttribute("Level")
+        for _, npc in NPCsFolder:GetChildren() do
+            if not string.find(npc.Name, "Trainer") then continue end
+            local NPCLevel = npc:GetAttribute("Level")
             if NPCLevel < MaxTrainerLevel then continue end
             MaxTrainerLevel = NPCLevel
         end
 
         local QuestList = {}
         for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
-            for _, NPC in ipairs(folder:GetChildren()) do
-                if NPC.Name:find("Quest") and not NPC.Name:find("Boss") then
-                    table.insert(QuestList, NPC.Name)
+            for _, npc in ipairs(folder:GetChildren()) do
+                if npc.Name:find("Quest") and not npc.Name:find("Boss") then
+                    table.insert(QuestList, npc.Name)
                 end
             end
         end
@@ -748,9 +749,9 @@ do
 	
         local BossList = {"Volt", "Shin", "Ryuke", "Jinka"}
         for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
-            for _, NPC in ipairs(folder:GetChildren()) do
-                if NPC.Name:find("^Boss") then
-                    table.insert(BossList, NPC:GetAttribute("Name"))
+            for _, npc in ipairs(folder:GetChildren()) do
+                if npc.Name:find("^Boss") then
+                    table.insert(BossList, npc:GetAttribute("Name"))
                 end
             end
         end
