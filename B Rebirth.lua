@@ -155,7 +155,7 @@ do
     end
 
     function BaseNPCBattleStrategy:IsNpcOnCooldown(npc)
-        local CooldownEndTime = self._CurrentNPC:GetAttribute("CooldownEnd")                    
+        local CooldownEndTime = npc:GetAttribute("CooldownEnd")                    
         return CooldownEndTime and os.time() < CooldownEndTime
     end
 
@@ -607,7 +607,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.2",
+            Name = "Blader's Rebirth v4.3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
