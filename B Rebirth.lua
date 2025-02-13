@@ -122,12 +122,10 @@ do
         self._CurrentNPC = nil
         self._NPCBeyblade = nil
 
-        self._HasBattled = false
-
-        self._Maid:GiveTask(function()
-            self._CurrentNPC = nil
-            self._NPCBeyblade = nil
-        end)
+        -- self._Maid:GiveTask(function()
+        --     self._CurrentNPC = nil
+        --     self._NPCBeyblade = nil
+        -- end)
 
         return self
     end
@@ -233,10 +231,6 @@ do
         end)
         if not success then
             print("Function failed with error:", err)
-            print(self._CurrentNPC.Name)
-            print(self._CurrentNPC.HumanoidRootPart)
-            self._CurrentNPC:WaitForChild("HumanoidRootPart")
-            print(self._CurrentNPC.HumanoidRootPart)
         else
             print("Function succeeded!")
         end
@@ -274,6 +268,7 @@ do
         task.wait(0.5)
         fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
         EventsFolder.UpdateAllQuests.OnClientEvent:Wait()
+        print("retrieved quest")
     end
 
     function QuestFarmStrategy:FindAvailableNPC()
@@ -298,7 +293,6 @@ do
             end 
         end
 
-        warn("start finding NPC for quest")
                    
         for _, NPC in NPCsFolder:GetChildren() do
             if not string.find(NPC.Name, "Trainer") then continue end
@@ -306,6 +300,7 @@ do
             for _, questTrainer in QuestData do
                 if questTrainer.Progress >= questTrainer.Amount then continue end
                 if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(NPC)then
+                    warn(NPC:GetAttribute("Name"), "can be fought")
                     return NPC
                 end
             end
@@ -619,7 +614,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.7",
+            Name = "Blader's Rebirth v4.8",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
