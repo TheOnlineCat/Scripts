@@ -88,6 +88,8 @@ do
     function BaseFarmStrategy.new()
         local self = setmetatable({}, BaseFarmStrategy)
         self._LastAttack = 0
+        self._isBattling = false
+
         self._Maid = Maid.new()
         return self
     end
@@ -159,7 +161,7 @@ do
     end
 
     function BaseNPCBattleStrategy:Update()
-        if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
+        if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) and not self._isBattling then
             AutofarmController:RunTask(function()
                 self:InitiateFight()
             end)
@@ -170,6 +172,7 @@ do
         local ClientBeyblade: Model = AutofarmController:GetClientBeyblade()
         if not ClientBeyblade then return end
 
+        self._isBattling = true
         -- Attack logic
         if os.clock() - self._LastAttack >= GENERAL_POLL_DELAY then
             self._LastAttack = os.clock()
@@ -199,10 +202,12 @@ do
             if Beyblade == self._NPCBeyblade then
                 self._NPCBeyblade = nil
                 self._CurrentNPC = nil
+                EventsFolder.BattleTransition.OnClientEvent:Wait()
+                self._isBattling = false
             end
         end))
 
-        self:ChildHooks()
+        -- self:ChildHooks()
         
         AutofarmController:RunTask(function()
             self:InitiateFight()
@@ -246,6 +251,7 @@ do
 
     function QuestFarmStrategy:ChildHooks()
         self._Maid:GiveTask(EventsFolder.UpdateSpecificQuest.OnClientEvent:Connect(function(...)
+            
             AutofarmController:QueueNextStrategy()
         end))
     end
@@ -616,7 +622,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.97",
+            Name = "Blader's Rebirth v4.98",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
