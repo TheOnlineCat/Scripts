@@ -384,7 +384,7 @@ do
                 if CurrentStrategy then
                     CurrentStrategy:Start()
                 else
-                    self:SwitchStrategy(self:QueueNextStrategy())
+                    self:SwitchStrategy(UIController:GetNextFarm())
                 end
             end))
 
@@ -616,7 +616,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4.95",
+            Name = "Blader's Rebirth v4.96",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
