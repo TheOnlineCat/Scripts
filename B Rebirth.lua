@@ -796,7 +796,7 @@ do
         -- Get vending machine names
         local vendingOptions = {}
         for _, machine in pairs(VendingMachinesFolder:GetChildren()) do
-            if string.find(machine.Name, "and") then
+            if machine.Name:find("and") then
                 table.insert(vendingOptions, machine.Name)
             end
         end
