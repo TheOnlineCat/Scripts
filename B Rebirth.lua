@@ -829,8 +829,13 @@ do
                                 end
                             end
 
-                            EventsFolder.PurchaseItem:InvokeServer(SelectedMachine, {TraitWhiteList = TraitWhiteList})
-                            print("spin")
+                            EventsFolder.PurchaseItem:InvokeServer("Cygnus and Dransword", {TraitWhiteList = {
+                                [1] = "Rare",
+                                [2] = "Uncommon",
+                                [3] = "Common",
+                                [4] = "Traitless",
+                                [5] = "Legendary"
+                            }})
                             task.wait(0.5)
                         end
                     end)
@@ -843,6 +848,7 @@ do
             Tab:CreateToggle({
                 Name = "Destroy " .. trait,
                 CurrentValue = true,
+                Flag = trait .. "Filter",
                 Callback = function(Value)
                     traitWhiteList[trait] = Value
                 end
