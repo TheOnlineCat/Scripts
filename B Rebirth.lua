@@ -791,7 +791,7 @@ do
         }
         local autoVendingEnabled = false
         local autoBlackmarketEnabled = false
-        local rollDelay = 0.5
+        local rollDelay = 500
 
         -- Store and disable connections
         local oldConnections = {}
@@ -839,9 +839,9 @@ do
         })
 
         Tab:CreateSlider({
-            Name = "Roll Delay (seconds)",
-            Range = {0.1, 1.5},
-            Increment = 0.1,
+            Name = "Roll Delay (miliseconds)",
+            Range = {100, 1500},
+            Increment = 100,
             CurrentValue = rollDelay,
             Flag = "RollDelay",
             Callback = function(Value)
