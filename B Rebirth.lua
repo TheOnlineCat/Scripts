@@ -817,29 +817,21 @@ do
             CurrentValue = false,
             Flag = "AutoVending",
             Callback = function(Value)
-                autoPurchaseEnabled = Value
-                if autoPurchaseEnabled then
-                    task.spawn(function()
-                        while autoPurchaseEnabled do
-                            local TraitWhiteList = {}
-                            -- Add selected traits to whitelist
-                            for trait, enabled in pairs(traitWhiteList) do
-                                if enabled then
-                                    table.insert(TraitWhiteList, trait)
-                                end
+                task.spawn(function()
+                    while autoPurchaseEnabled do
+                        local TraitWhiteList = {}
+                        -- Add selected traits to whitelist
+                        for trait, enabled in pairs(traitWhiteList) do
+                            if enabled then
+                                table.insert(TraitWhiteList, trait)
                             end
-
-                            EventsFolder.PurchaseItem:InvokeServer("Cygnus and Dransword", {TraitWhiteList = {
-                                [1] = "Rare",
-                                [2] = "Uncommon",
-                                [3] = "Common",
-                                [4] = "Traitless",
-                                [5] = "Legendary"
-                            }})
-                            task.wait(0.5)
                         end
-                    end)
-                end
+
+                        EventsFolder.PurchaseItem:InvokeServer(SelectedMachine, {TraitWhiteList = TraitWhiteList})
+                        print(SelectedMachine)
+                        task.wait(0.5)
+                    end
+                end)
             end
         })
 
