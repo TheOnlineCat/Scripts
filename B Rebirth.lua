@@ -477,28 +477,23 @@ do
                     end
                 end
             end))
-
-            CharacterMaid:GiveTask(UIController.OnBeybladeAutofarmToggled:Connect(function(IsEnabled: boolean)
-                local CurrentStrategy = self.CurrentFarmStrategy
-
-                if not IsEnabled then
-                    self:SwitchStrategy(nil) --destroy all strategies
-                    return
-                end
-                
-                if CurrentStrategy then
-                    CurrentStrategy:Start()
-                else
-                    self:SwitchStrategy(UIController:GetNextFarm())
-                end
-            end))
-
             
 
             -- Cleanup
             CharacterMaid:GiveTask(function()
-                self:SwitchStrategy(nil) -- Clean up current strategy
+                if not UIController:IsBeybladeAutofarmToggled() then
+                    self:SwitchStrategy(nil) --destroy all strategies
+                    return
+                end
+                
+                if self.CurrentFarmStrategy then
+                    self.CurrentFarmStrategy:Start()
+                else
+                    self:SwitchStrategy(UIController:GetNextFarm())
+                end
             end)
+
+            
         end
 
         Client.CharacterAdded:Connect(OnCharacterAdded)
