@@ -1,5 +1,5 @@
 --[[
-loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/refactor/B%20Rebirth.lua?", true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/refactor/B%20Rebirth.lua?t=" .. os.time(), true))()
 --]]
 
 if not game:IsLoaded() then
@@ -733,7 +733,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.2",
+            Name = "Blader's Rebirth v5.5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
