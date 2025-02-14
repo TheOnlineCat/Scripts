@@ -790,6 +790,8 @@ do
             Legendary = true
         }
         local autoPurchaseEnabled = false
+
+        local originalCaseAnimation = RemotesFolder.RunCaseAnimation.FireServer
         
         Tab:CreateSection("Roll")
 
@@ -818,8 +820,12 @@ do
             Flag = "AutoVending",
             Callback = function(Value)
                 autoPurchaseEnabled = Value
+                
                 task.spawn(function()
                     while autoPurchaseEnabled do
+                        RemotesFolder.RunCaseAnimation.FireServer = function(...)
+                        end
+
                         local TraitWhiteList = {}
                         -- Add selected traits to whitelist
                         for trait, enabled in pairs(traitWhiteList) do
@@ -832,6 +838,7 @@ do
                         print("hi", SelectedMachine)
                         task.wait(0.5)
                     end
+                    RemotesFolder.RunCaseAnimation.FireServer = originalCaseAnimation
                 end)
             end
         })
