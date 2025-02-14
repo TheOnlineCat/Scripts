@@ -791,6 +791,7 @@ do
         }
         local autoVendingEnabled = false
         local autoBlackmarketEnabled = false
+        local rollDelay = 0.5
 
         -- Store and disable connections
         local oldConnections = {}
@@ -837,6 +838,17 @@ do
             end
         })
 
+        Tab:CreateSlider({
+            Name = "Roll Delay (seconds)",
+            Min = 0.1,
+            Max = 1.5,
+            Increment = 0.1,
+            CurrentValue = rollDelay,
+            Flag = "RollDelay",
+            Callback = function(Value)
+                rollDelay = Value
+            end
+        })
 
         Tab:CreateToggle({
             Name = "Auto Vending Machine",
