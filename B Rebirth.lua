@@ -840,8 +840,7 @@ do
 
         Tab:CreateSlider({
             Name = "Roll Delay (seconds)",
-            Min = 0.1,
-            Max = 1.5,
+            Range = {0.1, 1.5},
             Increment = 0.1,
             CurrentValue = rollDelay,
             Flag = "RollDelay",
