@@ -792,7 +792,7 @@ do
         local autoVendingEnabled = false
         local autoBlackmarketEnabled = false
 
-        local originalCaseAnimation = RemotesFolder.RunCaseAnimation.FireServer
+        local originalCaseAnimation = RemotesFolder.RunCaseAnimation.OnClientEvent
         
         Tab:CreateSection("Roll")
 
@@ -824,7 +824,7 @@ do
                 
                 task.spawn(function()
                     while autoVendingEnabled do
-                        RemotesFolder.RunCaseAnimation.FireServer = function(...) end
+                        RemotesFolder.RunCaseAnimation.OnClientEvent = function(...) end
                         local TraitWhiteList = {}
                         -- Add selected traits to whitelist
                         for trait, enabled in pairs(traitWhiteList) do
@@ -836,7 +836,7 @@ do
                         EventsFolder.PurchaseItem:InvokeServer(SelectedMachine, {TraitWhiteList = TraitWhiteList})
                         task.wait(0.5)
                     end
-                    RemotesFolder.RunCaseAnimation.FireServer = originalCaseAnimation
+                    RemotesFolder.RunCaseAnimation.OnClientEvent = originalCaseAnimation
                 end)
             end
         })
@@ -849,12 +849,12 @@ do
                 autoBlackmarketEnabled = Value
                 task.spawn(function()
                     while autoBlackmarketEnabled do
-                        RemotesFolder.RunCaseAnimation.FireServer = function(...) end
+                        RemotesFolder.RunCaseAnimation.OnClientEvent = function(...) end
                         
                         EventsFolder.BuyBlackmarket:InvokeServer()
                         task.wait(0.5)
                     end
-                    RemotesFolder.RunCaseAnimation.FireServer = originalCaseAnimation
+                    RemotesFolder.RunCaseAnimation.OnClientEvent = originalCaseAnimation
                 end)
             end
         })
