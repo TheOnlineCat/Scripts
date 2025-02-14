@@ -808,7 +808,11 @@ do
             Options = vendingOptions,
             Flag = "SelectedVendingMachine",
             Callback = function(selected)
-                SelectedMachine = selected
+                if type(selected) == "table" then
+                    SelectedMachine = selected[1]
+                else
+                    SelectedMachine = selected
+                end
             end
         })
 
