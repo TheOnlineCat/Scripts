@@ -126,7 +126,7 @@ do
                 local Character = Client.Character
                 if not Character then return end
                 local previousCFrame = Character.HumanoidRootPart.CFrame
-                Character.HumanoidRootPart.CFrame = AutofarmController.Crystal.CFrame
+                Character.HumanoidRootPart.CFrame = AutofarmController.Crystal.PrimaryPart.CFrame
                 task.wait(0.1)
                 fireproximityprompt(AutofarmController.Crystal.Root.Crystal)
                 task.wait(0.1)
