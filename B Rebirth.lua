@@ -790,7 +790,7 @@ do
         }
         local autoPurchaseEnabled = false
         
-        Tab:CreateSection("Roll Settings")
+        Tab:CreateSection("Roll")
 
         -- Get vending machine names
         local vendingOptions = {}
@@ -843,10 +843,11 @@ do
                 end
             end
         })
-        -- Trait Whitelist Toggles
+
+        Tab:CreateSection("Filter")
         for trait, _ in pairs(traitWhiteList) do
             Tab:CreateToggle({
-                Name = "Whitelist " .. trait,
+                Name = "Destroy " .. trait,
                 CurrentValue = true,
                 Callback = function(Value)
                     traitWhiteList[trait] = Value
