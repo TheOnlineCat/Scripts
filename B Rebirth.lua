@@ -817,6 +817,7 @@ do
             CurrentValue = false,
             Flag = "AutoVending",
             Callback = function(Value)
+                autoPurchaseEnabled = Value
                 task.spawn(function()
                     while autoPurchaseEnabled do
                         local TraitWhiteList = {}
