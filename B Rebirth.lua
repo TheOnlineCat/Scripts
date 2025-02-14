@@ -829,7 +829,7 @@ do
                         end
 
                         EventsFolder.PurchaseItem:InvokeServer(SelectedMachine, {TraitWhiteList = TraitWhiteList})
-                        print(SelectedMachine)
+                        print("hi", SelectedMachine)
                         task.wait(0.5)
                     end
                 end)
