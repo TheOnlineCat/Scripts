@@ -795,7 +795,7 @@ do
 
         -- Get vending machine names
         local vendingOptions = {}
-        for _, machine in pairs(VendingMachinesFolder:GetChildren()) do
+        for _, machine in ipairs(VendingMachinesFolder:GetChildren()) do
             if string.find(machine.Name, "and") then
                 table.insert(vendingOptions, machine.Name)
             end
@@ -846,7 +846,7 @@ do
         })
 
         Tab:CreateSection("Filter")
-        for trait, _ in ipairs(traitWhiteList) do
+        for trait, _ in pairs(traitWhiteList) do
             Tab:CreateToggle({
                 Name = "Destroy " .. trait,
                 CurrentValue = true,
