@@ -789,7 +789,8 @@ do
             Traitless = true,
             Legendary = true
         }
-        local autoPurchaseEnabled = false
+        local autoVendingEnabled = false
+        local autoBlackmarketEnabled = false
 
         local originalCaseAnimation = RemotesFolder.RunCaseAnimation.FireServer
         
@@ -819,13 +820,11 @@ do
             CurrentValue = false,
             Flag = "AutoVending",
             Callback = function(Value)
-                autoPurchaseEnabled = Value
+                autoVendingEnabled = Value
                 
                 task.spawn(function()
-                    while autoPurchaseEnabled do
-                        RemotesFolder.RunCaseAnimation.FireServer = function(...)
-                        end
-
+                    while autoVendingEnabled do
+                        RemotesFolder.RunCaseAnimation.FireServer = function(...) end
                         local TraitWhiteList = {}
                         -- Add selected traits to whitelist
                         for trait, enabled in pairs(traitWhiteList) do
@@ -835,11 +834,42 @@ do
                         end
 
                         EventsFolder.PurchaseItem:InvokeServer(SelectedMachine, {TraitWhiteList = TraitWhiteList})
-                        print("hi", SelectedMachine)
                         task.wait(0.5)
                     end
                     RemotesFolder.RunCaseAnimation.FireServer = originalCaseAnimation
                 end)
+            end
+        })
+
+        Tab:CreateToggle({
+            Name = "Auto Blackmarket",
+            CurrentValue = false,
+            Flag = "AutoBlackmarket",
+            Callback = function(Value)
+                autoBlackmarketEnabled = Value
+                task.spawn(function()
+                    while autoBlackmarketEnabled do
+                        RemotesFolder.RunCaseAnimation.FireServer = function(...) end
+                        
+                        EventsFolder.BuyBlackmarket:InvokeServer()
+                        task.wait(0.5)
+                    end
+                    RemotesFolder.RunCaseAnimation.FireServer = originalCaseAnimation
+                end)
+            end
+        })
+
+        Tab:CreateButton({
+            Name = "Spin BlackMarket",
+            Callback = function()
+                EventsFolder.BuyBlackmarket:InvokeServer()
+            end
+        })
+
+        Tab:CreateButton({
+            Name = "Show BlackMarket",
+            Callback = function()
+                Client.PlayerGui.UI.Menu.Blackmarket.Visible = not Client.PlayerGui.UI.Menu.Blackmarket.Visible 
             end
         })
 
