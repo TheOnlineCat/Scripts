@@ -840,9 +840,9 @@ do
 
         Tab:CreateSlider({
             Name = "Roll Delay (miliseconds)",
-            Range = {100, 1500},
-            Increment = 100,
-            CurrentValue = rollDelay,
+            Range = {0.1, 1.0},
+            Increment = 0.1,
+            CurrentValue = 0.5,
             Flag = "RollDelay",
             Callback = function(Value)
                 rollDelay = Value
@@ -867,7 +867,7 @@ do
                         end
 
                         EventsFolder.PurchaseItem:InvokeServer(SelectedMachine, {TraitWhiteList = TraitWhiteList})
-                        task.wait(0.5)
+                        task.wait(rollDelay)
                     end
                 end)
             end
@@ -882,7 +882,7 @@ do
                 task.spawn(function()
                     while autoBlackmarketEnabled do
                         EventsFolder.BuyBlackmarket:InvokeServer()
-                        task.wait(0.5)
+                        task.wait(rollDelay)
                     end
                 end)
             end
