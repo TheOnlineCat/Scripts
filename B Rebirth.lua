@@ -846,7 +846,7 @@ do
         })
 
         Tab:CreateSection("Filter")
-        for trait, _ in pairs(traitWhiteList) do
+        for trait, _ in ipairs(traitWhiteList) do
             Tab:CreateToggle({
                 Name = "Destroy " .. trait,
                 CurrentValue = true,
