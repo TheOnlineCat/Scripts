@@ -984,10 +984,11 @@ do
             end
         end
         
-        table.sort(QuestList, function(a, b)
-            return tonumber(a:match("%d+")) < tonumber(b:match("%d+"))
+        pcall(function()
+            table.sort(QuestList, function(a, b)
+                return tonumber(a:match("%d+")) < tonumber(b:match("%d+"))
+            end)
         end)
-
 
         Tab:CreateDropdown({
             Name = "Select Quest",
