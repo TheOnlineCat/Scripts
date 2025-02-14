@@ -782,11 +782,11 @@ do
         local Tab = Window:CreateTab("Roll", 4483362458)
 
         local traitWhiteList = {
-            ["Rare"] = true,
-            ["Uncommon"] = true,
-            ["Common"] = true,
-            ["Traitless"] = true,
-            ["Legendary"] = true
+            Rare = true,
+            Uncommon = true,
+            Common = true,
+            Traitless = true,
+            Legendary = true
         }
         local autoPurchaseEnabled = false
         
@@ -844,8 +844,7 @@ do
             end
         })
         -- Trait Whitelist Toggles
-        local Traits = {"Rare", "Uncommon", "Common", "Traitless", "Legendary"}
-        for _, trait in ipairs(Traits) do
+        for trait, _ in pairs(traitWhiteList) do
             Tab:CreateToggle({
                 Name = "Whitelist " .. trait,
                 CurrentValue = true,
