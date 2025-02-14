@@ -43,6 +43,7 @@ local BossFarmStrategy = {}
 local Client = Players.LocalPlayer
 
 local EventsFolder = ReplicatedStorage.Events
+local VendingMachinesFolder = workspace.World.VendingMachines
 local BeybladesFolder = workspace.Beyblades
 local TrainingFolder = workspace.Training
 local NPCsFolder = workspace.NPCs
@@ -775,6 +776,85 @@ do
                 self.OnTrainerLevelChanged:Fire()
             end,
         })
+    end
+
+    function UIController:_CreateRollTab(Window)
+        local Tab = Window:CreateTab("Roll", 4483362458)
+
+        local traitWhiteList = {
+            ["Rare"] = true,
+            ["Uncommon"] = true,
+            ["Common"] = true,
+            ["Traitless"] = true,
+            ["Legendary"] = true
+        }
+        local autoPurchaseEnabled = false
+        
+        Tab:CreateSection("Roll Settings")
+
+        -- Get vending machine names
+        local vendingOptions = {}
+        for _, machine in pairs(VendingMachinesFolder:GetChildren()) do
+            if string.find(machine.Name, "and") then
+                table.insert(vendingOptions, machine.Name)
+            end
+        end
+        local SelectedMachine = vendingOptions[1] or "None"
+
+        -- Dropdown for selecting vending machine
+        Tab:CreateDropdown({
+            Name = "Select Vending Machine",
+            Options = vendingOptions[1],
+            Flag = "SelectedVendingMachine",
+            Callback = function(selected)
+                SelectedMachine = selected
+            end
+        })
+
+        Tab:CreateToggle({
+            Name = "Auto Vending Machine",
+            CurrentValue = false,
+            Flag = "AutoVending",
+            Callback = function(Value)
+                autoPurchaseEnabled = Value
+                if autoPurchaseEnabled then
+                    task.spawn(function()
+                        while autoPurchaseEnabled do
+                            local args = {
+                                SelectedMachine,
+                                {
+                                    AutoRoll = {},
+                                    AutoSellItems = {},
+                                    TraitWhiteList = {}
+                                }
+                            }
+        
+                            -- Add selected traits to whitelist
+                            for trait, enabled in pairs(traitWhiteList) do
+                                if enabled then
+                                    table.insert(args[2].TraitWhiteList, trait)
+                                end
+                            end
+        
+                            EventsFolder.PurchaseItem:InvokeServer(unpack(args))
+                            task.wait(0.5)
+                        end
+                    end)
+                end
+            end
+        })
+        -- Trait Whitelist Toggles
+        local Traits = {"Rare", "Uncommon", "Common", "Traitless", "Legendary"}
+        for _, trait in ipairs(Traits) do
+            Tab:CreateToggle({
+                Name = "Whitelist " .. trait,
+                CurrentValue = true,
+                Callback = function(Value)
+                    traitWhiteList[trait] = Value
+                end
+            })
+        end
+
     end
 
     function UIController:_CreateMiscTab(Window)
