@@ -795,7 +795,7 @@ do
 
         -- Get vending machine names
         local vendingOptions = {}
-        for _, machine in ipairs(VendingMachinesFolder:GetChildren()) do
+        for _, machine in pairs(VendingMachinesFolder:GetChildren()) do
             if string.find(machine.Name, "and") then
                 table.insert(vendingOptions, machine.Name)
             end
@@ -805,7 +805,7 @@ do
         -- Dropdown for selecting vending machine
         Tab:CreateDropdown({
             Name = "Select Vending Machine",
-            Options = vendingOptions[1],
+            Options = vendingOptions,
             Flag = "SelectedVendingMachine",
             Callback = function(selected)
                 SelectedMachine = selected
