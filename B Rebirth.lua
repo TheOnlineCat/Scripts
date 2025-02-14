@@ -792,6 +792,13 @@ do
         local autoVendingEnabled = false
         local autoBlackmarketEnabled = false
 
+        -- Store and disable connections
+        local oldConnections = {}
+        for _, conn in pairs(getconnections(EventsFolder.RunCaseAnimation.OnClientEvent)) do
+            table.insert(oldConnections, conn.Function) -- Save the function
+        end
+
+
         Tab:CreateSection("Roll")
 
         -- Get vending machine names
@@ -812,6 +819,24 @@ do
                 SelectedMachine = selected[1]
             end
         })
+
+        Tab:CreateToggle({
+            Name = "Skip Gacha Animation",
+            CurrentValue = false,
+            Flag = "SkipGacha",
+            Callback = function(Value)
+                if Value then
+                    for _, conn in pairs(getconnections(EventsFolder.RunCaseAnimation.OnClientEvent)) do
+                        conn:Disable()
+                    end
+                else
+                    for _, func in pairs(oldConnections) do
+                        EventsFolder.RunCaseAnimation.OnClientEvent:Connect(func) 
+                    end
+                end
+            end
+        })
+
 
         Tab:CreateToggle({
             Name = "Auto Vending Machine",

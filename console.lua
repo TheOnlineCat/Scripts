@@ -32,6 +32,17 @@ connection = game:GetService("ReplicatedStorage").Events.UpdateSpecificQuest.OnC
 end)
 
 
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+
+local oldIndex = mt.__index
+mt.__index = newcclosure(function(self, key)
+    if self == EventsFolder.RunCaseAnimation and key == "FireClient" then
+        return nil -- Prevent it from running
+    end
+    return oldIndex(self, key)
+end)
+
 -- local connection2
 -- connection2 = game:GetService("ReplicatedStorage").Events.Teleport.OnClientEvent:Connect(function(...)
 --     local args = {...} -- Capture all parameters
