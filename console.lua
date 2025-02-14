@@ -16,9 +16,9 @@ local function warnTable(tbl, indent)
     end
 end
 local connection
-connection = game:GetService("ReplicatedStorage").Events.UpdateSpecificQuest.OnClientEvent:Connect(function(...)
+connection = game:GetService("ReplicatedStorage").Events.UpdateBlackmarket.OnClientEvent:Connect(function(...)
     local args = {...} -- Capture all parameters
-    warn("UpdateSpecificQuest event fired with parameters:")
+    warn("UpdateBlackmarket event fired with parameters:")
 
     for i, v in ipairs(args) do
         warn(("\nArgument %d:"):format(i))
@@ -31,7 +31,9 @@ connection = game:GetService("ReplicatedStorage").Events.UpdateSpecificQuest.OnC
     end
 end)
 
-
+for _, conn in pairs(getconnections(game:GetService("ReplicatedStorage").Events.UpdateBlackmarket.OnClientEvent)) do
+    conn.Function({}) -- Simulate event trigger with empty data
+end
 local mt = getrawmetatable(game)
 setreadonly(mt, false)
 

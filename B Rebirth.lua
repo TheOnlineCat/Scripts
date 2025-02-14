@@ -253,7 +253,7 @@ do
 
         self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
             task.wait(1)
-            AutofarmController:FireServer("StartBossBattle", "Easy")
+            AutofarmController:FireServer("StartBossBattle", UIController:GetBossDifficulty())
         end))
         
         AutofarmController:RunTask(function()
@@ -624,7 +624,8 @@ do
         IsAutofarmEnabled = false,
         FarmConfig = {
             Distance = 1,
-            Delay = 0
+            Delay = 0,
+            BossDifficulty = "Easy"
         },
         Farms = {
             CrystalFarm = {
@@ -665,6 +666,10 @@ do
     function UIController:GetTargetBossNames()
         return Rayfield.Flags.SelectedBossToFarm.CurrentOption
     end
+
+    function UIController:GetBossDifficulty()
+        return self.State.FarmConfig.BossDifficulty
+    end 
 
     function UIController:GetFarmDistance(): string
         return self.State.FarmConfig.Distance
@@ -771,6 +776,17 @@ do
                 self.State.FarmConfig.Delay = tonumber(Value)
                 self.OnTrainerLevelChanged:Fire()
             end,
+        })
+
+        local BossDifficultyList = {"Easy", "Normal", "Hard", "Impossible"} 
+
+        Tab:CreateDropdown({
+            Name = "Select Boss Difficulty",
+            Options = BossDifficultyList,
+            Flag = "BossDifficulty",
+            Callback = function(selected)
+                self.State.FarmConfig.BossDifficulty = selected[1]
+            end
         })
     end
 
