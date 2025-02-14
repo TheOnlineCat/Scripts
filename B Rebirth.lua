@@ -746,6 +746,7 @@ do
         })
 
         UIController:_CreateFarmTab(Window)
+        UIController:_CreateRollTab(Window)
         UIController:_CreateConfigTab(Window)
         UIController:_CreateMiscTab(Window)
         Rayfield:LoadConfiguration()
