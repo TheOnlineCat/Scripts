@@ -733,7 +733,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.1",
+            Name = "Blader's Rebirth v5.2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -808,11 +808,7 @@ do
             Options = vendingOptions,
             Flag = "SelectedVendingMachine",
             Callback = function(selected)
-                if type(selected) == "table" then
-                    SelectedMachine = selected[1]
-                else
-                    SelectedMachine = selected
-                end
+                SelectedMachine = selected[1]
             end
         })
 
