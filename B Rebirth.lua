@@ -783,6 +783,7 @@ do
         Tab:CreateDropdown({
             Name = "Select Boss Difficulty",
             Options = BossDifficultyList,
+            CurrentOption = {"Easy"},
             Flag = "BossDifficulty",
             Callback = function(selected)
                 self.State.FarmConfig.BossDifficulty = selected[1]
@@ -814,9 +815,9 @@ do
         Tab:CreateSection("Roll")
 
         -- Get vending machine names
-        local vendingOptions = {}
+        local vendingOptions = {"Cygnus and Dransword"}
         for _, machine in pairs(VendingMachinesFolder:GetChildren()) do
-            if machine.Name:find("and") then
+            if machine.Name:find("and") and not table.find(vendingOptions, machine.Name) then
                 table.insert(vendingOptions, machine.Name)
             end
         end
