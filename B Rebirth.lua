@@ -821,23 +821,16 @@ do
                 if autoPurchaseEnabled then
                     task.spawn(function()
                         while autoPurchaseEnabled do
-                            local args = {
-                                SelectedMachine,
-                                {
-                                    AutoRoll = {},
-                                    AutoSellItems = {},
-                                    TraitWhiteList = {}
-                                }
-                            }
-        
+                            local TraitWhiteList = {}
                             -- Add selected traits to whitelist
                             for trait, enabled in pairs(traitWhiteList) do
                                 if enabled then
-                                    table.insert(args[2].TraitWhiteList, trait)
+                                    table.insert(TraitWhiteList, trait)
                                 end
                             end
-        
-                            EventsFolder.PurchaseItem:InvokeServer(unpack(args))
+
+                            EventsFolder.PurchaseItem:InvokeServer(SelectedMachine, {TraitWhiteList = TraitWhiteList})
+                            print("spin")
                             task.wait(0.5)
                         end
                     end)
