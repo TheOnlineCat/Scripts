@@ -758,7 +758,7 @@ do
         Tab:CreateSection("Farm Settings")
         Tab:CreateSlider({
             Name = "Distance to Target",
-            Range = {1, 50},
+            Range = {1, 80},
             Increment = 1,
             CurrentValue = self.State.FarmConfig.Distance,
             Flag = "FarmDistance",
