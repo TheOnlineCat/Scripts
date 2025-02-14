@@ -128,7 +128,7 @@ do
                 local previousCFrame = Character.HumanoidRootPart.CFrame
                 Character.HumanoidRootPart.CFrame = AutofarmController.Crystal.CFrame
                 task.wait(0.1)
-                fireproximityprompt(AutofarmController.Crystal)
+                fireproximityprompt(AutofarmController.Crystal.Root.Crystal)
                 task.wait(0.1)
                 Character.HumanoidRootPart.CFrame = previousCFrame
                 AutofarmController.Crystal = nil
@@ -461,7 +461,7 @@ do
                 if Root then
                     local Crystal = Root:FindFirstChild("Crystal")
                     if Crystal then
-                        self.Crystal = Crystal
+                        self.Crystal = child
                         self.TimeOfCrystalSpawn = os.clock()
                         local connection
                         connection = child.AncestryChanged:Connect(function(_, parent)
