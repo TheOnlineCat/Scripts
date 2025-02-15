@@ -123,17 +123,28 @@ do
     function CrystalFarmStrategy:Update()
         AutofarmController:RunTask(function()
             if AutofarmController.Crystal and AutofarmController.TimeOfCrystalSpawn + self.RandomSearchTime <= os.clock() then
-                local Character = Client.Character
-                if not Character then return end
-                local previousCFrame = Character.HumanoidRootPart.CFrame
-                Character.HumanoidRootPart.CFrame = AutofarmController.Crystal.PrimaryPart.CFrame
-                task.wait(0.1)
-                fireproximityprompt(AutofarmController.Crystal.Root.Crystal)
-                task.wait(0.1)
-                Character.HumanoidRootPart.CFrame = previousCFrame
-                AutofarmController.Crystal = nil
-                AutofarmController:QueueNextStrategy(true)
-
+                if AutofarmController.TimeOfCrystalSpawn + 600 <= os.clock() then
+                    AutofarmController.Crystal = nil
+                    AutofarmController.TimeOfCrystalSpawn = nil
+                    AutofarmController:QueueNextStrategy(false)
+                    return
+                end
+                local success, error = pcall(function()
+                    local Character = Client.Character
+                    if not Character then return end
+                    local previousCFrame = Character.HumanoidRootPart.CFrame
+                    Character.HumanoidRootPart.CFrame = AutofarmController.Crystal.PrimaryPart.CFrame
+                    task.wait(0.1)
+                    fireproximityprompt(AutofarmController.Crystal.Crystal)
+                    task.wait(0.1)
+                    Character.HumanoidRootPart.CFrame = previousCFrame
+                    AutofarmController.Crystal = nil
+                    AutofarmController:QueueNextStrategy(true)
+                end)
+                
+                if not success then
+                    print(error)
+                end
             end
         end)
     end
@@ -230,8 +241,6 @@ do
             self:HandleDialogue(DialogueResponses, npc)
         end))
 
-
-        
         self._Maid:GiveTask(BeybladesFolder.ChildAdded:Connect(function(Beyblade)
             task.wait(0.3)
             if Beyblade:GetAttribute("TargetPlayer") == Client.Name then
@@ -279,16 +288,17 @@ do
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
         NPCsFolder:WaitForChild(self._CurrentNPC.Name)
         task.wait(0.5)
-        fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
 
         local TargetNPC = self._CurrentNPC 
-        task.delay(60, function()
+        self._Maid:GiveTask(task.delay(30, function()
             -- Only reset if `_CurrentNPC` is still the same NPC
             if self._CurrentNPC == TargetNPC then
                 print("Resetting _CurrentNPC due to timeout.")
                 self._CurrentNPC = nil
             end
-        end)
+        end))
+
+        fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
     end
     
 
@@ -464,15 +474,16 @@ do
                         self.Crystal = child
                         self.TimeOfCrystalSpawn = os.clock()
                         local connection
-                        connection = child.AncestryChanged:Connect(function(_, parent)
-                            if not parent then
+                        connection = workspace.ChildRemoved:Connect(function(removedChild)
+                            if removedChild == child then
                                 self.Crystal = nil
                                 self.TimeOfCrystalSpawn = nil
-                                connection:Disconnect() 
+                                connection:Disconnect()
                             end
                         end)
+
                         if connection then
-                            self._Maid:GiveTask(connection)
+                            CharacterMaid:GiveTask(connection)
                         end
                     end
                 end
@@ -733,7 +744,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.6",
+            Name = "Blader's Rebirth v5.7",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
