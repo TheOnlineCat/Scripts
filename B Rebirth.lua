@@ -2,6 +2,10 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/TheOnlineCat/Scripts/refs/heads/refactor/B%20Rebirth.lua?t=" .. os.time(), true))()
 --]]
 
+if game.GameId ~= 5321619756 then
+    return -- Stops script execution in unintended games
+end
+
 if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
