@@ -12,6 +12,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
 local Workspace = game:GetService("Workspace")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 
 -- Packages
 local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/SiriusSoftwareLtd/Rayfield/main/source.lua"))()
@@ -40,8 +42,8 @@ local BossFarmStrategy = {}
 
 
 -- Variables
+local PLACE_ID = game.PlaceId 
 local Client = Players.LocalPlayer
-
 local EventsFolder = ReplicatedStorage.Events
 local VendingMachinesFolder = workspace.World.VendingMachines
 local BeybladesFolder = workspace.Beyblades
@@ -507,16 +509,13 @@ do
             
 
             CharacterMaid:GiveTask(function()
-                if Client:GetAttribute("InMenu") then
-                    Client.PlayerGui.Menu.Enabled = not Client.PlayerGui.Menu.Enabled
-                end
-
                 if not UIController:IsBeybladeAutofarmToggled() then
                     self:SwitchStrategy(nil) --destroy all strategies
                     return
                 end
                 
                 if self.CurrentFarmStrategy then
+                    warn("Starting...")
                     self.CurrentFarmStrategy:Start()
                 else
                     self:SwitchStrategy(UIController:GetNextFarm())
@@ -760,7 +759,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.2",
+            Name = "Blader's Rebirth v6.3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -1127,6 +1126,25 @@ do
         })
 
         if UIController:CanStaffAutoKick() then
+            local SERVER_LIST_URL = "https://games.roblox.com/v1/games/" .. PLACE_ID .. "/servers/Public?sortOrder=Asc&limit=100"
+            local success, result = pcall(function()
+                return HttpService:GetAsync(SERVER_LIST_URL)
+            end)
+        
+            if success then
+                local serverData = HttpService:JSONDecode(result)
+                for _, server in ipairs(serverData.data) do
+                    if server.id ~= game.JobId and server.playing < server.maxPlayers then
+                        print("Hopping to server:", server.id)
+                        TeleportService:TeleportToPlaceInstance(PLACE_ID, server.id, Players.LocalPlayer)
+                        return
+                    end
+                end
+                warn("No available servers found.")
+            else
+                warn("Failed to get server list:", result)
+            end
+
             Client:Kick("Kicked from game due to staff being in the same server! " .. MessageContent)
         end
     end
@@ -1209,6 +1227,10 @@ local function LoadControllers()
     UIController:Start()
     AutofarmController:Start()
     MiscController:Start()
+
+    if Client:GetAttribute("InMenu") then
+        Client.PlayerGui.Menu.Enabled = not Client.PlayerGui.Menu.Enabled
+    end
 end
 
 LoadControllers()
