@@ -256,7 +256,8 @@ do
         end))
 
         self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
-            if Beyblade == self._NPCBeyblade then
+            if Beyblade == self._NPCBeyblade or Beyblade.Name == Client.Name then
+                warn("battle over")
                 self._PreviousNPC = self._CurrentNPC
                 self._NPCBeyblade = nil
                 self._CurrentNPC = nil
