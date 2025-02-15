@@ -521,7 +521,7 @@ do
             end))
             
 
-            CharacterMaid:GiveTask(function()
+            CharacterMaid:GiveTask(task.spawn(function()
                 if Client:GetAttribute("InMenu") then
                     Client.PlayerGui.Menu.Enabled = not Client.PlayerGui.Menu.Enabled
                 end
@@ -537,6 +537,11 @@ do
                 else
                     self:SwitchStrategy(UIController:GetNextFarm())
                 end
+            end))
+
+            --cleanup
+            CharacterMaid:GiveTask(function()
+                self:SwitchStrategy(nil)
             end)
         end
 
@@ -776,7 +781,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.5",
+            Name = "Blader's Rebirth v6.6",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -1244,10 +1249,6 @@ local function LoadControllers()
     UIController:Start()
     AutofarmController:Start()
     MiscController:Start()
-
-    if Client:GetAttribute("InMenu") then
-        Client.PlayerGui.Menu.Enabled = not Client.PlayerGui.Menu.Enabled
-    end
 end
 
 LoadControllers()
