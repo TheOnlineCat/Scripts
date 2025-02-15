@@ -135,7 +135,7 @@ do
                     local previousCFrame = Character.HumanoidRootPart.CFrame
                     Character.HumanoidRootPart.CFrame = AutofarmController.Crystal.PrimaryPart.CFrame
                     task.wait(0.1)
-                    fireproximityprompt(AutofarmController.Crystal.Crystal)
+                    fireproximityprompt(AutofarmController.Crystal.PrimaryPart.Crystal)
                     task.wait(0.1)
                     Character.HumanoidRootPart.CFrame = previousCFrame
                     AutofarmController.Crystal = nil
@@ -484,6 +484,7 @@ do
                 if Root then
                     local Crystal = Root:FindFirstChild("Crystal")
                     if Crystal then
+                        print("Crystal Found!")
                         self.Crystal = child
                         self.TimeOfCrystalSpawn = os.clock()
                         local connection
@@ -613,7 +614,6 @@ do
             self.CurrentFarm = NewStrategyType
 
             if UIController:IsBeybladeAutofarmToggled() then
-                warn(self.CurrentFarm)
                 self.CurrentFarmStrategy:Start()
             end
         end
