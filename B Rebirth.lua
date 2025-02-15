@@ -171,6 +171,7 @@ do
 
     function BaseNPCBattleStrategy.new()
         local self = setmetatable(BaseFarmStrategy.new(), BaseNPCBattleStrategy)
+        self._PreviousNPC = nil
         self._CurrentNPC = nil
         self._NPCBeyblade = nil
 
@@ -252,6 +253,7 @@ do
 
         self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
             if Beyblade == self._NPCBeyblade then
+                self._PreviousNPC = self._CurrentNPC
                 self._NPCBeyblade = nil
                 self._CurrentNPC = nil
 
@@ -288,13 +290,14 @@ do
         end
     
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
-        NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7)
+        if not NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7) then return end
         local TargetNPC = self._CurrentNPC 
         pcall(function()
-            self._Maid:GiveTask(task.delay(7, function()
+            self._Maid:GiveTask(task.delay(30, function()
                 -- Only reset if `_CurrentNPC` is still the same NPC
                 if self._CurrentNPC == TargetNPC and self._NPCBeyblade == nil then
                     print("Resetting _CurrentNPC due to timeout.")
+                    self._PreviousNPC = self._CurrentNPC
                     self._CurrentNPC = nil
                 end
             end))
@@ -375,6 +378,7 @@ do
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, npc in folder:GetChildren() do
                 if not string.find(npc.Name, "Trainer") then continue end
+                if self._PreviousNPC == npc then return end
                 local NPCLevel = npc:GetAttribute("Level")
                 for _, questTrainer in QuestData do
                     if questTrainer.Progress >= questTrainer.Amount then continue end
@@ -763,7 +767,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.3",
+            Name = "Blader's Rebirth v6.4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
