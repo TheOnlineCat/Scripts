@@ -294,7 +294,7 @@ do
         end
     
         local NpcCFrame = self._CurrentNPC.HumanoidRootPart.CFrame
-        local Offset = NpcCFrame.LookVector * -3
+        local Offset = NpcCFrame.LookVector * -2
         Character.HumanoidRootPart.CFrame = NpcCFrame + Offset
 
         if not NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7) then return end
