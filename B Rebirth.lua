@@ -293,8 +293,8 @@ do
             return
         end
     
-        local NpcCFrame = self._CurrentNPC.HumanoidRootPart.CFrame
-        local Offset = NpcCFrame.LookVector * -2
+        local NpcCFrame = self._CurrentNPC.PrimaryPart.CFrame
+        local Offset = NpcCFrame.LookVector * 6
         Character.HumanoidRootPart.CFrame = NpcCFrame + Offset
 
         if not NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7) then return end
@@ -339,8 +339,8 @@ do
             return 
         end
 
-        local QuestGiverCFrame = QuestGiver.HumanoidRootPart.CFrame
-        local Offset = QuestGiverCFrame.LookVector * -3
+        local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
+        local Offset = QuestGiverCFrame.LookVector * 6
         Character.HumanoidRootPart.CFrame = QuestGiverCFrame + Offset
         NPCsFolder:WaitForChild(QuestGiver.Name)
         task.wait(0.5)
