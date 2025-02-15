@@ -524,6 +524,7 @@ do
             CharacterMaid:GiveTask(task.spawn(function()
                 if Client:GetAttribute("InMenu") then
                     Client.PlayerGui.Menu.Enabled = not Client.PlayerGui.Menu.Enabled
+                    task.wait(3)
                 end
 
                 if not UIController:IsBeybladeAutofarmToggled() then
