@@ -504,6 +504,10 @@ do
             
 
             CharacterMaid:GiveTask(function()
+                if Client:GetAttribute("InMenu") then
+                    Client.PlayerGui.Menu.Enabled = not Client.PlayerGui.Menu.Enabled
+                end
+
                 if not UIController:IsBeybladeAutofarmToggled() then
                     self:SwitchStrategy(nil) --destroy all strategies
                     return
