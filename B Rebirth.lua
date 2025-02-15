@@ -993,7 +993,7 @@ do
             Name = "Teleport to other world",
             Callback = function()
                 if Client.Character then
-                    if (workspace.World.Portals.DellancyTown) then
+                    if (workspace.World.Portals:FindFirstChild("DellancyTown")) then
                         Client.Character.HumanoidRootPart.CFrame = workspace.World.Portals.Volcano.PrimaryPart.CFrame
                     else
                         Client.Character.HumanoidRootPart.CFrame = workspace.World.Portals.Adventure.PrimaryPart.CFrame
