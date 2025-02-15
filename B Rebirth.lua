@@ -1057,7 +1057,7 @@ do
         -- Boss NPC Autofarm Section
         Tab:CreateSection("Auto Boss Farm")
 	
-        local BossList = {"Volt", "Shin", "Ryuke", "Jinka"}
+        local BossList = {"Volt", "Shin", "Ryuke", "Jinka", "Cupid"}
         for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
             for _, npc in ipairs(folder:GetChildren()) do
                 if npc.Name:find("^Boss") then
