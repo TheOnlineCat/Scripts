@@ -288,7 +288,7 @@ do
         local NpcTarget = self:FindAvailableNPC()
         self._NPCBeyblade = nil
     
-        if not self._CurrentNPC then
+        if not NpcTarget then
             AutofarmController:QueueNextStrategy(false)
             return
         end
@@ -773,7 +773,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.7",
+            Name = "Blader's Rebirth v6.8",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
