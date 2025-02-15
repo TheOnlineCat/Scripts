@@ -285,7 +285,7 @@ do
         local Character = Client.Character
         if not Character then return end
     
-        self._CurrentNPC = self:FindAvailableNPC()
+        local NpcTarget = self:FindAvailableNPC()
         self._NPCBeyblade = nil
     
         if not self._CurrentNPC then
@@ -293,22 +293,12 @@ do
             return
         end
     
-        local NpcCFrame = self._CurrentNPC.PrimaryPart.CFrame
+        local NpcCFrame = NpcTarget.PrimaryPart.CFrame
         local Offset = NpcCFrame.LookVector * 6
         Character.HumanoidRootPart.CFrame = NpcCFrame + Offset
 
-        if not NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7) then return end
-        local TargetNPC = self._CurrentNPC 
-        pcall(function()
-            self._Maid:GiveTask(task.delay(30, function()
-                -- Only reset if `_CurrentNPC` is still the same NPC
-                if self._CurrentNPC == TargetNPC and self._NPCBeyblade == nil then
-                    print("Resetting _CurrentNPC due to timeout.")
-                    self._PreviousNPC = self._CurrentNPC
-                    self._CurrentNPC = nil
-                end
-            end))
-        end)
+        self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
+        if not self._CurrentNPC  then return end
 
         task.wait(0.5)
 
@@ -342,11 +332,12 @@ do
         local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
         local Offset = QuestGiverCFrame.LookVector * 6
         Character.HumanoidRootPart.CFrame = QuestGiverCFrame + Offset
-        NPCsFolder:WaitForChild(QuestGiver.Name)
+        local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 7)
         task.wait(0.5)
 
-        fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
+        fireproximityprompt(VisibleTarget.HumanoidRootPart.Dialogue)
 
+        --timeout for dialogue stuck
         local connection
         local eventTriggered = false
         local timeout = 10
@@ -782,7 +773,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.6",
+            Name = "Blader's Rebirth v6.7",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
