@@ -180,12 +180,6 @@ do
         self._NPCBeyblade = nil
 
         self._LastAttack = 0
-        self._isBattling = false
-
-        -- self._Maid:GiveTask(function()
-        --     self._CurrentNPC = nil
-        --     self._NPCBeyblade = nil
-        -- end)
         return self
     end
 
@@ -202,10 +196,9 @@ do
             end
         end
         
-        local DelayTime = FirstReplyId and 0.5 or 0.5
         local ChoiceId = FirstReplyId or FirstResponseId
         
-        task.wait(DelayTime)
+        task.wait(0.5)
         AutofarmController:FireServer("DialogueChoice", ChoiceId)
     end
 
@@ -218,12 +211,10 @@ do
     end
 
     function BaseNPCBattleStrategy:Update()
-        if not self._isBattling then
-            if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
-                AutofarmController:RunTask(function()
-                    self:InitiateFight()
-                end)
-            end
+        if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
+            AutofarmController:RunTask(function()
+                self:InitiateFight()
+            end)
         end
 
         if not self._NPCBeyblade then return end
@@ -231,7 +222,6 @@ do
         local ClientBeyblade: Model = AutofarmController:GetClientBeyblade()
         if not ClientBeyblade then return end
 
-        self._isBattling = true
         -- Attack logic
         if os.clock() - self._LastAttack >= GENERAL_POLL_DELAY then
             self._LastAttack = os.clock()
@@ -256,8 +246,7 @@ do
         end))
 
         self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
-            if Beyblade == self._NPCBeyblade or Beyblade.Name == Client.Name then
-                warn("battle over")
+            if Beyblade == self._NPCBeyblade or (Beyblade.Name == Client.Name and self._NPCBeyblade) then
                 self._PreviousNPC = self._CurrentNPC
                 self._NPCBeyblade = nil
                 self._CurrentNPC = nil
@@ -273,9 +262,14 @@ do
             task.wait(1)
             AutofarmController:FireServer("StartBossBattle", UIController:GetBossDifficulty())
         end))
+
+        --cleanup
+        self._Maid:GiveTask(function()
+            self._CurrentNPC = nil
+            self._NPCBeyblade = nil
+        end)
         
         AutofarmController:RunTask(function()
-            self._isBattling = false
             self:InitiateFight()
         end)
     end
@@ -344,7 +338,7 @@ do
         local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
         local Offset = QuestGiverCFrame.LookVector * 6
         Character.HumanoidRootPart.CFrame = QuestGiverCFrame + Offset
-        local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 7)
+        local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 5)
         task.wait(0.5)
 
         fireproximityprompt(VisibleTarget.HumanoidRootPart.Dialogue)
@@ -352,7 +346,7 @@ do
         --timeout for dialogue stuck
         local connection
         local eventTriggered = false
-        local timeout = 10
+        local timeout = 5
         connection = EventsFolder.UpdateAllQuests.OnClientEvent:Connect(function(...)
             eventTriggered = true
             connection:Disconnect() 
@@ -786,7 +780,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.9",
+            Name = "Blader's Rebirth",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
