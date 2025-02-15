@@ -293,7 +293,10 @@ do
             return
         end
     
-        Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
+        local NpcCFrame = self._CurrentNPC.HumanoidRootPart.CFrame
+        local Offset = NpcCFrame.LookVector * -3
+        Character.HumanoidRootPart.CFrame = NpcCFrame + Offset
+
         if not NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7) then return end
         local TargetNPC = self._CurrentNPC 
         pcall(function()
@@ -336,7 +339,9 @@ do
             return 
         end
 
-        Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
+        local QuestGiverCFrame = QuestGiver.HumanoidRootPart.CFrame
+        local Offset = QuestGiverCFrame.LookVector * -3
+        Character.HumanoidRootPart.CFrame = QuestGiverCFrame + Offset
         NPCsFolder:WaitForChild(QuestGiver.Name)
         task.wait(0.5)
 
@@ -771,7 +776,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.4",
+            Name = "Blader's Rebirth v6.5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
