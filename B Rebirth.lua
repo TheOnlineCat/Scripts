@@ -286,9 +286,7 @@ do
         end
     
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
-        NPCsFolder:WaitForChild(self._CurrentNPC.Name)
-        task.wait(0.5)
-
+        NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7)
         local TargetNPC = self._CurrentNPC 
         self._Maid:GiveTask(task.delay(30, function()
             -- Only reset if `_CurrentNPC` is still the same NPC
@@ -297,6 +295,8 @@ do
                 self._CurrentNPC = nil
             end
         end))
+
+        task.wait(0.5)
 
         fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
     end
