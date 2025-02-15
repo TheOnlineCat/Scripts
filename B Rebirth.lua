@@ -297,8 +297,19 @@ do
         local Offset = NpcCFrame.LookVector * 6
         Character.HumanoidRootPart.CFrame = NpcCFrame + Offset
 
-        self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
+        self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 5)
         if not self._CurrentNPC  then return end
+        local CurrentTarget = self._CurrentNPC 
+        pcall(function()
+            self._Maid:GiveTask(task.delay(15, function()
+                -- Only reset if `_CurrentNPC` is still the same NPC and not in Battle
+                if self._CurrentNPC == CurrentTarget and self._NPCBeyblade == nil then
+                    print("Resetting _CurrentNPC due to timeout.")
+                    self._PreviousNPC = self._CurrentNPC
+                    self._CurrentNPC = nil
+                end
+            end))
+        end)
 
         task.wait(0.5)
 
@@ -378,7 +389,7 @@ do
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, npc in folder:GetChildren() do
                 if not string.find(npc.Name, "Trainer") then continue end
-                if self._PreviousNPC == npc then return end
+                if self._PreviousNPC == npc then continue end --find different target, helpful for timeed out npcs
                 local NPCLevel = npc:GetAttribute("Level")
                 for _, questTrainer in QuestData do
                     if questTrainer.Progress >= questTrainer.Amount then continue end
@@ -405,7 +416,8 @@ do
     function BossFarmStrategy:FindAvailableNPC()
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, boss in folder:GetChildren() do
-                if string.len(boss.Name) > 30 then return end
+                if string.len(boss.Name) > 30 then continue end
+                if self._PreviousNPC == boss then continue end --find different target, helpful for timeed out npcs
                 if not table.find(UIController:GetTargetBossNames(), boss:GetAttribute("Name")) then
                     continue
                 end
@@ -773,7 +785,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.8",
+            Name = "Blader's Rebirth v6.9",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
