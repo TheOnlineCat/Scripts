@@ -195,7 +195,7 @@ do
             end
         end
         
-        local DelayTime = FirstReplyId and 2 or 0.5
+        local DelayTime = FirstReplyId and 0.5 or 0.5
         local ChoiceId = FirstReplyId or FirstResponseId
         
         task.wait(DelayTime)
@@ -966,12 +966,28 @@ do
                 self.OnStaffAutoKickChanged:Fire(State)
             end,
         })
+
+        Tab:CreateButton({
+            Name = "Teleport to other world",
+            Callback = function()
+                if Client.Character then
+                    if (workspace.World.Portals.Adventure) then
+                        Client.Character.HumanoidRootPart.CFrame = workspace.World.Portals.Adventure.PrimaryPart.CFrame
+                    else
+                        Client.Character.HumanoidRootPart.CFrame = workspace.World.Portals.Volcano.PrimaryPart.CFrame
+                    end
+                    task.wait(0.2)
+                    EventsFolder.SendPortalRequest:FireServer(true)
+                end
+            end,
+        })
+
         Tab:CreateButton({
             Name = "Button Example",
             Callback = function()
                 game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
             end,
-         })
+        })
     end
     
     function UIController:_CreateFarmTab(Window)
