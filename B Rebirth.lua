@@ -328,9 +328,22 @@ do
         Character.HumanoidRootPart.CFrame = QuestGiver.PrimaryPart.CFrame
         NPCsFolder:WaitForChild(QuestGiver.Name)
         task.wait(0.5)
+
         fireproximityprompt(QuestGiver.HumanoidRootPart.Dialogue)
-        EventsFolder.UpdateAllQuests.OnClientEvent:Wait()
-        warn("retrieved Quests")
+
+        local connection
+        local eventTriggered = false
+        local timeout = 10
+        connection = EventsFolder.UpdateAllQuests.OnClientEvent:Connect(function(...)
+            eventTriggered = true
+            connection:Disconnect() 
+        end)
+        self._Maid:GiveTask(connection)
+
+        local startTime = os.clock()
+        while os.clock() - startTime < timeout and not eventTriggered do
+            task.wait() 
+        end
     end
 
     function QuestFarmStrategy:FindAvailableNPC()
@@ -490,7 +503,6 @@ do
             end))
             
 
-            -- Cleanup
             CharacterMaid:GiveTask(function()
                 if not UIController:IsBeybladeAutofarmToggled() then
                     self:SwitchStrategy(nil) --destroy all strategies
@@ -503,8 +515,6 @@ do
                     self:SwitchStrategy(UIController:GetNextFarm())
                 end
             end)
-
-            
         end
 
         Client.CharacterAdded:Connect(OnCharacterAdded)
