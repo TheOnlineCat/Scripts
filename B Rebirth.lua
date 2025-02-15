@@ -291,9 +291,9 @@ do
         NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7)
         local TargetNPC = self._CurrentNPC 
         pcall(function()
-            self._Maid:GiveTask(task.delay(30, function()
+            self._Maid:GiveTask(task.delay(7, function()
                 -- Only reset if `_CurrentNPC` is still the same NPC
-                if self._CurrentNPC == TargetNPC then
+                if self._CurrentNPC == TargetNPC and self._NPCBeyblade == nil then
                     print("Resetting _CurrentNPC due to timeout.")
                     self._CurrentNPC = nil
                 end
