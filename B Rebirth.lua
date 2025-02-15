@@ -288,13 +288,15 @@ do
         Character.HumanoidRootPart.CFrame = self._CurrentNPC.HumanoidRootPart.CFrame
         NPCsFolder:WaitForChild(self._CurrentNPC.Name, 7)
         local TargetNPC = self._CurrentNPC 
-        self._Maid:GiveTask(task.delay(30, function()
-            -- Only reset if `_CurrentNPC` is still the same NPC
-            if self._CurrentNPC == TargetNPC then
-                print("Resetting _CurrentNPC due to timeout.")
-                self._CurrentNPC = nil
-            end
-        end))
+        pcall(function()
+            self._Maid:GiveTask(task.delay(30, function()
+                -- Only reset if `_CurrentNPC` is still the same NPC
+                if self._CurrentNPC == TargetNPC then
+                    print("Resetting _CurrentNPC due to timeout.")
+                    self._CurrentNPC = nil
+                end
+            end))
+        end)
 
         task.wait(0.5)
 
@@ -758,7 +760,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6.1",
+            Name = "Blader's Rebirth v6.2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
