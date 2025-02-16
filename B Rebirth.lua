@@ -889,7 +889,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v1",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -951,7 +951,7 @@ do
     function UIController:_CreateAutoTab(Window)
         if not ItemIndex then return end
 
-        local AuraFolder = ItemIndex.Auras
+        local AuraFolder = ItemIndex.Auras.Items
 
         local Tab = Window:CreateTab("Auto", 4483362458)
 
@@ -961,23 +961,6 @@ do
             CurrentValue = false,
             Flag = "AutoBankToggle",
             Callback = function(Value)
-                if Value then
-                    for _, conn in pairs(getconnections(EventsFolder.RunCaseAnimation.OnClientEvent)) do
-                        conn:Disable()
-                    end
-                else
-                    for _, func in pairs(oldConnections) do
-                        EventsFolder.RunCaseAnimation.OnClientEvent:Connect(func) 
-                    end
-                end
-            end
-        })
-
-        Tab:CreateToggle({
-            Name = "Bank ALL Auras",
-            CurrentValue = false,
-            Flag = "AllBankAuraToggle",
-            Callback = function(Value) 
                 UIController.State.IsAutoBankEnabled = Value
             end
         })
