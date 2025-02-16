@@ -478,6 +478,8 @@ do
         Category: string
     }
 
+    local ItemsToStore = {}
+
     function AutoTaskController:Init()
         self.TaskRunner = TaskRunner.new()
     end
@@ -508,8 +510,11 @@ do
                             else
                                 return
                             end
-                            task.delay(1, function()
-                                EventsFolder.DepositItems:FireServer("Bank1", {item.Id})
+                            table.insert(ItemsToStore, item.Id)
+                            self:RunTask(function()
+                                task.wait(1)
+                                EventsFolder.DepositItems:FireServer("Bank1", ItemsToStore)
+                                ItemsToStore = {}
                             end)
                         end
                     end)
@@ -903,7 +908,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2.5",
+            Name = "Blader's Rebirth v2.6",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
