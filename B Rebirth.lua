@@ -29,6 +29,7 @@ local GENERAL_POLL_DELAY = 0.1
 
 -- Controllers
 local AutofarmController = {}
+local AutoTaskController = {}
 local MiscController = {}
 local UIController = {}
 
@@ -56,6 +57,7 @@ local NPCsFolder = workspace.NPCs
 local HiddenNPCsFolder = ReplicatedStorage.HiddenNPCs
 local RemotesFolder = ReplicatedStorage.Events
 local Stats = require(ReplicatedStorage.Modules.Stats)
+local ItemIndex = Client.PlayerGui.UI.Menu.ItemIndex.FindFirstChild("ItemIndex/Inventory")
 
 local RNG = Random.new()
 
@@ -461,6 +463,63 @@ end
 
 -- Controller Definitions
 do
+    export type Item = {
+        Type: string,
+        Description: string,
+        Id: string,
+        Trait: string,
+        Price: number,
+        Skill: string,
+        Name: string,
+        Tier: string?,
+        Equipped: boolean,
+        Stackable: boolean,
+        Favorite: boolean,
+        Category: string
+    }
+
+    function AutoTaskController:Init()
+        self.TaskRunner = TaskRunner.new()
+    end
+
+    function AutoTaskController:Start()
+        local CharacterMaid = Maid.new()
+        
+        local function OnCharacterAdded(Character)
+            CharacterMaid:DoCleaning()
+
+            Character:WaitForChild("HumanoidRootPart")
+            Character:WaitForChild("Humanoid")
+
+            CharacterMaid:GiveTask(EventsFolder.UpdateSpecificItem:Connect(function(item: Item)
+                if UIController:IsAutoBankToggled() then
+                    pcall(function()
+                        warn("All"..item.Category)
+                        if UIController:GetAllBankState()["All"..item.Category] then
+                            EventsFolder.DepositItems:FireServer("Bank1", item.Id)
+                        end
+                    end)
+                end
+            end))
+
+        end
+
+        Client.CharacterAdded:Connect(OnCharacterAdded)
+        if Client.Character then
+            task.spawn(OnCharacterAdded, Client.Character)
+        end
+    end
+
+    function AutoTaskController:RunTask(task)
+        self.TaskRunner:Run(task)
+    end
+
+    function AutoTaskController:FireServer(RemoteName, ...)
+        RemotesFolder[RemoteName]:FireServer(...)
+    end
+end
+
+do
     local FarmStrategyClasses = {
         CrystalFarm = CrystalFarmStrategy,
         QuestFarm = QuestFarmStrategy,
@@ -723,6 +782,12 @@ do
                 Enabled = false,
                 Priority = 3
             }
+        },
+        IsAutoBankEnabled = false,
+        Bank = {
+            AllAura = false,
+            AllFragment = false,
+            AllCrystal = false,
         }
     }
 
@@ -738,7 +803,6 @@ do
         return self.State.IsAutofarmEnabled
     end
 
-
     function UIController:GetSelectedQuest(): string
         return self.State.Farms.QuestFarm.SelectedQuest
     end
@@ -746,6 +810,16 @@ do
     function UIController:GetTargetBossNames()
         return Rayfield.Flags.SelectedBossToFarm.CurrentOption
     end
+
+
+    function UIController:IsAutoBankToggled(): boolean
+        return self.State.IsAutoBankEnabled
+    end
+
+    function UIController:GetAllBankState(): boolean
+        return self.State.Bank
+    end
+    
 
     function UIController:GetBossDifficulty()
         return self.State.FarmConfig.BossDifficulty
@@ -758,6 +832,8 @@ do
     function UIController:GetFarmDelay(): string
         return self.State.FarmConfig.Delay
     end
+
+
 
     function UIController:GetNextFarm(currentFarm): nil | string
         local Farms = self.State.Farms
@@ -827,6 +903,7 @@ do
 
         UIController:_CreateFarmTab(Window)
         UIController:_CreateRollTab(Window)
+        UIController:_CreateAutoTab(Window)
         UIController:_CreateConfigTab(Window)
         UIController:_CreateMiscTab(Window)
         Rayfield:LoadConfiguration()
@@ -868,6 +945,83 @@ do
             Callback = function(selected)
                 self.State.FarmConfig.BossDifficulty = selected[1]
             end
+        })
+    end
+
+    function UIController:_CreateAutoTab(Window)
+        if not ItemIndex then return end
+
+        local AuraFolder = ItemIndex.Auras
+
+        local Tab = Window:CreateTab("Auto", 4483362458)
+
+        Tab:CreateSection("Banking")
+        Tab:CreateToggle({
+            Name = "Auto Bank Items",
+            CurrentValue = false,
+            Flag = "AutoBankToggle",
+            Callback = function(Value)
+                if Value then
+                    for _, conn in pairs(getconnections(EventsFolder.RunCaseAnimation.OnClientEvent)) do
+                        conn:Disable()
+                    end
+                else
+                    for _, func in pairs(oldConnections) do
+                        EventsFolder.RunCaseAnimation.OnClientEvent:Connect(func) 
+                    end
+                end
+            end
+        })
+
+        Tab:CreateToggle({
+            Name = "Bank ALL Auras",
+            CurrentValue = false,
+            Flag = "AllBankAuraToggle",
+            Callback = function(Value) 
+                UIController.State.IsAutoBankEnabled = Value
+            end
+        })
+
+        Tab:CreateToggle({
+            Name = "Bank ALL Auras",
+            CurrentValue = false,
+            Flag = "AllBankAuraToggle",
+            Callback = function(Value) 
+                UIController.State.Bank.AllAura = Value
+            end
+        })
+
+        Tab:CreateToggle({
+            Name = "Bank ALL Fragments",
+            CurrentValue = false,
+            Flag = "AllBankFragmentsToggle",
+            Callback = function(Value) 
+                UIController.State.Bank.AllFragment = Value
+            end
+        })
+
+        Tab:CreateToggle({
+            Name = "Bank ALL Crystals",
+            CurrentValue = false,
+            Flag = "AllBankCrystalToggle",
+            Callback = function(Value) 
+                UIController.State.Bank.AllCrystal = Value
+            end
+        })
+
+        local AuraList = {}
+        for _, aura in pairs(AuraFolder:GetChildren()) do
+            if aura:IsA("Frame") then
+                table.insert(AuraList, aura.Name)
+            end
+        end
+        Tab:CreateDropdown({
+            Name = "Auras",
+            Options = AuraList,
+            CurrentOption = {},
+            Flag = "AurasToBank",
+            MultipleOptions = true,
+            Callback = function() end
         })
     end
 
@@ -1289,10 +1443,12 @@ local function LoadControllers()
     -- Initialize controllers
     UIController:Init()
     AutofarmController:Init()
+    AutoTaskController:Init()
     MiscController:Init()
 
     UIController:Start()
     AutofarmController:Start()
+    AutoTaskController:Start()
     MiscController:Start()
 end
 
