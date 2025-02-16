@@ -363,7 +363,10 @@ do
             eventTriggered = true
             connection:Disconnect() 
         end)
-        self._Maid:GiveTask(connection)
+
+        pcall(function()
+            self._Maid:GiveTask(connection)
+        end)
 
         local startTime = os.clock()
         while os.clock() - startTime < timeout and not eventTriggered do

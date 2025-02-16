@@ -16,19 +16,11 @@ local function warnTable(tbl, indent)
     end
 end
 
-local remote = game:GetService("ReplicatedStorage").Events.ShowBank
-if remote then
-    for _, connection in ipairs(getconnections(remote.OnClientEvent)) do
-        warn("Function detected:", connection.Function)
-        warn(debug.info(connection.Function, "n"), debug.info(connection.Function, "s"))
-        connection.Function("Bank1", "BankPart")
-    end
-end
 
 local connection
-connection = game:GetService("ReplicatedStorage").Events.ShowBank.OnClientEvent:Connect(function(...)
+connection = game:GetService("ReplicatedStorage").Events.ItemUpdate.OnClientEvent:Connect(function(...)
     local args = {...} -- Capture all parameters
-    warn("ShowBank event fired with parameters:")
+    warn("ItemUpdate event fired with parameters:")
 
     for i, v in ipairs(args) do
         warn(("\nArgument %d:"):format(i))
