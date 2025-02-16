@@ -247,34 +247,34 @@ do
             end
         end))
 
-        -- self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
-        --     if Beyblade == self._NPCBeyblade or (Beyblade.Name == Client.Name and self._NPCBeyblade) then
-        --         self._PreviousNPC = self._CurrentNPC
-        --         self._NPCBeyblade = nil
-        --         self._CurrentNPC = nil
-
-        --         --wait until back
-        --         EventsFolder.BattleTransition.OnClientEvent:Wait() 
-        --         task.wait(2 + UIController:GetFarmDelay())
-        --         AutofarmController:QueueNextStrategy(true)
-        --     end
-        -- end))
-
         self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
-            if Beyblade == self._NPCBeyblade then
+            if Beyblade == self._NPCBeyblade or (Beyblade.Name == Client.Name and self._NPCBeyblade) then
+                self._PreviousNPC = self._CurrentNPC
                 self._NPCBeyblade = nil
+                self._CurrentNPC = nil
+
+                --wait until back
+                EventsFolder.BattleTransition.OnClientEvent:Wait() 
+                task.wait(2 + UIController:GetFarmDelay())
+                AutofarmController:QueueNextStrategy(true)
             end
         end))
 
+        -- self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
+        --     if Beyblade == self._NPCBeyblade then
+        --         self._NPCBeyblade = nil
+        --     end
+        -- end))
 
-        self._Maid:GiveTask(EventsFolder.TakeBack.OnClientEvent:Connect(function(Beyblade)
-            self._PreviousNPC = self._CurrentNPC
-            self._NPCBeyblade = nil
-            self._CurrentNPC = nil
 
-            task.wait(2 + UIController:GetFarmDelay())
-            AutofarmController:QueueNextStrategy(true)
-        end))
+        -- self._Maid:GiveTask(EventsFolder.TakeBack.OnClientEvent:Connect(function(Beyblade)
+        --     self._PreviousNPC = self._CurrentNPC
+        --     self._NPCBeyblade = nil
+        --     self._CurrentNPC = nil
+
+        --     task.wait(2 + UIController:GetFarmDelay())
+        --     AutofarmController:QueueNextStrategy(true)
+        -- end))
 
 
         self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
@@ -908,7 +908,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2.69",
+            Name = "Blader's Rebirth v6.9",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
