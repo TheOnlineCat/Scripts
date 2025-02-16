@@ -1018,6 +1018,19 @@ do
         })
 
         Tab:CreateButton({
+            Name = "Show Bank",
+            Callback = function()
+                local remote = EventsFolder.ShowBank
+                if remote then
+                    for _, connection in ipairs(getconnections(remote.OnClientEvent)) do
+                        connection.Function("Bank1", "BankPart")
+                    end
+                end
+            end,
+        })
+        
+
+        Tab:CreateButton({
             Name = "Button Example",
             Callback = function()
                 game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
