@@ -15,15 +15,19 @@ local function warnTable(tbl, indent)
         end
     end
 end
-game:GetService("ReplicatedStorage").Events.StartBossBattle:FireServer("Hard")
 local connection
-connection = game:GetService("ReplicatedStorage").Events.UpdateSpecificItem.OnClientEvent:Connect(function(...)
+connection = game:GetService("ReplicatedStorage").Events.ShowBossInfo.OnClientEvent:Connect(function(...)
     local args = {...} -- Capture all parameters
-    warn("UpdateSpecificItem event fired with parameters:")
+    warn("ShowBossInfo event fired with parameters:")
 
     for i, v in ipairs(args) do
         warn(("\nArgument %d:"):format(i))
         warnTable(v, 4) -- warn recursively
+    end
+
+    -- Disconnect after first execution
+    if connection then
+        connection:Disconnect()
     end
 end)
 

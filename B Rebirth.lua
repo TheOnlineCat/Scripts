@@ -278,8 +278,8 @@ do
 
 
         self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
-            task.wait(1)
-            AutofarmController:FireServer("StartBossBattle", UIController:GetBossDifficulty())
+            task.wait(0.5)
+            EventsFolder.StartBossBattle:FireServer(UIController:GetBossDifficulty())
         end))
 
         --cleanup
@@ -901,7 +901,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
