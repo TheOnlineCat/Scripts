@@ -245,18 +245,35 @@ do
             end
         end))
 
-        self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
-            if Beyblade == self._NPCBeyblade or (Beyblade.Name == Client.Name and self._NPCBeyblade) then
-                self._PreviousNPC = self._CurrentNPC
-                self._NPCBeyblade = nil
-                self._CurrentNPC = nil
+        -- self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
+        --     if Beyblade == self._NPCBeyblade or (Beyblade.Name == Client.Name and self._NPCBeyblade) then
+        --         self._PreviousNPC = self._CurrentNPC
+        --         self._NPCBeyblade = nil
+        --         self._CurrentNPC = nil
 
-                --wait until back
-                EventsFolder.BattleTransition.OnClientEvent:Wait() 
-                task.wait(2 + UIController:GetFarmDelay())
-                AutofarmController:QueueNextStrategy(true)
+        --         --wait until back
+        --         EventsFolder.BattleTransition.OnClientEvent:Wait() 
+        --         task.wait(2 + UIController:GetFarmDelay())
+        --         AutofarmController:QueueNextStrategy(true)
+        --     end
+        -- end))
+
+        self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
+            if Beyblade == self._NPCBeyblade then
+                self._NPCBeyblade = nil
             end
         end))
+
+
+        self._Maid:GiveTask(EventsFolder.TakeBack:Connect(function(Beyblade)
+            self._PreviousNPC = self._CurrentNPC
+            self._NPCBeyblade = nil
+            self._CurrentNPC = nil
+
+            task.wait(0.5 + UIController:GetFarmDelay())
+            AutofarmController:QueueNextStrategy(true)
+        end))
+
 
         self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
             task.wait(1)

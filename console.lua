@@ -16,11 +16,28 @@ local function warnTable(tbl, indent)
     end
 end
 
+local connection
+connection = game:GetService("ReplicatedStorage").Events.UpdateSpecificItem.OnClientEvent:Connect(function(...)
+    local args = {...} -- Capture all parameters
+    warn("UpdateSpecificItem event fired with parameters:")
+
+    for i, v in ipairs(args) do
+        warn(("\nArgument %d:"):format(i))
+        warnTable(v, 4) -- warn recursively
+    end
+
+    -- Disconnect after first execution
+    if connection then
+        connection:Disconnect()
+    end
+end)
+
+
 
 local connection
-connection = game:GetService("ReplicatedStorage").Events.ItemUpdate.OnClientEvent:Connect(function(...)
+connection = game:GetService("ReplicatedStorage").Events.TakeBack.OnClientEvent:Connect(function(...)
     local args = {...} -- Capture all parameters
-    warn("ItemUpdate event fired with parameters:")
+    warn("TakeBack event fired with parameters:")
 
     for i, v in ipairs(args) do
         warn(("\nArgument %d:"):format(i))
