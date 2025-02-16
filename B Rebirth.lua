@@ -121,7 +121,7 @@ do
     function CrystalFarmStrategy.new()
         local self = setmetatable(BaseFarmStrategy.new(), CrystalFarmStrategy)
 
-        self.RandomSearchTime = RNG:NextInteger(3, 12)
+        self.RandomSearchTime = RNG:NextInteger(3, 7)
 
         return self
     end
@@ -265,6 +265,13 @@ do
 
         --cleanup
         self._Maid:GiveTask(function()
+            if self._NPCBeyblade then
+                AutofarmController:UnlaunchBeyblade()
+                task.wait(0.3)
+                AutofarmController:UnlaunchBeyblade()
+                task.wait(4)
+            end
+
             self._CurrentNPC = nil
             self._NPCBeyblade = nil
         end)
@@ -505,6 +512,7 @@ do
                     local Crystal = Root:FindFirstChild("Crystal")
                     if Crystal then
                         print("Crystal Found!")
+                        self:SwitchStrategy(UIController:GetNextFarm())
                         self.Crystal = child
                         self.TimeOfCrystalSpawn = os.clock()
                         local connection
