@@ -491,7 +491,7 @@ do
             Character:WaitForChild("HumanoidRootPart")
             Character:WaitForChild("Humanoid")
 
-            CharacterMaid:GiveTask(EventsFolder.UpdateSpecificItem:Connect(function(item: Item)
+            CharacterMaid:GiveTask(EventsFolder.UpdateSpecificItem.OnClientEvent:Connect(function(item: Item)
                 if UIController:IsAutoBankToggled() then
                     pcall(function()
                         warn("All"..item.Category)
@@ -1068,7 +1068,7 @@ do
         })
 
         Tab:CreateSlider({
-            Name = "Roll Delay (miliseconds)",
+            Name = "Roll Delay",
             Range = {0.02, 2.0},
             Increment = 0.02,
             CurrentValue = 0.5,
