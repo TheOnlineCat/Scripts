@@ -508,7 +508,9 @@ do
                             else
                                 return
                             end
-                            EventsFolder.DepositItems:FireServer("Bank1", item.Id)
+                            task.delay(1, function()
+                                EventsFolder.DepositItems:FireServer("Bank1", {item.Id})
+                            end)
                         end
                     end)
                 end
@@ -901,7 +903,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v2.5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
