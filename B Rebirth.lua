@@ -57,7 +57,7 @@ local NPCsFolder = workspace.NPCs
 local HiddenNPCsFolder = ReplicatedStorage.HiddenNPCs
 local RemotesFolder = ReplicatedStorage.Events
 local Stats = require(ReplicatedStorage.Modules.Stats)
-local ItemIndex = Client.PlayerGui.UI.Menu.ItemIndex.FindFirstChild("ItemIndex/Inventory")
+local ItemIndex = Client.PlayerGui.UI.Menu.ItemIndex:FindFirstChild("ItemIndex/Inventory")
 
 local RNG = Random.new()
 
