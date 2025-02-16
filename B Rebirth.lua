@@ -267,7 +267,7 @@ do
         end))
 
 
-        self._Maid:GiveTask(EventsFolder.TakeBack:Connect(function(Beyblade)
+        self._Maid:GiveTask(EventsFolder.TakeBack.OnClientEvent:Connect(function(Beyblade)
             self._PreviousNPC = self._CurrentNPC
             self._NPCBeyblade = nil
             self._CurrentNPC = nil
@@ -279,7 +279,7 @@ do
 
         self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
             task.wait(0.5)
-            EventsFolder.StartBossBattle:FireServer(UIController:GetBossDifficulty())
+            AutofarmController:FireServer("StartBossBattle", UIController:GetBossDifficulty())
         end))
 
         --cleanup
@@ -901,7 +901,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
