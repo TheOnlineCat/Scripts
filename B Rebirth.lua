@@ -272,7 +272,7 @@ do
             self._NPCBeyblade = nil
             self._CurrentNPC = nil
 
-            task.wait(0.5 + UIController:GetFarmDelay())
+            task.wait(2 + UIController:GetFarmDelay())
             AutofarmController:QueueNextStrategy(true)
         end))
 
@@ -908,7 +908,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2.6",
+            Name = "Blader's Rebirth v2.69",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
