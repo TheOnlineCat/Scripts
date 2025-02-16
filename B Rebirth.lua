@@ -494,8 +494,20 @@ do
             CharacterMaid:GiveTask(EventsFolder.UpdateSpecificItem.OnClientEvent:Connect(function(item: Item)
                 if UIController:IsAutoBankToggled() then
                     pcall(function()
-                        warn("All"..item.Category)
-                        if UIController:GetAllBankState()["All"..item.Category] then
+                        pcall(function()
+                            if item.Category == "Parts" then return end
+                            warn(item.Category, item.Type, item.Name)
+                        end)
+                        if item.Category == "Misc" then 
+                            if item.Type == "Skill" then
+                                if not UIController:GetAllBankState().AllFragment then return end
+                            elseif item.Type == "Aura" then
+                                if not UIController:GetAllBankState().AllAura then return end
+                            elseif item.Type == "Crystal" then
+                                if not UIController:GetAllBankState().AllCrystal then return end
+                            else
+                                return
+                            end
                             EventsFolder.DepositItems:FireServer("Bank1", item.Id)
                         end
                     end)
