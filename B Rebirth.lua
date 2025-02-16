@@ -308,7 +308,12 @@ do
 
         task.wait(0.5)
 
-        fireproximityprompt(self._CurrentNPC.HumanoidRootPart.Dialogue)
+        local success, err = pcall(function()
+            fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue)
+        end)
+        if not success then
+            self._CurrentNPC = nil
+        end
     end
     
 
@@ -341,7 +346,7 @@ do
         local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 5)
         task.wait(0.5)
 
-        fireproximityprompt(VisibleTarget.HumanoidRootPart.Dialogue)
+        fireproximityprompt(VisibleTarget.PrimaryPart.Dialogue)
 
         --timeout for dialogue stuck
         local connection
