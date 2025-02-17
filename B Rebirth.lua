@@ -299,7 +299,7 @@ do
         local Offset = NpcCFrame.LookVector * 6
 
         local Character = Client.Character
-        if not Character then return end
+        if not Character or not Character.HumanoidRootPart then return end
 
         Character.HumanoidRootPart.CFrame = NpcCFrame + Offset
 
