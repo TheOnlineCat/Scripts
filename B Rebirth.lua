@@ -479,29 +479,25 @@ do
             CharacterMaid:GiveTask(EventsFolder.UpdateSpecificItem.OnClientEvent:Connect(function(item: Item)
                 if UIController:IsAutoBankToggled() then
                     pcall(function()
-                        pcall(function()
-                            if item.Category == "Parts" then return end
-                            warn(item.Category, item.Type, item.Name)
-                        end)
-                        if item.Category == "Misc" then 
-                            if item.Type == "Skill" then
-                                if not UIController:GetAllBankState().AllFragment then return end
-                            elseif item.Type == "Auras" then
-                                if not UIController:GetAllBankState().AllAura then return end
-                            elseif item.Type == "Crystals" then
-                                if not UIController:GetAllBankState().AllCrystal then return end
-                            elseif item.Type == "Enchants" then
-                                if not UIController:GetAllBankState().AllEnchants then return end
-                            else
-                                return
-                            end
-                            table.insert(ItemsToStore, item.Id)
-                            self:RunTask(function()
-                                task.wait(1)
-                                EventsFolder.DepositItems:FireServer("Bank1", ItemsToStore)
-                                ItemsToStore = {}
-                            end)
-                        end
+                        if item.Category == "Parts" then return end
+                        warn(item.Category, item.Type, item.Name)
+                    end)
+                    if item.Type == "Skill" then
+                        if not UIController:GetAllBankState().AllFragment then return end
+                    elseif item.Type == "Auras" then
+                        if not UIController:GetAllBankState().AllAura then return end
+                    elseif item.Type == "Crystals" then
+                        if not UIController:GetAllBankState().AllCrystal then return end
+                    elseif item.Type == "Enchants" then
+                        if not UIController:GetAllBankState().AllEnchants then return end
+                    else
+                        return
+                    end
+                    table.insert(ItemsToStore, item.Id)
+                    self:RunTask(function()
+                        task.wait(1)
+                        EventsFolder.DepositItems:FireServer("Bank1", ItemsToStore)
+                        ItemsToStore = {}
                     end)
                 end
             end))
