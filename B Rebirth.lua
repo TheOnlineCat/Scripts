@@ -123,7 +123,7 @@ do
     function CrystalFarmStrategy.new()
         local self = setmetatable(BaseFarmStrategy.new(), CrystalFarmStrategy)
 
-        self.RandomSearchTime = RNG:NextInteger(3, 7)
+        self.RandomSearchTime = RNG:NextInteger(2, 4)
 
         return self
     end
@@ -496,7 +496,7 @@ do
                                 if not UIController:GetAllBankState().AllFragment then return end
                             elseif item.Type == "Auras" then
                                 if not UIController:GetAllBankState().AllAura then return end
-                            elseif item.Type == "Crystal" then
+                            elseif item.Type == "Crystals" then
                                 if not UIController:GetAllBankState().AllCrystal then return end
                             elseif item.Type == "Enchants" then
                                 if not UIController:GetAllBankState().AllEnchants then return end

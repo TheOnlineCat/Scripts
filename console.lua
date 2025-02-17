@@ -118,6 +118,6 @@ local proximityPrompt = Instance.new("ProximityPrompt")
 proximityPrompt.Name = "Crystal"
 proximityPrompt.Parent = root
 
-root.CFrame = CFrame.new(-16422.5078125, 6.468752861022949, -882.2816772460938)
+root.CFrame = CFrame.new(-16402.5078125, 100.468752861022949, -842.2816772460938)
 
 model.Parent = workspace
