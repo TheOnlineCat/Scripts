@@ -267,9 +267,14 @@ do
             end
         end))
 
-        self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
+        self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(bossInfo)
             task.wait(0.5)
-            AutofarmController:FireServer("StartBossBattle", UIController:GetBossDifficulty())
+            if bossInfo["Badge"] then
+                AutofarmController:FireServer("StartBossBattle", UIController:GetBossDifficulty())
+            else
+                AutofarmController:FireServer("StartBossBattle", UIController:GetWorldBossDifficulty())
+            end
+            
         end))
         
         AutofarmController:RunTask(function()
@@ -759,7 +764,8 @@ do
         FarmConfig = {
             Distance = 1,
             Delay = 0,
-            BossDifficulty = "Easy"
+            BossDifficulty = "Easy",
+            WorldBossDifficulty = "Easy"
         },
         Farms = {
             CrystalFarm = {
@@ -819,6 +825,10 @@ do
 
     function UIController:GetBossDifficulty()
         return self.State.FarmConfig.BossDifficulty
+    end 
+
+    function UIController:GetWorldBossDifficulty()
+        return self.State.FarmConfig.WorldBossDifficulty
     end 
 
     function UIController:GetFarmDistance(): string
@@ -940,6 +950,16 @@ do
             Flag = "BossDifficulty",
             Callback = function(selected)
                 self.State.FarmConfig.BossDifficulty = selected[1]
+            end
+        })
+
+        Tab:CreateDropdown({
+            Name = "Select World Boss Difficulty",
+            Options = BossDifficultyList,
+            CurrentOption = {"Easy"},
+            Flag = "WorldBossDifficulty",
+            Callback = function(selected)
+                self.State.FarmConfig.WorldBossDifficulty = selected[1]
             end
         })
     end
