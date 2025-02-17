@@ -130,13 +130,17 @@ do
 
     function CrystalFarmStrategy:Update()
         AutofarmController:RunTask(function()
-            if AutofarmController.Crystal and AutofarmController.TimeOfCrystalSpawn + self.RandomSearchTime <= os.clock() then
+            if AutofarmController.Crystal then
                 if AutofarmController.TimeOfCrystalSpawn + 600 <= os.clock() then
                     AutofarmController.Crystal = nil
                     AutofarmController.TimeOfCrystalSpawn = nil
                     AutofarmController:QueueNextStrategy(false)
-                    return
                 end
+
+                AutofarmController:UnlaunchBeyblade()
+
+                if AutofarmController.TimeOfCrystalSpawn + self.RandomSearchTime >= os.clock() then return end
+                
                 local success, error = pcall(function()
                     local Character = Client.Character
                     if not Character then return end
@@ -148,11 +152,8 @@ do
                     Character.HumanoidRootPart.CFrame = previousCFrame
                     AutofarmController.Crystal = nil
                     AutofarmController:QueueNextStrategy(true)
+                    return
                 end)
-                
-                if not success then
-                    print(error)
-                end
             end
         end)
     end
@@ -180,6 +181,7 @@ do
         self._PreviousNPC = nil
         self._CurrentNPC = nil
         self._NPCBeyblade = nil
+        self._IsBattling = false
 
         self._LastAttack = 0
         return self
@@ -213,13 +215,17 @@ do
     end
 
     function BaseNPCBattleStrategy:Update()
-        if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
-            AutofarmController:RunTask(function()
-                self:InitiateFight()
-            end)
+        if not self._IsBattling then
+            if not self._CurrentNPC or self:IsNpcOnCooldown(self._CurrentNPC) then
+                AutofarmController:RunTask(function()
+                    self:InitiateFight()
+                end)
+            end
         end
 
         if not self._NPCBeyblade then return end
+
+        self._IsBattling = true
 
         local ClientBeyblade: Model = AutofarmController:GetClientBeyblade()
         if not ClientBeyblade then return end
@@ -249,51 +255,22 @@ do
 
         self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
             if Beyblade == self._NPCBeyblade or (Beyblade.Name == Client.Name and self._NPCBeyblade) then
-                self._PreviousNPC = self._CurrentNPC
                 self._NPCBeyblade = nil
                 self._CurrentNPC = nil
+                self._NPCBeyblade = nil
 
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
                 task.wait(2 + UIController:GetFarmDelay())
+                self._IsBattling = false
                 AutofarmController:QueueNextStrategy(true)
             end
         end))
-
-        -- self._Maid:GiveTask(BeybladesFolder.ChildRemoved:Connect(function(Beyblade)
-        --     if Beyblade == self._NPCBeyblade then
-        --         self._NPCBeyblade = nil
-        --     end
-        -- end))
-
-
-        -- self._Maid:GiveTask(EventsFolder.TakeBack.OnClientEvent:Connect(function(Beyblade)
-        --     self._PreviousNPC = self._CurrentNPC
-        --     self._NPCBeyblade = nil
-        --     self._CurrentNPC = nil
-
-        --     task.wait(2 + UIController:GetFarmDelay())
-        --     AutofarmController:QueueNextStrategy(true)
-        -- end))
-
 
         self._Maid:GiveTask(EventsFolder.ShowBossInfo.OnClientEvent:Connect(function(...)
             task.wait(0.5)
             AutofarmController:FireServer("StartBossBattle", UIController:GetBossDifficulty())
         end))
-
-        --cleanup
-        self._Maid:GiveTask(function()
-            if self._NPCBeyblade then
-                AutofarmController:UnlaunchBeyblade()
-                task.wait(0.3)
-                AutofarmController:UnlaunchBeyblade()
-                task.wait(4)
-            end
-
-            self._CurrentNPC = nil
-            self._NPCBeyblade = nil
-        end)
         
         AutofarmController:RunTask(function()
             self:InitiateFight()
@@ -324,8 +301,7 @@ do
         pcall(function()
             self._Maid:GiveTask(task.delay(15, function()
                 -- Only reset if `_CurrentNPC` is still the same NPC and not in Battle
-                if self._CurrentNPC == CurrentTarget and self._NPCBeyblade == nil then
-                    print("Resetting _CurrentNPC due to timeout.")
+                if self._CurrentNPC == CurrentTarget and not self._IsBattling then
                     self._PreviousNPC = self._CurrentNPC
                     self._CurrentNPC = nil
                 end
@@ -423,7 +399,6 @@ do
                 for _, questTrainer in QuestData do
                     if questTrainer.Progress >= questTrainer.Amount then continue end
                     if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(npc)then
-                        warn(npc.Name, "can be fought")
                         return npc
                     end
                 end
@@ -451,7 +426,6 @@ do
                     continue
                 end
                 if not self:IsNpcOnCooldown(boss) then
-                    warn(boss:GetAttribute("Name"), "can be fought")
                     return boss
                 end
             end
@@ -1358,14 +1332,10 @@ do
                 local serverData = HttpService:JSONDecode(result)
                 for _, server in ipairs(serverData.data) do
                     if server.id ~= game.JobId and server.playing < server.maxPlayers then
-                        print("Hopping to server:", server.id)
                         TeleportService:TeleportToPlaceInstance(PLACE_ID, server.id, Players.LocalPlayer)
                         return
                     end
                 end
-                warn("No available servers found.")
-            else
-                warn("Failed to get server list:", result)
             end
 
             Client:Kick("Kicked from game due to staff being in the same server! " .. MessageContent)

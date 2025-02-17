@@ -16,9 +16,9 @@ local function warnTable(tbl, indent)
     end
 end
 local connection
-connection = game:GetService("ReplicatedStorage").Events.ShowBossInfo.OnClientEvent:Connect(function(...)
+connection = game:GetService("ReplicatedStorage").Events.TakeBack.OnClientEvent:Connect(function(...)
     local args = {...} -- Capture all parameters
-    warn("ShowBossInfo event fired with parameters:")
+    warn("TakeBack event fired with parameters:")
 
     for i, v in ipairs(args) do
         warn(("\nArgument %d:"):format(i))
