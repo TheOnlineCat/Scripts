@@ -149,11 +149,11 @@ do
                     local Character = Client.Character
                     if not Character then return end
                     local previousCFrame = Character.HumanoidRootPart.CFrame
-                    Character.HumanoidRootPart.CFrame = AutofarmController.Crystal.PrimaryPart.CFrame
+                    AutofarmController:TeleportToCFrame(AutofarmController.Crystal.PrimaryPart.CFrame)
                     task.wait(0.1)
                     fireproximityprompt(AutofarmController.Crystal.PrimaryPart.Crystal)
                     task.wait(0.1)
-                    Character.HumanoidRootPart.CFrame = previousCFrame
+                    AutofarmController:TeleportToCFrame(previousCFrame)
                     AutofarmController.Crystal = nil
                     AutofarmController:QueueNextStrategy(true)
                     return
@@ -305,12 +305,7 @@ do
         end
     
         local NpcCFrame = NpcTarget.PrimaryPart.CFrame
-        local Offset = NpcCFrame.LookVector * 6
-
-        local Character = Client.Character
-        if not Character or not Character.HumanoidRootPart then return end
-
-        Character.HumanoidRootPart.CFrame = NpcCFrame + Offset
+        if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(0, 2, -6)) then return end
 
         self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 5)
         if not self._CurrentNPC  then return end
@@ -349,9 +344,7 @@ do
     end
 
     function QuestFarmStrategy:GetQuest() 
-        local Character = Client.Character
-        if not Character then return end
-        
+
         local Quest = UIController:GetSelectedQuest()
         local QuestGiver = NPCsFolder:FindFirstChild(Quest) or HiddenNPCsFolder:FindFirstChild(Quest)
 
@@ -360,8 +353,7 @@ do
         end
 
         local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
-        local Offset = QuestGiverCFrame.LookVector * 6
-        Character.HumanoidRootPart.CFrame = QuestGiverCFrame + Offset
+        if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
         local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 5)
         task.wait(0.5)
 
@@ -743,6 +735,20 @@ do
                 self.CurrentFarmStrategy:Start()
             end
         end
+    end
+
+    function AutofarmController:TeleportToCFrame(cframe)
+        local Character = Client.Character
+        if Character then
+            local root = Character:FindFirstChild("HumanoidRootPart")
+            if root then
+                root.Velocity = Vector3.zero -- Stop movement instantly
+                root.RotVelocity = Vector3.zero -- Stop rotation to avoid spinning
+                root.CFrame = cframe
+                return true
+            end
+        end
+        return false
     end
 
     function AutofarmController:QueueNextStrategy(restart)
@@ -1199,15 +1205,13 @@ do
         Tab:CreateButton({
             Name = "Teleport to other world",
             Callback = function()
-                if Client.Character then
-                    if (workspace.World.Portals:FindFirstChild("DellancyTown")) then
-                        Client.Character.HumanoidRootPart.CFrame = workspace.World.Portals.Volcano.PrimaryPart.CFrame
-                    else
-                        Client.Character.HumanoidRootPart.CFrame = workspace.World.Portals.Adventure.PrimaryPart.CFrame
-                    end
-                    task.wait(0.2)
-                    EventsFolder.SendPortalRequest:FireServer(true)
+                if (workspace.World.Portals:FindFirstChild("DellancyTown")) then
+                    AutofarmController:TeleportToCFrame(workspace.World.Portals.Volcano.PrimaryPart.CFrame)
+                else
+                    AutofarmController:TeleportToCFrame(workspace.World.Portals.Adventure.PrimaryPart.CFrame)
                 end
+                task.wait(0.2)
+                EventsFolder.SendPortalRequest:FireServer(true)
             end,
         })
 
@@ -1371,18 +1375,26 @@ do
             local success, result = pcall(function()
                 return HttpService:GetAsync(SERVER_LIST_URL)
             end)
+
+            local isTeleporting = false 
         
             if success then
                 local serverData = HttpService:JSONDecode(result)
                 for _, server in ipairs(serverData.data) do
                     if server.id ~= game.JobId and server.playing < server.maxPlayers then
+                        isTeleporting = true
+                        TeleportService.TeleportInitFailed:Connect(function(...)
+                            Client:Kick("Failed attempt to teleport due to staff!" .. MessageContent)
+                        end)
                         TeleportService:TeleportToPlaceInstance(PLACE_ID, server.id, Players.LocalPlayer)
                         return
                     end
                 end
             end
 
-            Client:Kick("Kicked from game due to staff being in the same server! " .. MessageContent)
+            if not isTeleporting then
+                Client:Kick("Kicked from game due to staff being in the same server! " .. MessageContent)
+            end
         end
     end
 
