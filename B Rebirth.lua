@@ -285,8 +285,7 @@ do
     function BaseNPCBattleStrategy:InitiateFight()
         AutofarmController:UnlaunchBeyblade()
     
-        local Character = Client.Character
-        if not Character then return end
+
     
         local NpcTarget = self:FindAvailableNPC()
         self._NPCBeyblade = nil
@@ -298,6 +297,10 @@ do
     
         local NpcCFrame = NpcTarget.PrimaryPart.CFrame
         local Offset = NpcCFrame.LookVector * 6
+
+        local Character = Client.Character
+        if not Character then return end
+
         Character.HumanoidRootPart.CFrame = NpcCFrame + Offset
 
         self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 5)
