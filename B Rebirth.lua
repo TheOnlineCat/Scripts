@@ -481,6 +481,8 @@ do
                                 if not UIController:GetAllBankState().AllAura then return end
                             elseif item.Type == "Crystal" then
                                 if not UIController:GetAllBankState().AllCrystal then return end
+                            elseif item.Type == "Enchants" then
+                                if not UIController:GetAllBankState().AllEnchants then return end
                             else
                                 return
                             end
@@ -781,6 +783,7 @@ do
             AllAura = false,
             AllFragment = false,
             AllCrystal = false,
+            AllEnchants = false,
         }
     }
 
@@ -982,6 +985,15 @@ do
             Flag = "AllBankCrystalToggle",
             Callback = function(Value) 
                 UIController.State.Bank.AllCrystal = Value
+            end
+        })
+
+        Tab:CreateToggle({
+            Name = "Bank ALL Enchants",
+            CurrentValue = false,
+            Flag = "AllBankEnchantsToggle",
+            Callback = function(Value) 
+                UIController.State.Bank.AllEnchants = Value
             end
         })
 
