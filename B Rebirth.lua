@@ -141,7 +141,7 @@ do
 
                 AutofarmController:UnlaunchBeyblade()
 
-                if os.clock() - self.RandomSearchTime >= AutofarmController.TimeOfCrystalSpawn then return end
+                if os.clock() - self.RandomSearchTime < AutofarmController.TimeOfCrystalSpawn then return end
                 
                 warn("crystal start pick")
 
@@ -902,7 +902,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v1",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
