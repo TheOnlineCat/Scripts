@@ -105,3 +105,19 @@ connection3 = game:GetService("ReplicatedStorage").Events.UpdateAllQuests.OnClie
         connection3:Disconnect()
     end
 end)
+
+local model = Instance.new("Model")
+model.Name = "zCRYMSTA"
+
+
+local root = Instance.new("Part")
+root.Name = "Root"
+root.Parent = model
+
+local proximityPrompt = Instance.new("ProximityPrompt")
+proximityPrompt.Name = "Crystal"
+proximityPrompt.Parent = root
+
+root.CFrame = CFrame.new(-16422.5078125, 6.468752861022949, -882.2816772460938)
+
+model.Parent = workspace

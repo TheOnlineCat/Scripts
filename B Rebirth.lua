@@ -129,22 +129,22 @@ do
     end
 
     function CrystalFarmStrategy:Update()
-        AutofarmController:RunTask(function()
-            if AutofarmController.Crystal then
-                if os.clock() >= AutofarmController.TimeOfCrystalSpawn + 600 then
-                    AutofarmController.Crystal = nil
-                    AutofarmController.TimeOfCrystalSpawn = nil
-                    AutofarmController:QueueNextStrategy(false)
-                end
+        if AutofarmController.Crystal then
+            if os.clock() >= AutofarmController.TimeOfCrystalSpawn + 600 then
+                AutofarmController.Crystal = nil
+                AutofarmController.TimeOfCrystalSpawn = nil
+                AutofarmController:QueueNextStrategy(false)
+            end
 
-                warn("crystal prep")
+            warn("crystal prep")
 
-                AutofarmController:UnlaunchBeyblade()
+            AutofarmController:UnlaunchBeyblade()
 
-                if os.clock() - self.RandomSearchTime < AutofarmController.TimeOfCrystalSpawn then return end
-                
-                warn("crystal start pick")
+            if os.clock() - self.RandomSearchTime < AutofarmController.TimeOfCrystalSpawn then return end
+            
+            warn("crystal start pick")
 
+            AutofarmController:RunTask(function()
                 local success, error = pcall(function()
                     local Character = Client.Character
                     if not Character then return end
@@ -158,8 +158,13 @@ do
                     AutofarmController:QueueNextStrategy(true)
                     return
                 end)
-            end
-        end)
+
+                if not success then
+                    warn(error)
+                end
+            end)
+                
+        end
     end
 
     function CrystalFarmStrategy:Start()
@@ -902,7 +907,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
