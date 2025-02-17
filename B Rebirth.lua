@@ -131,16 +131,20 @@ do
     function CrystalFarmStrategy:Update()
         AutofarmController:RunTask(function()
             if AutofarmController.Crystal then
-                if AutofarmController.TimeOfCrystalSpawn + 600 <= os.clock() then
+                if os.clock() >= AutofarmController.TimeOfCrystalSpawn + 600 then
                     AutofarmController.Crystal = nil
                     AutofarmController.TimeOfCrystalSpawn = nil
                     AutofarmController:QueueNextStrategy(false)
                 end
 
+                warn("crystal prep")
+
                 AutofarmController:UnlaunchBeyblade()
 
-                if AutofarmController.TimeOfCrystalSpawn + self.RandomSearchTime >= os.clock() then return end
+                if os.clock() - self.RandomSearchTime >= AutofarmController.TimeOfCrystalSpawn then return end
                 
+                warn("crystal start pick")
+
                 local success, error = pcall(function()
                     local Character = Client.Character
                     if not Character then return end
