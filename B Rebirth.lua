@@ -482,7 +482,7 @@ do
                         if item.Category == "Misc" then 
                             if item.Type == "Skill" then
                                 if not UIController:GetAllBankState().AllFragment then return end
-                            elseif item.Type == "Aura" then
+                            elseif item.Type == "Auras" then
                                 if not UIController:GetAllBankState().AllAura then return end
                             elseif item.Type == "Crystal" then
                                 if not UIController:GetAllBankState().AllCrystal then return end
