@@ -306,10 +306,8 @@ do
     
         local NpcCFrame = NpcTarget.PrimaryPart.CFrame
         
-        pcall(function() Client.Character.HumanoidRootPart.Anchored = true end)
-        if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(0, 2, -6)) then return end
+        if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(0, 0, -6)) then return end
         self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
-        pcall(function() Client.Character.HumanoidRootPart.Anchored = false end)
 
         if not self._CurrentNPC  then return end
         local CurrentTarget = self._CurrentNPC 
@@ -340,11 +338,9 @@ do
 
         local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
 
-        pcall(function() Client.Character.HumanoidRootPart.Anchored = true end)
         if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
         local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 7)
-        pcall(function() Client.Character.HumanoidRootPart.Anchored = false end)
-
+        task.wait(0.5)
         fireproximityprompt(VisibleTarget.PrimaryPart.Dialogue)
 
         --timeout for dialogue stuck
@@ -477,6 +473,7 @@ do
                         end
                         timeoutCount += 1
                         self:GetQuest(QuestGiver)
+                        task.wait(0.5)
                     end 
                 until IsQuestExist
 
@@ -783,14 +780,38 @@ do
         if Character then
             local root = Character:FindFirstChild("HumanoidRootPart")
             if root then
-                root.Velocity = Vector3.zero -- Stop movement instantly
-                root.RotVelocity = Vector3.zero -- Stop rotation to avoid spinning
+                root.Velocity = Vector3.zero 
+                root.RotVelocity = Vector3.zero 
                 root.CFrame = cframe
+    
+                root.Anchored = true
+    
+                -- Function to check if ground is below
+                local function hasGround()
+                    local rayOrigin = root.Position
+                    local rayDirection = Vector3.new(0, -10, 0) 
+                    local raycastParams = RaycastParams.new()
+                    raycastParams.FilterDescendantsInstances = {Character} 
+                    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                    
+                    local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+                    return result ~= nil -- Returns true if ground is found
+                end
+    
+                local timeout = 10
+                local elapsedTime = 0
+                while not hasGround() and elapsedTime < timeout do
+                    task.wait(0.5) -- Check every 0.5 seconds
+                    elapsedTime = elapsedTime + 0.5
+                end
+    
+                root.Anchored = false
                 return true
             end
         end
         return false
     end
+    
 
     function AutofarmController:QueueNextStrategy(restart)
         if restart then
@@ -954,7 +975,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v1",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
