@@ -338,8 +338,7 @@ do
         local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
         if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
         local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 5)
-        task.wait(0.5)
-
+        VisibleTarget.PrimaryPart:WaitForChild("Dialogue", 5)
         fireproximityprompt(VisibleTarget.PrimaryPart.Dialogue)
 
         --timeout for dialogue stuck
@@ -395,8 +394,9 @@ do
         end
 
         if QuestData == nil then
-            local questGiver = UIController:GetSelectedQuest()
-            self:GetQuest(NPCsFolder:FindFirstChild(questGiver) or HiddenNPCsFolder:FindFirstChild(questGiver))
+            local quest = UIController:GetSelectedQuest()
+            local questGiver = NPCsFolder:FindFirstChild(quest) or HiddenNPCsFolder:FindFirstChild(quest)
+            self:GetQuest(questGiver)
             return
         end 
 
@@ -405,6 +405,7 @@ do
             for _, npc in folder:GetChildren() do
                 if not npc:GetAttribute("Cooldown") then continue end
                 if self:IsNpcOnCooldown(npc) then continue end
+                if npc.Name:Find("^Boss") then continue end 
                 if self._PreviousNPC == npc then continue end --find different target, helpful for timeed out npcs
                 for _, questTrainer in QuestData do
                     if questTrainer.Progress >= questTrainer.Amount then continue end
@@ -944,7 +945,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v1",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
