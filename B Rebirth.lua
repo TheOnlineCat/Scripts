@@ -261,6 +261,9 @@ do
             task.wait(0.3)
             if Beyblade:GetAttribute("TargetPlayer") == Client.Name then
                 self._NPCBeyblade = Beyblade
+                Beyblade:GetAttributeChangedSignal("Invisible"):Connect(function()
+                    Beyblade:SetAttribute("Invisible", false) 
+                end)
             end
         end))
 
@@ -993,7 +996,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v1",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
