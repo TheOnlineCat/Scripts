@@ -385,7 +385,7 @@ do
             QuestData = {}
             for i = 1, #quest_data.Objectives do
                 table.insert(QuestData, {
-                    Level = tonumber(quest_data.Objectives[i].Name), 
+                    Identifier = quest_data.Objectives[i].Name, 
                     Amount = quest_data.Objectives[i].Amount,
                     Progress = quest_data.Progress[i]
                 })
@@ -410,10 +410,10 @@ do
                 for _, questTrainer in QuestData do
                     if questTrainer.Progress >= questTrainer.Amount then continue end
                     local NPCLevel = npc:GetAttribute("Level")
-                    if npc.Name == questTrainer.Level then
+                    if npc.Name == questTrainer.Identifier then
                         return npc
                     end
-                    if NPCLevel and NPCLevel == questTrainer.Level then
+                    if NPCLevel and NPCLevel == tonumber(questTrainer.Identifier) then
                         return npc
                     end
                 end
@@ -948,7 +948,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
