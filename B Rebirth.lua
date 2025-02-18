@@ -380,7 +380,7 @@ do
         for name, quest_data in pairs(Stats.Quest.Data) do
             if quest_data.Type == "Daily" then continue end
             if not quest_data.Objectives then continue end
-            if not string.find(quest_data.Objectives[1].Type, "Trainer") then continue end
+            if not quest_data.Objectives[1].Type:find("Trainer") then continue end
             
             QuestData = {}
             for i = 1, #quest_data.Objectives do
@@ -405,12 +405,15 @@ do
             for _, npc in folder:GetChildren() do
                 if not npc:GetAttribute("Cooldown") then continue end
                 if self:IsNpcOnCooldown(npc) then continue end
-                if npc.Name:Find("^Boss") then continue end 
+                if npc.Name:find("^Boss") then continue end 
                 if self._PreviousNPC == npc then continue end --find different target, helpful for timeed out npcs
                 for _, questTrainer in QuestData do
                     if questTrainer.Progress >= questTrainer.Amount then continue end
                     local NPCLevel = npc:GetAttribute("Level")
-                    if NPCLevel == questTrainer.Level or npc.Name == questTrainer.Level then
+                    if npc.Name == questTrainer.Level then
+                        return npc
+                    end
+                    if NPCLevel and NPCLevel == questTrainer.Level then
                         return npc
                     end
                 end
