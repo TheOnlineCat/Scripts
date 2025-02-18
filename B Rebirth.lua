@@ -308,9 +308,9 @@ do
         
         pcall(function() Client.Character.HumanoidRootPart.Anchored = true end)
         if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(0, 2, -6)) then return end
+        self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
         pcall(function() Client.Character.HumanoidRootPart.Anchored = false end)
 
-        self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 5)
         if not self._CurrentNPC  then return end
         local CurrentTarget = self._CurrentNPC 
         pcall(function()
@@ -339,11 +339,12 @@ do
         end
 
         local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
+
         pcall(function() Client.Character.HumanoidRootPart.Anchored = true end)
         if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
+        local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 7)
         pcall(function() Client.Character.HumanoidRootPart.Anchored = false end)
-        local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 10)
-        VisibleTarget.PrimaryPart:WaitForChild("Dialogue", 5)
+
         fireproximityprompt(VisibleTarget.PrimaryPart.Dialogue)
 
         --timeout for dialogue stuck
@@ -953,7 +954,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
