@@ -381,7 +381,7 @@ do
         for name, quest_data in pairs(Stats.Quest.Data) do
             if quest_data.Type == "Daily" then continue end
             if not quest_data.Objectives then continue end
-            if not quest_data.Objectives[1].Type:Find("Trainer") then continue end
+            if not string.find(quest_data.Objectives[1].Type, "Trainer") then continue end
             
             QuestData = {}
             for i = 1, #quest_data.Objectives do
