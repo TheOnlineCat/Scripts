@@ -342,7 +342,7 @@ do
         pcall(function() Client.Character.HumanoidRootPart.Anchored = true end)
         if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
         pcall(function() Client.Character.HumanoidRootPart.Anchored = false end)
-        local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 5)
+        local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 10)
         VisibleTarget.PrimaryPart:WaitForChild("Dialogue", 5)
         fireproximityprompt(VisibleTarget.PrimaryPart.Dialogue)
 
