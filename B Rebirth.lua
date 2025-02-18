@@ -780,6 +780,10 @@ do
                 root.Velocity = Vector3.zero -- Stop movement instantly
                 root.RotVelocity = Vector3.zero -- Stop rotation to avoid spinning
                 root.CFrame = cframe
+                root.Anchored = true
+                task.delay(2, function()
+                    root.Anchored = false
+                end)
                 return true
             end
         end
@@ -948,7 +952,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
