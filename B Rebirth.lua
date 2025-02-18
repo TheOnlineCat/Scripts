@@ -305,7 +305,10 @@ do
         end
     
         local NpcCFrame = NpcTarget.PrimaryPart.CFrame
+        
+        pcall(function() Client.Character.HumanoidRootPart.Anchored = true end)
         if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(0, 2, -6)) then return end
+        pcall(function() Client.Character.HumanoidRootPart.Anchored = false end)
 
         self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 5)
         if not self._CurrentNPC  then return end
@@ -336,7 +339,9 @@ do
         end
 
         local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
+        pcall(function() Client.Character.HumanoidRootPart.Anchored = true end)
         if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
+        pcall(function() Client.Character.HumanoidRootPart.Anchored = false end)
         local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 5)
         VisibleTarget.PrimaryPart:WaitForChild("Dialogue", 5)
         fireproximityprompt(VisibleTarget.PrimaryPart.Dialogue)
@@ -344,7 +349,7 @@ do
         --timeout for dialogue stuck
         local connection
         local eventTriggered = false
-        local timeout = 5
+        local timeout = 15
         connection = EventsFolder.UpdateAllQuests.OnClientEvent:Connect(function(...)
             eventTriggered = true
             connection:Disconnect() 
@@ -780,10 +785,6 @@ do
                 root.Velocity = Vector3.zero -- Stop movement instantly
                 root.RotVelocity = Vector3.zero -- Stop rotation to avoid spinning
                 root.CFrame = cframe
-                root.Anchored = true
-                task.delay(10, function()
-                    root.Anchored = false
-                end)
                 return true
             end
         end
@@ -952,7 +953,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v7",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
