@@ -443,6 +443,7 @@ do
     function BossFarmStrategy:FindAvailableNPC()
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, boss in folder:GetChildren() do
+                if string.len(boss.Name) > 30 then continue end
                 if not boss:GetAttribute("Cooldown") then continue end
                 if self:IsNpcOnCooldown(boss) then continue end
                 if self._PreviousNPC == boss then continue end --find different target, helpful for timeed out npcs
