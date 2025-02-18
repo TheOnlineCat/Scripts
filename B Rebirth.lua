@@ -810,7 +810,7 @@ do
                 -- Function to check if ground is below
                 local function hasGround()
                     local rayOrigin = root.Position
-                    local rayDirection = Vector3.new(0, -10, 0) 
+                    local rayDirection = Vector3.new(0, -100, 0) 
                     local raycastParams = RaycastParams.new()
                     raycastParams.FilterDescendantsInstances = {Character} 
                     raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
@@ -996,7 +996,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
