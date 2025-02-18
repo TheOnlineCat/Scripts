@@ -329,25 +329,8 @@ do
             self._CurrentNPC = nil
         end
     end
-    
 
-    function BaseNPCBattleStrategy:FindAvailableNPC()
-    end
-end
-
-do
-    setmetatable(QuestFarmStrategy, BaseNPCBattleStrategy)
-    QuestFarmStrategy.__index = QuestFarmStrategy
-
-    function QuestFarmStrategy.new()
-        return setmetatable(BaseNPCBattleStrategy.new(), QuestFarmStrategy)
-    end
-
-    function QuestFarmStrategy:GetQuest() 
-
-        local Quest = UIController:GetSelectedQuest()
-        local QuestGiver = NPCsFolder:FindFirstChild(Quest) or HiddenNPCsFolder:FindFirstChild(Quest)
-
+    function BaseNPCBattleStrategy:GetQuest(QuestGiver)
         if not QuestGiver or not QuestGiver.PrimaryPart then 
             return 
         end
@@ -377,37 +360,56 @@ do
             task.wait() 
         end
     end
+    
+
+    function BaseNPCBattleStrategy:FindAvailableNPC()
+    end
+end
+
+do
+    setmetatable(QuestFarmStrategy, BaseNPCBattleStrategy)
+    QuestFarmStrategy.__index = QuestFarmStrategy
+
+    function QuestFarmStrategy.new()
+        return setmetatable(BaseNPCBattleStrategy.new(), QuestFarmStrategy)
+    end
+
+    
 
     function QuestFarmStrategy:FindAvailableNPC()
         local QuestData = nil
         for name, quest_data in pairs(Stats.Quest.Data) do
-            if string.find(name, "Trainer") and quest_data.Type == nil then
-                QuestData = {}
-                for i = 1, #quest_data.Objectives do
-                    table.insert(QuestData, {
-                        Level = tonumber(quest_data.Objectives[i].Name), 
-                        Amount = quest_data.Objectives[i].Amount,
-                        Progress = quest_data.Progress[i]
-                    })
-                end
-                break
+            if quest_data.Type == "Daily" then continue end
+            if not quest_data.Objectives then continue end
+            if not quest_data.Objectives[1].Type:Find("Trainer") then continue end
+            
+            QuestData = {}
+            for i = 1, #quest_data.Objectives do
+                table.insert(QuestData, {
+                    Level = tonumber(quest_data.Objectives[i].Name), 
+                    Amount = quest_data.Objectives[i].Amount,
+                    Progress = quest_data.Progress[i]
+                })
             end
+            break
         end
 
         if QuestData == nil then
-            self:GetQuest()
+            local questGiver = UIController:GetSelectedQuest()
+            self:GetQuest(NPCsFolder:FindFirstChild(questGiver) or HiddenNPCsFolder:FindFirstChild(questGiver))
             return
         end 
 
                    
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, npc in folder:GetChildren() do
-                if not string.find(npc.Name, "Trainer") then continue end
+                if not npc:GetAttribute("Cooldown") then continue end
+                if self:IsNpcOnCooldown(npc) then continue end
                 if self._PreviousNPC == npc then continue end --find different target, helpful for timeed out npcs
-                local NPCLevel = npc:GetAttribute("Level")
                 for _, questTrainer in QuestData do
                     if questTrainer.Progress >= questTrainer.Amount then continue end
-                    if NPCLevel == questTrainer.Level and not self:IsNpcOnCooldown(npc)then
+                    local NPCLevel = npc:GetAttribute("Level")
+                    if NPCLevel == questTrainer.Level or npc.Name == questTrainer.Level then
                         return npc
                     end
                 end
@@ -425,18 +427,51 @@ do
     function BossFarmStrategy.new()
         return setmetatable(BaseNPCBattleStrategy.new(), BossFarmStrategy)
     end
+    
 
     function BossFarmStrategy:FindAvailableNPC()
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, boss in folder:GetChildren() do
-                if string.len(boss.Name) > 30 then continue end
+                if not boss:GetAttribute("Cooldown") then continue end
+                if self:IsNpcOnCooldown(boss) then continue end
                 if self._PreviousNPC == boss then continue end --find different target, helpful for timeed out npcs
-                if not table.find(UIController:GetTargetBossNames(), boss:GetAttribute("Name")) then
-                    continue
+                if not table.find(UIController:GetTargetBossNames(), boss:GetAttribute("Name")) then continue end
+
+                local QuestGiver = nil
+                for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
+                    for _, npc in ipairs(folder:GetChildren()) do
+                        if npc.Name:find("Boss") and npc.Name:find("Quest") then
+                            QuestGiver = npc
+                        end
+                    end
                 end
-                if not self:IsNpcOnCooldown(boss) then
+                if not QuestGiver then
                     return boss
                 end
+
+                local IsQuestExist = false
+                local timeoutCount = 0
+                repeat
+                    for quest_name, quest_data in pairs(Stats.Quest.Data) do
+                        if quest_data.Type == "Daily" then continue end
+                        if not quest_data.Objectives then continue end
+                        if quest_data.Objectives[1].Name == boss.Name then 
+                            IsQuestExist = true
+                            break
+                        end
+                    end
+
+                    if not IsQuestExist then
+                        if timeoutCount >= 2 then
+                            break
+                        end
+                        timeoutCount += 1
+                        self:GetQuest(QuestGiver)
+                    end 
+                until IsQuestExist
+
+
+                return boss
             end
         end
 
