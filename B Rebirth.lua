@@ -446,7 +446,7 @@ do
                 local QuestGiver = nil
                 for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
                     for _, npc in ipairs(folder:GetChildren()) do
-                        if npc.Name:find("Boss") and npc.Name:find("Quest") then
+                        if npc.Name:find(boss.Name) and npc.Name:find("Quest") then
                             QuestGiver = npc
                         end
                     end
@@ -976,7 +976,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v1",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
