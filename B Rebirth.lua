@@ -25,7 +25,9 @@ local Maid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/N
 local Signal = loadstring(game:HttpGet("https://raw.githubusercontent.com/Sleitnick/RbxUtil/refs/heads/main/modules/signal/init.luau"))()
 
 -- Constants
+local PLACE_ID = game.PlaceId 
 local GENERAL_POLL_DELAY = 0.1
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1341429307213611070/nzjcEPsirT4V9bOIxWbMR9dTfB0f6rZ3L4r_gpwnLS5jHurrLKUMTkiC-u92_q5xvj9m" -- Replace with your actual webhook URL
 
 -- Controllers
 local AutofarmController = {}
@@ -47,7 +49,6 @@ local BossFarmStrategy = {}
 
 
 -- Variables
-local PLACE_ID = game.PlaceId 
 local Client = Players.LocalPlayer
 local EventsFolder = ReplicatedStorage.Events
 local VendingMachinesFolder = workspace.World.VendingMachines
@@ -141,6 +142,7 @@ do
             AutofarmController:UnlaunchBeyblade()
 
             if os.clock() - self.RandomSearchTime < AutofarmController.TimeOfCrystalSpawn then return end
+            if Client.Character and Client.Character.HumanoidRootPart.Anchored then return end
             
             warn("crystal start pick")
 
@@ -634,6 +636,21 @@ do
                     local Crystal = Root:FindFirstChild("Crystal")
                     if Crystal then
                         print("Crystal Found!")
+                        local function sendToDiscord(message)
+                            local headers = {["Content-Type"] = "application/json"}
+                            local data = {content = message}
+                            
+                            pcall(function()
+                                return request({
+                                    Url = WEBHOOK_URL,
+                                    Method = "POST",
+                                    Headers = headers,
+                                    Body = HttpService:JSONEncode(data)
+                                })
+                            end)
+                        end
+                        sendToDiscord("Crystal Found!")
+
                         self:SwitchStrategy(UIController:GetNextFarm())
                         self.Crystal = child
                         self.TimeOfCrystalSpawn = os.clock()
