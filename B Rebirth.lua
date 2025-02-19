@@ -1310,6 +1310,26 @@ do
                 end
             end,
         })
+
+        Tab:CreateButton({
+            Name = "Show Shop",
+            Callback = function()
+                local remote = EventsFolder.ShowSellPrompt
+                if remote then
+                    for _, connection in ipairs(getconnections(remote.OnClientEvent)) do
+                        connection.Function()
+                    end
+                end
+            end,
+        })
+
+        Tab:CreateButton({
+            Name = "Show Fusion",
+            Callback = function()
+                Client.PlayerGui.UI.Upgrade.Visible = not Client.PlayerGui.UI.Upgrade.Visible
+            end,
+        })
+        
         
 
         Tab:CreateButton({
