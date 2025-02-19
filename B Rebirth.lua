@@ -1482,14 +1482,15 @@ do
 
         if UIController:CanStaffAutoKick() then
             local SERVER_LIST_URL = "https://games.roblox.com/v1/games/" .. PLACE_ID .. "/servers/Public?sortOrder=Asc&limit=100"
-            local success, result = pcall(function()
-                return HttpService:GetAsync(SERVER_LIST_URL)
-            end)
-
+            local res = request({
+                Url = SERVER_LIST_URL,
+                Method = "GET",
+                Headers = {["Content-Type"] = "application/json"}
+            })
+            
             local isTeleporting = false 
-        
-            if success then
-                local serverData = HttpService:JSONDecode(result)
+            if res and res.Success then
+                local serverData = HttpService:JSONDecode(res.Body)
                 for _, server in ipairs(serverData.data) do
                     if server.id ~= game.JobId and server.playing < server.maxPlayers then
                         isTeleporting = true
@@ -1497,7 +1498,6 @@ do
                             Client:Kick("Failed attempt to teleport due to staff!" .. MessageContent)
                         end)
                         TeleportService:TeleportToPlaceInstance(PLACE_ID, server.id, Players.LocalPlayer)
-                        return
                     end
                 end
             end
