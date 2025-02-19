@@ -52,6 +52,7 @@ local BossFarmStrategy = {}
 local Client = Players.LocalPlayer
 local EventsFolder = ReplicatedStorage.Events
 local VendingMachinesFolder = workspace.World.VendingMachines
+local ShopsFolder = workspace.World.Shop
 local BeybladesFolder = workspace.Beyblades
 local TrainingFolder = workspace.Training
 local NPCsFolder = workspace.NPCs
@@ -1160,9 +1161,13 @@ do
 
         -- Get vending machine names
         local vendingOptions = {"Cygnus and Dransword"}
-        for _, machine in pairs(VendingMachinesFolder:GetChildren()) do
-            if machine.Name:find("and") and not table.find(vendingOptions, machine.Name) then
-                table.insert(vendingOptions, machine.Name)
+        for _, folder in {VendingMachinesFolder, ShopsFolder} do
+            if not folder then continue end
+            for _, machine in pairs(folder:GetChildren()) do
+                if table.find(vendingOptions, machine.Name) then continue end
+                if machine.Name:find("and") or machine.Name:find("&") then
+                    table.insert(vendingOptions, machine.Name)
+                end
             end
         end
         local SelectedMachine = vendingOptions[1] or "None"
