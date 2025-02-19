@@ -654,7 +654,7 @@ do
                                 })
                             end)
                         end
-                        sendToDiscord("Crystal Found!")
+                        sendToDiscord("@everyone Crystal Found!")
 
                         self:SwitchStrategy(UIController:GetNextFarm())
                         self.Crystal = child
