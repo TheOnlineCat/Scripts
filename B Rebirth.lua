@@ -411,6 +411,7 @@ do
                    
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, npc in folder:GetChildren() do
+                if string.len(npc.Name) > 30 then continue end
                 if not npc:GetAttribute("Cooldown") then continue end
                 if self:IsNpcOnCooldown(npc) then continue end
                 if npc.Name:find("^Boss") then continue end 
