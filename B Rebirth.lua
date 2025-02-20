@@ -804,6 +804,16 @@ do
         if Character then
             local root = Character:FindFirstChild("HumanoidRootPart")
             if root then
+                local function isNaN(value)
+                    return value ~= value -- NaN values fail equality checks
+                end
+                local linearVelocity = root.AssemblyLinearVelocity
+                if isNaN(root.Position.X) or isNaN(root.Position.Y) or isNaN(root.Position.Z) or
+                isNaN(linearVelocity.X) or isNaN(linearVelocity.Y) or isNaN(linearVelocity.Z) then
+                    if Client and Client.Character then
+                        Client.Character.Humanoid.Health = 0
+                    end
+                end
                 if root.Anchored then return end
                 root.Velocity = Vector3.zero 
                 root.RotVelocity = Vector3.zero 
