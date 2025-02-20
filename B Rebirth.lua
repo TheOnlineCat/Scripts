@@ -346,6 +346,7 @@ do
 
         if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
         local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 7)
+        if not VisibleTarget then return end
         task.wait(0.5)
         fireproximityprompt(VisibleTarget.PrimaryPart.Dialogue)
 
