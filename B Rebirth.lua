@@ -1492,7 +1492,7 @@ do
         })
 
         if UIController:CanStaffAutoKick() then
-            local SERVER_LIST_URL = "https://games.roblox.com/v1/games/" .. PLACE_ID .. "/servers/Public?sortOrder=Asc&limit=100"
+            local SERVER_LIST_URL = "https://games.roblox.com/v1/games/" .. game.PlaceId .. "/servers/Public?sortOrder=Asc&limit=100"
             local res = request({
                 Url = SERVER_LIST_URL,
                 Method = "GET",
@@ -1508,7 +1508,7 @@ do
                         TeleportService.TeleportInitFailed:Connect(function(...)
                             Client:Kick("Failed attempt to teleport due to staff!" .. MessageContent)
                         end)
-                        TeleportService:TeleportToPlaceInstance(PLACE_ID, server.id, Players.LocalPlayer)
+                        TeleportService:TeleportToPlaceInstance(game.PlaceId, server.id, Client)
                     end
                 end
             end
