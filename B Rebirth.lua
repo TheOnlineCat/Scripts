@@ -804,6 +804,7 @@ do
         if Character then
             local root = Character:FindFirstChild("HumanoidRootPart")
             if root then
+                if root.Anchored then return end
                 root.Velocity = Vector3.zero 
                 root.RotVelocity = Vector3.zero 
                 root.CFrame = cframe
