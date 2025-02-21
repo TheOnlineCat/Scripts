@@ -447,7 +447,7 @@ do
         for _, folder in {NPCsFolder, HiddenNPCsFolder} do
             for _, boss in folder:GetChildren() do
                 if string.len(boss.Name) > 30 then continue end
-                if not boss:GetAttribute("Cooldown") then continue end
+                if not boss:GetAttribute("Cooldown") or not boss:GetAttribute("LossCooldown") or not boss:GetAttribute("WinCooldown") then continue end
                 if self:IsNpcOnCooldown(boss) then continue end
                 if self._PreviousNPC == boss then continue end --find different target, helpful for timeed out npcs
                 if not table.find(UIController:GetTargetBossNames(), boss:GetAttribute("Name")) then continue end
@@ -1011,7 +1011,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
