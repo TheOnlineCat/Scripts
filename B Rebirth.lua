@@ -741,6 +741,10 @@ do
         local TargetPrimaryPart = Target.PrimaryPart
         local TargetPosition = TargetPrimaryPart.Position
 
+        task.spawn(function()
+            RemotesFolder.RunSkill:InvokeServer("Awakening")
+        end)
+
         for SkillIndex, _ in pairs(EquippedBeyblade.Skills) do
             -- RunSkill, returns debounce data which we could utilise
             -- FinishSkill, for 2nd arg I could've put any instance
@@ -1011,7 +1015,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
