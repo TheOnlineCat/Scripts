@@ -318,7 +318,7 @@ do
     
         local NpcCFrame = NpcTarget.PrimaryPart.CFrame
         
-        if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(0, 0, -6)) then return end
+        if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
         self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
 
         if not self._CurrentNPC  then return end
