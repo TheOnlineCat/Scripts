@@ -249,8 +249,14 @@ do
             AutofarmController:FireSkills(self._NPCBeyblade)
         end
 
-        -- Teleport logic
-        ClientBeyblade.HumanoidRootPart.CFrame = self._NPCBeyblade.HumanoidRootPart.CFrame * CFrame.new(0, UIController:GetFarmDistance(), 0)
+        local offset = CFrame.new(0, UIController:GetFarmDistance(), 0)
+        local newPosition = (self._NPCBeyblade.HumanoidRootPart.CFrame * offset).Position
+        
+        if newPosition.Y >= 40150 then
+            newPosition = Vector3.new(newPosition.X, 40149, newPosition.Z)
+        end
+        
+        ClientBeyblade.HumanoidRootPart.CFrame = CFrame.new(newPosition)
     end
 
     function BaseNPCBattleStrategy:Start()
