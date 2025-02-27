@@ -1183,7 +1183,7 @@ do
         Tab:CreateSection("Roll")
 
         -- Get vending machine names
-        local vendingOptions = {"Cygnus and Dransword"}
+        local vendingOptions = {}
         for _, folder in {VendingMachinesFolder, ShopsFolder} do
             if not folder then continue end
             for _, machine in pairs(folder:GetChildren()) do
