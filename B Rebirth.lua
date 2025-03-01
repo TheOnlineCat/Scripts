@@ -349,6 +349,9 @@ do
 
             teleportFunction()
             self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
+            for i = 1, 3 do
+                teleportFunction()
+            end
         else
             if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
             self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
@@ -379,6 +382,7 @@ do
                 if UIController:GetMoleTPToggle() then
                     teleportFunction()
                 end
+                task.wait()
                 fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue) 
                 attempts += 1
             until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
@@ -1071,7 +1075,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.2",
+            Name = "Blader's Rebirth v5.5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
