@@ -347,7 +347,7 @@ do
                     AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
                     if Client.Character.HumanoidRootPart then
                         local force = Instance.new("BodyForce")
-                        force.Force = Vector3.new(0, workspace.Gravity * Client.Character.HumanoidRootPart.AssemblyMass, 0) -- Counteract gravity
+                        force.Force = Vector3.new(0, 1, 0) -- Counteract gravity
                         force.Parent = Client.Character.HumanoidRootPart
                     end
                     task.wait(0.15) 
@@ -1086,7 +1086,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
