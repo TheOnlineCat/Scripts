@@ -393,7 +393,7 @@ do
                 warn(e)
             end
             attempts += 1
-        until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
+        until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 1)
     end
 
     function BaseNPCBattleStrategy:GetQuest(QuestGiver)
