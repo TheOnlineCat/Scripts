@@ -366,30 +366,29 @@ do
                 if self._CurrentNPC == CurrentTarget and not self._IsBattling then
                     self._PreviousNPC = self._CurrentNPC
                     self._CurrentNPC = nil
+                    AutofarmController:QueueNextStrategy(true)
                 end
             end))
         end)
 
         task.wait(0.5)
 
-        local success, err = pcall(function()
-            local attempts = 0
-            repeat
-                if attempts >= 3 then
-                    self._CurrentNPC = nil
-                    return 
-                end
-                if UIController:GetMoleTPToggle() then
-                    teleportFunction()
-                end
-                task.wait()
+        local attempts = 0
+        repeat
+            if attempts >= 3 then
+                self._CurrentNPC = nil
+                AutofarmController:QueueNextStrategy(true)
+                return 
+            end
+            if UIController:GetMoleTPToggle() then
+                teleportFunction()
+            end
+            task.wait(0.1)
+            pcall(function()
                 fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue) 
-                attempts += 1
-            until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
-        end)
-        if not success then
-            self._CurrentNPC = nil
-        end
+            end)
+            attempts += 1
+        until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
     end
 
     function BaseNPCBattleStrategy:GetQuest(QuestGiver)
@@ -1075,7 +1074,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.5",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -1112,7 +1111,7 @@ do
         Tab:CreateSlider({
             Name = "Delay After Battle",
             Range = {0, 10},
-            Increment = 1,
+            Increment = 0.5,
             CurrentValue = self.State.FarmConfig.Delay,
             Flag = "FarmDelay",
             Callback = function(Value)
