@@ -383,7 +383,7 @@ do
                 return 
             end
             if UIController:GetMoleTPToggle() then
-                teleportFunction(attempts / 10)
+                teleportFunction(attempts / 5)
             end
             task.wait(0.1)
             local s, e = pcall(function()
