@@ -263,6 +263,7 @@ do
         self._Maid:GiveTask(BeybladesFolder.ChildAdded:Connect(function(Beyblade)
             task.wait(0.3)
             if Beyblade:GetAttribute("TargetPlayer") == Client.Name then
+                game.Workspace.Gravity = 196.2
                 self._NPCBeyblade = Beyblade
                 Beyblade:GetAttributeChangedSignal("Invisible"):Connect(function()
                     Beyblade:SetAttribute("Invisible", false) 
@@ -279,6 +280,8 @@ do
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
                 if Client.Character and Client.Character.HumanoidRootPart then
+                    game.Workspace.Gravity = 0
+
                     Client.Character.HumanoidRootPart:GetPropertyChangedSignal("Anchored"):Wait()
                     if UIController:GetMoleTPToggle() then
                         Client.Character.HumanoidRootPart.Anchored = true
@@ -324,6 +327,7 @@ do
         
         local teleportFunction
         if UIController:GetMoleTPToggle() then
+            game.Workspace.Gravity = 0
             -- Get the boss's feet position
             local bossRoot = NpcTarget.PrimaryPart
             local feetPosition = bossRoot.Position - Vector3.new(0, NpcTarget:GetExtentsSize().Y / 2 - 2, 0) -- Move down to the feet
@@ -692,7 +696,6 @@ do
                     return
                 end
 
-                game.Workspace.Gravity = 0
                 if CurrentStrategy then
                     CurrentStrategy:Start()
                 else
@@ -753,7 +756,6 @@ do
                     return
                 end
                 
-                game.Workspace.Gravity = 0
                 if self.CurrentFarmStrategy then
                     warn("Starting...")
                     self.CurrentFarmStrategy:Start()
