@@ -369,7 +369,6 @@ do
                 if self._CurrentNPC == CurrentTarget and not self._IsBattling then
                     self._PreviousNPC = self._CurrentNPC
                     self._CurrentNPC = nil
-                    -- AutofarmController:QueueNextStrategy(true)
                 end
             end))
         end)
@@ -378,19 +377,19 @@ do
 
         local attempts = 0
         repeat
-            -- if attempts >= 3 then
-            --     self._CurrentNPC = nil
-            --     AutofarmController:QueueNextStrategy(true)
-            --     return 
-            -- end
+            if attempts >= 4 then
+                self._PreviousNPC = self._CurrentNPC
+                self._CurrentNPC = nil
+                return 
+            end
             if UIController:GetMoleTPToggle() then
-                teleportFunction(attempts)
+                teleportFunction(attempts / 10)
             end
             task.wait(0.1)
             pcall(function()
                 fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue) 
             end)
-            attempts += 0.1
+            attempts += 1
         until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
     end
 
@@ -1080,7 +1079,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
