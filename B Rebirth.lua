@@ -380,7 +380,7 @@ do
             if attempts >= 3 then
                 self._PreviousNPC = self._CurrentNPC
                 self._CurrentNPC = nil
-                return 
+                continue
             end
             if UIController:GetMoleTPToggle() then
                 teleportFunction(attempts / 5)
@@ -393,7 +393,9 @@ do
                 warn(e)
             end
             attempts += 1
-        until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 1)
+
+            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 1)
+        until response or attempts >= 3
     end
 
     function BaseNPCBattleStrategy:GetQuest(QuestGiver)
@@ -1082,7 +1084,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
