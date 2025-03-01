@@ -371,7 +371,7 @@ do
 
             fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue)
 
-            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 1)
+            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 0.2)
 
             if not response and UIController:GetMoleTPToggle() then
                 teleportFunction(attempts / 4)
@@ -1080,7 +1080,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
