@@ -340,17 +340,13 @@ do
             teleportFunction = function(increment)
                 local incre = increment or 0
                 if Client.Character and Client.Character.HumanoidRootPart then
+                    Client.Character.HumanoidRootPart.Anchored = false
+
                     local humanoid = Client.Character:FindFirstChild("Humanoid")
                     if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
-                    
-                    Client.Character.HumanoidRootPart.Anchored = false
                     AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
-                    if Client.Character.HumanoidRootPart then
-                        local force = Instance.new("BodyForce")
-                        force.Force = Vector3.new(0, 1, 0) -- Counteract gravity
-                        force.Parent = Client.Character.HumanoidRootPart
-                    end
-                    task.wait(0.15) 
+                    RunService.Heartbeat:Wait()
+                    task.wait(0.2) 
                     Client.Character.HumanoidRootPart.Anchored = true
             
                     task.wait(0.1) 
@@ -379,7 +375,7 @@ do
 
             local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
 
-            if not response and UIController:GetMoleTPToggle() then
+            if (not response) and UIController:GetMoleTPToggle() then
                 teleportFunction()
             end
 
@@ -691,10 +687,12 @@ do
                 local CurrentStrategy = self.CurrentFarmStrategy
 
                 if not IsEnabled then
+                    game.Workspace.Gravity = 196.2
                     self:SwitchStrategy(nil) --destroy all strategies
                     return
                 end
-                
+
+                game.Workspace.Gravity = 0
                 if CurrentStrategy then
                     CurrentStrategy:Start()
                 else
@@ -755,6 +753,7 @@ do
                     return
                 end
                 
+                game.Workspace.Gravity = 0
                 if self.CurrentFarmStrategy then
                     warn("Starting...")
                     self.CurrentFarmStrategy:Start()
