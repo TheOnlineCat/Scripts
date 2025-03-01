@@ -374,6 +374,7 @@ do
             local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 0.2)
 
             if not response and UIController:GetMoleTPToggle() then
+                warn("HIIII")
                 teleportFunction(attempts / 4)
             end
 
@@ -1080,7 +1081,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v6",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
