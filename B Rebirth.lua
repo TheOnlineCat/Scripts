@@ -362,32 +362,27 @@ do
 
         if not self._CurrentNPC  then return end
         local CurrentTarget = self._CurrentNPC 
-        pcall(function()
-            self._Maid:GiveTask(task.delay(10, function()
-                -- Only reset if `_CurrentNPC` is still the same NPC and not in Battle
-                if self._CurrentNPC == CurrentTarget and not self._IsBattling then
-                    self._PreviousNPC = self._CurrentNPC
-                    self._CurrentNPC = nil
-                end
-            end))
-        end)
 
-        task.wait(0.5)
+        -- pcall(function()
+        --     self._Maid:GiveTask(task.delay(17, function()
+        --         -- Only reset if `_CurrentNPC` is still the same NPC and not in Battle
+        --         if self._CurrentNPC == CurrentTarget and not self._IsBattling then
+        --             self._PreviousNPC = self._CurrentNPC
+        --             self._CurrentNPC = nil
+        --         end
+        --     end))
+        -- end)
+
 
         local attempts = 0
         repeat
             if UIController:GetMoleTPToggle() then
-                teleportFunction(attempts / 5)
+                teleportFunction(attempts / 10)
             end
-            task.wait(0.1)
-            local s, e = pcall(function()
-                fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue) 
-            end)
-            if not s then
-                warn(e)
-            end
+            task.wait(0.5)
+            fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue)
             attempts += 1
-            if attempts >= 3 then
+            if attempts >= 5 then
                 self._PreviousNPC = self._CurrentNPC
                 self._CurrentNPC = nil
             end
@@ -1081,7 +1076,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
