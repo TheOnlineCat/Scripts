@@ -321,6 +321,7 @@ do
     
         local NpcCFrame = NpcTarget.PrimaryPart.CFrame
         
+        local teleportFunction
         if UIController:GetMoleTPToggle() then
             -- Get the boss's feet position
             local bossRoot = NpcTarget.PrimaryPart
@@ -335,7 +336,7 @@ do
             -- Determine the ground position
             local groundY = raycastResult and raycastResult.Position.Y - 0.95 or (feetPosition.Y - 1)
             
-            local function teleport()
+            teleportFunction = function()
                 if Client.Character and Client.Character.HumanoidRootPart then
                     Client.Character.HumanoidRootPart.Anchored = false
                     AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY, feetPosition.Z)) * CFrame.fromEulerAnglesYXZ(math.rad(90), 0, 0))
@@ -345,12 +346,9 @@ do
                 end
             end
 
-            teleport()
+
+            teleportFunction()
             self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
-            for i = 1, 3 do
-                teleport()
-            end
-            task.wait(0.5)
         else
             if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
             self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
@@ -377,6 +375,9 @@ do
                 if attempts >= 3 then
                     self._CurrentNPC = nil
                     return 
+                end
+                if UIController:GetMoleTPToggle() then
+                    teleportFunction()
                 end
                 fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue) 
                 attempts += 1
@@ -1070,7 +1071,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5",
+            Name = "Blader's Rebirth v5.2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
