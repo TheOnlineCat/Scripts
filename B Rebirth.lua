@@ -386,9 +386,12 @@ do
                 teleportFunction(attempts / 10)
             end
             task.wait(0.1)
-            pcall(function()
-                fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue) 
+            local s, e = pcall(function()
+                fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue) 
             end)
+            if not s then
+                warn(e)
+            end
             attempts += 1
         until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
     end
@@ -1079,7 +1082,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
