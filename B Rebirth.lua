@@ -308,8 +308,10 @@ do
 
     function BaseNPCBattleStrategy:InitiateFight()
         AutofarmController:UnlaunchBeyblade()
-    
 
+        pcall(function()
+            Client.Character.HumanoidRootPart.Anchored = false
+        end)
     
         local NpcTarget = self:FindAvailableNPC()
         self._NPCBeyblade = nil
@@ -397,6 +399,10 @@ do
         end
 
         local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
+
+        pcall(function()
+            Client.Character.HumanoidRootPart.Anchored = false
+        end)
 
         if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
         local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 7)
@@ -540,7 +546,6 @@ do
                 --         task.wait(0.5)
                 --     end 
                 -- until IsQuestExist
-
 
                 return boss
             end
@@ -1074,7 +1079,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v4",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
