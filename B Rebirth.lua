@@ -350,7 +350,7 @@ do
             for i = 1, 3 do
                 teleport()
             end
-            task.wait(0.1)
+            task.wait(0.5)
         else
             if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
             self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
@@ -372,7 +372,15 @@ do
         task.wait(0.5)
 
         local success, err = pcall(function()
-            fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue)
+            local attempts = 0
+            repeat
+                if attempts >= 3 then
+                    self._CurrentNPC = nil
+                    return 
+                end
+                fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue) 
+                attempts += 1
+            until Client.PlayerGui.FindFirstChild("Dialogue").FindFirstChild("Dialogue").WaitForChild("Response", 2)
         end)
         if not success then
             self._CurrentNPC = nil
@@ -1062,7 +1070,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.5",
+            Name = "Blader's Rebirth v5.6",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
