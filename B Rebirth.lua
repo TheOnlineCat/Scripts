@@ -366,18 +366,21 @@ do
 
         local attempts = 0
         repeat
-            if UIController:GetMoleTPToggle() then
-                teleportFunction(attempts / 10)
-            end
-            task.wait(0.5)
-            fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue)
             attempts += 1
+
+            fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue)
+
+            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 1)
+
+            if not response and UIController:GetMoleTPToggle() then
+                teleportFunction(attempts / 4)
+            end
+
             if attempts >= 5 then
                 self._PreviousNPC = self._CurrentNPC
                 self._CurrentNPC = nil
             end
-            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 1)
-        until response or attempts >= 3
+        until response or attempts >= 5
 
         pcall(function()
             self._Maid:GiveTask(task.delay(17, function()
@@ -1076,7 +1079,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v9",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
