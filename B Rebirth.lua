@@ -338,10 +338,11 @@ do
             -- Determine the ground position
             local groundY = raycastResult and raycastResult.Position.Y - 0.95 or (feetPosition.Y - 1)
             
-            teleportFunction = function()
+            teleportFunction = function(increment)
+                local incre = increment or 0
                 if Client.Character and Client.Character.HumanoidRootPart then
                     Client.Character.HumanoidRootPart.Anchored = false
-                    AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
+                    AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
                     task.wait()
                     Client.Character.HumanoidRootPart.Anchored = true
                     task.wait() 
@@ -368,7 +369,7 @@ do
                 if self._CurrentNPC == CurrentTarget and not self._IsBattling then
                     self._PreviousNPC = self._CurrentNPC
                     self._CurrentNPC = nil
-                    AutofarmController:QueueNextStrategy(true)
+                    -- AutofarmController:QueueNextStrategy(true)
                 end
             end))
         end)
@@ -377,19 +378,19 @@ do
 
         local attempts = 0
         repeat
-            if attempts >= 3 then
-                self._CurrentNPC = nil
-                AutofarmController:QueueNextStrategy(true)
-                return 
-            end
+            -- if attempts >= 3 then
+            --     self._CurrentNPC = nil
+            --     AutofarmController:QueueNextStrategy(true)
+            --     return 
+            -- end
             if UIController:GetMoleTPToggle() then
-                teleportFunction()
+                teleportFunction(attempts)
             end
             task.wait(0.1)
             pcall(function()
                 fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue) 
             end)
-            attempts += 1
+            attempts += 0.1
         until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
     end
 
@@ -1079,7 +1080,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
