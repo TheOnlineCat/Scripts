@@ -341,6 +341,7 @@ do
                 local incre = increment or 0
                 if Client.Character and Client.Character.HumanoidRootPart then
                     Client.Character.HumanoidRootPart.Anchored = false
+                    task.wait()
                     AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
                     task.wait()
                     Client.Character.HumanoidRootPart.Anchored = true
@@ -1079,7 +1080,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v9",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
