@@ -341,9 +341,10 @@ do
 
             teleport()
             self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
-            for i = 1, 10 do
+            for i = 1, 3 do
                 teleport()
             end
+            task.wait(0.1)
         else
             if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
             self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
@@ -1055,7 +1056,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.2",
+            Name = "Blader's Rebirth v5.3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
