@@ -345,9 +345,12 @@ do
                     
                     Client.Character.HumanoidRootPart.Anchored = false
                     AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
-                    RunService.Heartbeat:Wait()
-                    humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-                    task.wait(0.1) 
+                    if Client.Character.HumanoidRootPart then
+                        local force = Instance.new("BodyForce")
+                        force.Force = Vector3.new(0, workspace.Gravity * Client.Character.HumanoidRootPart.AssemblyMass, 0) -- Counteract gravity
+                        force.Parent = Client.Character.HumanoidRootPart
+                    end
+                    task.wait(0.15) 
                     Client.Character.HumanoidRootPart.Anchored = true
             
                     task.wait(0.1) 
@@ -374,18 +377,17 @@ do
 
             fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue)
 
-            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 0.2)
+            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 1)
 
             if not response and UIController:GetMoleTPToggle() then
-                warn("HIIII")
-                teleportFunction(attempts / 4)
+                teleportFunction()
             end
 
-            if attempts >= 5 then
+            if attempts >= 3 then
                 self._PreviousNPC = self._CurrentNPC
                 self._CurrentNPC = nil
             end
-        until response or attempts >= 5
+        until response or attempts >= 3
 
         pcall(function()
             self._Maid:GiveTask(task.delay(17, function()
@@ -1084,7 +1086,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
