@@ -341,7 +341,7 @@ do
             teleportFunction = function()
                 if Client.Character and Client.Character.HumanoidRootPart then
                     Client.Character.HumanoidRootPart.Anchored = false
-                    AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY, feetPosition.Z)) * CFrame.Angles(math.rad(90), math.rad(90), 0))
+                    AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
                     task.wait()
                     Client.Character.HumanoidRootPart.Anchored = true
                     task.wait() 
@@ -1079,7 +1079,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
