@@ -364,7 +364,7 @@ do
         if not self._CurrentNPC  then return end
         local CurrentTarget = self._CurrentNPC 
         pcall(function()
-            self._Maid:GiveTask(task.delay(15, function()
+            self._Maid:GiveTask(task.delay(10, function()
                 -- Only reset if `_CurrentNPC` is still the same NPC and not in Battle
                 if self._CurrentNPC == CurrentTarget and not self._IsBattling then
                     self._PreviousNPC = self._CurrentNPC
@@ -377,7 +377,7 @@ do
 
         local attempts = 0
         repeat
-            if attempts >= 4 then
+            if attempts >= 3 then
                 self._PreviousNPC = self._CurrentNPC
                 self._CurrentNPC = nil
                 return 
@@ -1082,7 +1082,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
