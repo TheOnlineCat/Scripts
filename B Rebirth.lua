@@ -341,24 +341,20 @@ do
                 local incre = increment or 0
                 if Client.Character and Client.Character.HumanoidRootPart then
                     Client.Character.HumanoidRootPart.Anchored = false
-                    task.wait()
                     AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
-                    task.wait()
+                    RunService.Heartbeat:Wait() 
                     Client.Character.HumanoidRootPart.Anchored = true
-                    task.wait() 
+                    RunService.Heartbeat:Wait() 
                 end
             end
 
 
             teleportFunction()
-            self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
-            for i = 1, 3 do
-                teleportFunction()
-            end
         else
             if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
-            self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
         end
+
+        self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
            
 
         if not self._CurrentNPC  then return end
@@ -1081,7 +1077,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v6",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
