@@ -218,9 +218,6 @@ do
         AutofarmController:FireServer("DialogueChoice", ChoiceId)
     end
 
-    function BaseNPCBattleStrategy:BossAccept()
-    end
-
     function BaseNPCBattleStrategy:IsNpcOnCooldown(npc)
         local CooldownEndTime = npc:GetAttribute("CooldownEnd")                    
         return CooldownEndTime and os.time() < CooldownEndTime
@@ -318,8 +315,36 @@ do
     
         local NpcCFrame = NpcTarget.PrimaryPart.CFrame
         
-        if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
-        self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
+        if UIController:GetMoleTPToggle() then
+            -- Get the boss's feet position
+            local bossRoot = NpcTarget.PrimaryPart
+            local feetPosition = bossRoot.Position - Vector3.new(0, NpcTarget:GetExtentsSize().Y / 2 - 2, 0) -- Move down to the feet
+
+            local rayParams = RaycastParams.new()
+            rayParams.FilterDescendantsInstances = {NpcTarget} -- Ignore the boss itself
+            rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+            local raycastResult = workspace:Raycast(feetPosition, Vector3.new(0, -100, 0), rayParams)
+
+            -- Determine the ground position
+            local groundY = raycastResult and raycastResult.Position.Y - 1 or (feetPosition.Y - 1)
+            
+            local function teleport()
+                Client.Character.HumanoidRootPart.Anchored = false
+                AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY, feetPosition.Z)) * CFrame.fromEulerAnglesYXZ(math.rad(90), 0, 0))
+                task.wait()
+                Client.Character.HumanoidRootPart.Anchored = true
+                task.wait()
+            end
+
+            teleport()
+            self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
+            teleport()
+        else
+            if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
+            self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
+        end
+           
 
         if not self._CurrentNPC  then return end
         local CurrentTarget = self._CurrentNPC 
@@ -891,7 +916,8 @@ do
             Distance = 1,
             Delay = 0,
             BossDifficulty = "Easy",
-            WorldBossDifficulty = "Easy"
+            WorldBossDifficulty = "Easy",
+            MoleTp = false,
         },
         Farms = {
             CrystalFarm = {
@@ -955,6 +981,10 @@ do
 
     function UIController:GetWorldBossDifficulty()
         return self.State.FarmConfig.WorldBossDifficulty
+    end 
+
+    function UIController:GetMoleTPToggle()
+        return self.State.FarmConfig.MoleTp
     end 
 
     function UIController:GetFarmDistance(): string
@@ -1021,7 +1051,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4",
+            Name = "Blader's Rebirth v5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -1086,6 +1116,15 @@ do
             Flag = "WorldBossDifficulty",
             Callback = function(selected)
                 self.State.FarmConfig.WorldBossDifficulty = selected[1]
+            end
+        })
+
+        Tab:CreateToggle({
+            Name = "Mole TP (Hidden Flat Floor)",
+            CurrentValue = false,
+            Flag = "MoleTPToggle",
+            Callback = function(Value)
+                self.State.FarmConfig.MoleTp = Value
             end
         })
     end
