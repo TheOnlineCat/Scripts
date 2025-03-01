@@ -15,7 +15,6 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local VirtualUser = game:GetService("VirtualUser")
-local Workspace = game:GetService("Workspace")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 
@@ -377,11 +376,6 @@ do
 
         local attempts = 0
         repeat
-            if attempts >= 3 then
-                self._PreviousNPC = self._CurrentNPC
-                self._CurrentNPC = nil
-                continue
-            end
             if UIController:GetMoleTPToggle() then
                 teleportFunction(attempts / 5)
             end
@@ -393,7 +387,10 @@ do
                 warn(e)
             end
             attempts += 1
-
+            if attempts >= 3 then
+                self._PreviousNPC = self._CurrentNPC
+                self._CurrentNPC = nil
+            end
             local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 1)
         until response or attempts >= 3
     end
@@ -1084,7 +1081,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v4",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
