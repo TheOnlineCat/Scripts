@@ -279,9 +279,15 @@ do
 
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
-                task.wait(2 + UIController:GetFarmDelay())
-                self._IsBattling = false
-                AutofarmController:QueueNextStrategy(true)
+                if Client.Character and Client.Character.HumanoidRootPart then
+                    Client.Character.HumanoidRootPart:GetPropertyChangedSignal("Anchored"):Wait()
+                    if UIController:GetMoleTPToggle() then
+                        Client.Character.HumanoidRootPart.Anchored = true
+                    end
+                    task.wait(UIController:GetFarmDelay())
+                    self._IsBattling = false
+                    AutofarmController:QueueNextStrategy(true)
+                end
             end
         end))
 
@@ -1056,7 +1062,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.3",
+            Name = "Blader's Rebirth v5.5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
