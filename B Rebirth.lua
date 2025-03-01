@@ -333,7 +333,7 @@ do
             local raycastResult = workspace:Raycast(feetPosition, Vector3.new(0, -100, 0), rayParams)
 
             -- Determine the ground position
-            local groundY = raycastResult and raycastResult.Position.Y - 1 or (feetPosition.Y - 1)
+            local groundY = raycastResult and raycastResult.Position.Y - 0.95 or (feetPosition.Y - 1)
             
             local function teleport()
                 if Client.Character and Client.Character.HumanoidRootPart then
