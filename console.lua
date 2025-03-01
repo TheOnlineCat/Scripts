@@ -31,6 +31,8 @@ connection = game:GetService("ReplicatedStorage").Events.ShowBossInfo.OnClientEv
     end
 end)
 
+print(game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2))
+
 local connection
 connection = game:GetService("ReplicatedStorage").Events.ShowBossInfo.OnClientEvent:Connect(function(test)
     if test["Badge"] then

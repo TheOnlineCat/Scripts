@@ -380,7 +380,7 @@ do
                 end
                 fireproximityprompt(self._CurrentNPC.PrimaryPart.Dialogue) 
                 attempts += 1
-            until Client.PlayerGui.FindFirstChild("Dialogue").FindFirstChild("Dialogue").WaitForChild("Response", 2)
+            until Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
         end)
         if not success then
             self._CurrentNPC = nil
@@ -1070,7 +1070,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5.6",
+            Name = "Blader's Rebirth v5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
