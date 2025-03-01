@@ -348,12 +348,12 @@ do
 
                     local humanoid = Client.Character:FindFirstChild("Humanoid")
                     if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
+                    RunService.Heartbeat:Wait()
+                    task.wait(0.1) 
                     AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
                     RunService.Heartbeat:Wait()
                     task.wait(0.2) 
                     Client.Character.HumanoidRootPart.Anchored = true
-            
-                    task.wait(0.1) 
                     if humanoid then humanoid.PlatformStand = false end 
                 end
             end
@@ -1087,7 +1087,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
