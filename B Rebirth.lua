@@ -308,6 +308,39 @@ do
         end)
     end
 
+    function BaseNPCBattleStrategy:GetMoleTp(targetNpc)
+        game.Workspace.Gravity = 0
+        -- Get the boss's feet position
+        local bossRoot = targetNpc.PrimaryPart
+        local feetPosition = bossRoot.Position - Vector3.new(0, targetNpc:GetExtentsSize().Y / 2 - 2, 0)
+
+        local rayParams = RaycastParams.new()
+        rayParams.FilterDescendantsInstances = {targetNpc} -- Ignore the boss itself
+        rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+
+        local raycastResult = workspace:Raycast(feetPosition, Vector3.new(0, -100, 0), rayParams)
+
+        -- Determine the ground position
+        local groundY = raycastResult and raycastResult.Position.Y - 0.95 or (feetPosition.Y - 1)
+        
+        return function(increment)
+            local incre = increment or 0
+            if Client.Character and Client.Character.HumanoidRootPart then
+                Client.Character.HumanoidRootPart.Anchored = false
+
+                local humanoid = Client.Character:FindFirstChild("Humanoid")
+                if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
+                RunService.Heartbeat:Wait()
+                task.wait(0.1) 
+                AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
+                RunService.Heartbeat:Wait()
+                task.wait(0.2) 
+                Client.Character.HumanoidRootPart.Anchored = true
+                if humanoid then humanoid.PlatformStand = false end 
+            end
+        end
+    end
+
     function BaseNPCBattleStrategy:InitiateFight()
         AutofarmController:UnlaunchBeyblade()
 
@@ -322,46 +355,13 @@ do
             AutofarmController:QueueNextStrategy(false)
             return
         end
-    
-        local NpcCFrame = NpcTarget.PrimaryPart.CFrame
         
         local teleportFunction
         if UIController:GetMoleTPToggle() then
-            game.Workspace.Gravity = 0
-            -- Get the boss's feet position
-            local bossRoot = NpcTarget.PrimaryPart
-            local feetPosition = bossRoot.Position - Vector3.new(0, NpcTarget:GetExtentsSize().Y / 2 - 2, 0) -- Move down to the feet
-
-            local rayParams = RaycastParams.new()
-            rayParams.FilterDescendantsInstances = {NpcTarget} -- Ignore the boss itself
-            rayParams.FilterType = Enum.RaycastFilterType.Blacklist
-
-            local raycastResult = workspace:Raycast(feetPosition, Vector3.new(0, -100, 0), rayParams)
-
-            -- Determine the ground position
-            local groundY = raycastResult and raycastResult.Position.Y - 0.95 or (feetPosition.Y - 1)
-            
-            teleportFunction = function(increment)
-                local incre = increment or 0
-                if Client.Character and Client.Character.HumanoidRootPart then
-                    Client.Character.HumanoidRootPart.Anchored = false
-
-                    local humanoid = Client.Character:FindFirstChild("Humanoid")
-                    if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
-                    RunService.Heartbeat:Wait()
-                    task.wait(0.1) 
-                    AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
-                    RunService.Heartbeat:Wait()
-                    task.wait(0.2) 
-                    Client.Character.HumanoidRootPart.Anchored = true
-                    if humanoid then humanoid.PlatformStand = false end 
-                end
-            end
-
-
+            teleportFunction = self:GetMoleTp(NpcTarget)
             teleportFunction()
         else
-            if not AutofarmController:TeleportToCFrame(NpcCFrame * CFrame.new(-6, 0, 0)) then return end
+            if not AutofarmController:TeleportToCFrame(NpcTarget.PrimaryPart.CFrame * CFrame.new(-6, 0, 0)) then return end
         end
 
         self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
@@ -374,15 +374,12 @@ do
         local attempts = 0
         repeat
             attempts += 1
-
             fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue)
-
             local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
 
             if (not response) and UIController:GetMoleTPToggle() then
                 teleportFunction()
             end
-
             if attempts >= 3 then
                 self._PreviousNPC = self._CurrentNPC
                 self._CurrentNPC = nil
@@ -390,7 +387,7 @@ do
         until response or attempts >= 3
 
         pcall(function()
-            self._Maid:GiveTask(task.delay(17, function()
+            self._Maid:GiveTask(task.delay(15, function()
                 -- Only reset if `_CurrentNPC` is still the same NPC and not in Battle
                 if self._CurrentNPC == CurrentTarget and not self._IsBattling then
                     self._PreviousNPC = self._CurrentNPC
@@ -400,40 +397,54 @@ do
         end)
     end
 
+
     function BaseNPCBattleStrategy:GetQuest(QuestGiver)
         if not QuestGiver or not QuestGiver.PrimaryPart then 
             return 
         end
 
-        local QuestGiverCFrame = QuestGiver.PrimaryPart.CFrame
+        local teleportFunction
+        if UIController:GetMoleTPToggle() then
+            teleportFunction = self:GetMoleTp(QuestGiver)
+            teleportFunction()
+        else
+            if not AutofarmController:TeleportToCFrame(QuestGiver.PrimaryPart.CFrame * CFrame.new(-6, 0, 0)) then return end
+        end
 
-        pcall(function()
-            Client.Character.HumanoidRootPart.Anchored = false
-        end)
-
-        if not AutofarmController:TeleportToCFrame(QuestGiverCFrame * CFrame.new(0, 2, -6)) then return end
         local VisibleTarget = NPCsFolder:WaitForChild(QuestGiver.Name, 7)
         if not VisibleTarget then return end
         task.wait(0.5)
-        fireproximityprompt(VisibleTarget.PrimaryPart.Dialogue)
 
-        --timeout for dialogue stuck
+        local attempts = 0
+        repeat
+            attempts += 1
+            fireproximityprompt(QuestGiver.PrimaryPart.Dialogue)
+            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
+
+            if (not response) and UIController:GetMoleTPToggle() then
+                teleportFunction()
+            end
+        until response or attempts >= 3
+
+        --yield for quest or timeout
         local connection
-        local eventTriggered = false
-        local timeout = 15
+        local success
+
         connection = EventsFolder.UpdateAllQuests.OnClientEvent:Connect(function(...)
-            eventTriggered = true
-            connection:Disconnect() 
+            connection:Disconnect()
+            success = true
         end)
 
-        pcall(function()
-            self._Maid:GiveTask(connection)
+        self._Maid:GiveTask(connection)
+
+        task.delay(7, function()  -- Timeout fallback
+            if not success then
+                connection:Disconnect()
+                success = false
+            end
         end)
 
-        local startTime = os.clock()
-        while os.clock() - startTime < timeout and not eventTriggered do
-            task.wait() 
-        end
+        repeat task.wait() until success ~= nil
     end
     
 
@@ -1087,7 +1098,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v2",
+            Name = "Blader's Rebirth v3",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
