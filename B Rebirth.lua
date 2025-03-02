@@ -331,10 +331,10 @@ do
                 local humanoid = Client.Character:FindFirstChild("Humanoid")
                 if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
                 RunService.Heartbeat:Wait()
-                task.wait(0.1) 
+                task.wait(0.5) 
                 AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
                 RunService.Heartbeat:Wait()
-                task.wait(0.2) 
+                task.wait(0.5) 
                 Client.Character.HumanoidRootPart.Anchored = true
                 if humanoid then humanoid.PlatformStand = false end 
             end
@@ -529,42 +529,6 @@ do
                 if self:IsNpcOnCooldown(boss) then continue end
                 if self._PreviousNPC == boss then continue end --find different target, helpful for timeed out npcs
                 if not table.find(UIController:GetTargetBossNames(), boss:GetAttribute("Name")) then continue end
-
-                -- local QuestGiver = nil
-                -- for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
-                --     for _, npc in ipairs(folder:GetChildren()) do
-                --         if npc.Name:find(boss.Name) and npc.Name:find("Quest") then
-                --             QuestGiver = npc
-                --         end
-                --     end
-                -- end
-                -- if not QuestGiver then
-                --     return boss
-                -- end
-
-                -- local IsQuestExist = false
-                -- local timeoutCount = 0
-                -- repeat
-                --     for quest_name, quest_data in pairs(Stats.Quest.Data) do
-                --         if quest_data.Type == "Daily" then continue end
-                --         if not quest_data.Objectives then continue end
-                --         warn(quest_data.Objectives[1].Name, boss.Name, quest_data.Objectives[1].Name == boss.Name)
-                --         if quest_data.Objectives[1].Name == boss.Name then 
-                --             IsQuestExist = true
-                --             break
-                --         end
-                --     end
-
-                --     if not IsQuestExist then
-                --         if timeoutCount >= 2 then
-                --             break
-                --         end
-                --         timeoutCount += 1
-                --         self:GetQuest(QuestGiver)
-                --         task.wait(0.5)
-                --     end 
-                -- until IsQuestExist
-
                 return boss
             end
         end
@@ -1098,7 +1062,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v3",
+            Name = "Blader's Rebirth v5",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
