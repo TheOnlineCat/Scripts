@@ -466,6 +466,10 @@ do
         local QuestData = nil
         for name, quest_data in pairs(Stats.Quest.Data) do
             if quest_data.Type == "Daily" then continue end
+            if name:find("Return") then 
+                EventsFolder.DisbandQuest:FireServer(name) 
+                continue 
+            end
             if not quest_data.Objectives then continue end
             if not quest_data.Objectives[1].Type:find("Trainer") then continue end
             
@@ -550,8 +554,11 @@ do
                     repeat
                         for quest_name, quest_data in pairs(Stats.Quest.Data) do
                             if quest_data.Type == "Daily" then continue end
+                            if quest_name:find("Return") then 
+                                EventsFolder.DisbandQuest:FireServer(quest_name) 
+                                continue 
+                            end
                             if not quest_data.Objectives then continue end
-                            warn(quest_data.Objectives[1].Name, boss.Name, quest_data.Objectives[1].Name == boss.Name)
                             if quest_data.Objectives[1].Name == boss.Name then 
                                 IsQuestExist = true
                                 break
@@ -1132,7 +1139,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v1234",
+            Name = "Blader's Rebirth v123",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
