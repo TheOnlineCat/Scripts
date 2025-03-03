@@ -529,6 +529,46 @@ do
                 if self:IsNpcOnCooldown(boss) then continue end
                 if self._PreviousNPC == boss then continue end --find different target, helpful for timeed out npcs
                 if not table.find(UIController:GetTargetBossNames(), boss:GetAttribute("Name")) then continue end
+
+
+                if UIController:IsCollectingCapsules() then
+                    local QuestGiver = nil
+                    for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
+                        for _, npc in ipairs(folder:GetChildren()) do
+                            if npc.Name:find(boss.Name) and npc.Name:find("Quest") then
+                                if table.find(UIController:GetCollectedCapsules(), boss.Name) then continue end
+                                QuestGiver = npc
+                            end
+                        end
+                    end
+                    if not QuestGiver then
+                        return boss
+                    end
+
+                    local IsQuestExist = false
+                    local timeoutCount = 0
+                    repeat
+                        for quest_name, quest_data in pairs(Stats.Quest.Data) do
+                            if quest_data.Type == "Daily" then continue end
+                            if not quest_data.Objectives then continue end
+                            warn(quest_data.Objectives[1].Name, boss.Name, quest_data.Objectives[1].Name == boss.Name)
+                            if quest_data.Objectives[1].Name == boss.Name then 
+                                IsQuestExist = true
+                                break
+                            end
+                        end
+
+                        if not IsQuestExist then
+                            if timeoutCount >= 2 then
+                                break
+                            end
+                            timeoutCount += 1
+                            self:GetQuest(QuestGiver)
+                            task.wait(0.5)
+                        end 
+                    until IsQuestExist
+                end
+
                 return boss
             end
         end
@@ -929,6 +969,7 @@ do
             BossDifficulty = "Easy",
             WorldBossDifficulty = "Easy",
             MoleTp = false,
+            CollectCapsules = false
         },
         Farms = {
             CrystalFarm = {
@@ -953,7 +994,12 @@ do
             AllFragment = false,
             AllCrystal = false,
             AllEnchants = false,
-        }
+        },
+        CapsulesCollected = {}
+    }
+
+    UIController.Elements = {
+        CollectCapsulesToggle = nil,
     }
 
     -- Helpers
@@ -1006,6 +1052,26 @@ do
         return self.State.FarmConfig.Delay
     end
 
+    function UIController:IsCollectingCapsules()
+        return self.State.FarmConfig.CollectCapsules
+    end
+
+    function UIController:GetCollectedCapsules()
+        local BossList = {}
+        for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
+            for _, npc in ipairs(folder:GetChildren()) do
+                if npc.Name:find("^Boss") then
+                    table.insert(BossList, npc:GetAttribute("Name"))
+                end
+            end
+        end
+
+        if (self.State.CapsulesCollected.size >= BossList.size) then
+            self.State.FarmConfig.CollectCapsules = false
+            self.Elements.CollectCapsulesToggle:Set(false)
+        end
+        return self.State.CapsulesCollected
+    end
 
 
     function UIController:GetNextFarm(currentFarm): nil | string
@@ -1057,12 +1123,16 @@ do
         self.OnCurrentFarmChanged:Fire(self:GetNextFarm())
     end
 
+    function UIController:AddCollectedCapsules(boss)
+        table.insert(self.State.CapsulesCollected, boss)
+    end
+
     function UIController:Start()
     end
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v5",
+            Name = "Blader's Rebirth v123",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
@@ -1136,6 +1206,14 @@ do
             Flag = "MoleTPToggle",
             Callback = function(Value)
                 self.State.FarmConfig.MoleTp = Value
+            end
+        })
+
+        self.Elements.CollectCapsulesToggle = Tab:CreateToggle({
+            Name = "Daily Collect Capsules",
+            CurrentValue = false,
+            Callback = function(Value)
+                self.State.FarmConfig.CollectCapsules = Value
             end
         })
     end
