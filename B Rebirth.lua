@@ -541,6 +541,7 @@ do
                         for _, npc in ipairs(folder:GetChildren()) do
                             if npc.Name:find(boss.Name) and npc.Name:find("Quest") then
                                 if table.find(UIController:GetCollectedCapsules(), boss.Name) then continue end
+                                UIController:AddCollectedCapsules(UIController:GetCollectedCapsules())
                                 QuestGiver = npc
                             end
                         end
