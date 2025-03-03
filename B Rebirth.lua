@@ -1066,7 +1066,7 @@ do
             end
         end
 
-        if (self.State.CapsulesCollected.size >= BossList.size) then
+        if (#self.State.CapsulesCollected >= #BossList) then
             self.State.FarmConfig.CollectCapsules = false
             self.Elements.CollectCapsulesToggle:Set(false)
         end
@@ -1132,7 +1132,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v123",
+            Name = "Blader's Rebirth v1234",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
