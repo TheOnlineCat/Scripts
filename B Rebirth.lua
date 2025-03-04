@@ -407,10 +407,10 @@ do
             return 
         end
 
-        local teleportFunction
+        local moleToNpc
         if UIController:GetMoleTPToggle() then
-            teleportFunction = self:GetMoleToNpc(QuestGiver)
-            teleportFunction()
+            moleToNpc = self:GetMoleToNpc(QuestGiver)
+            moleToNpc()
         else
             if not AutofarmController:TeleportToCFrame(QuestGiver.PrimaryPart.CFrame * CFrame.new(-6, 0, 0)) then return end
         end
@@ -426,7 +426,7 @@ do
             local response = Client.PlayerGui.Dialogue.Dialogue:WaitForChild("Response", 2)
 
             if (not response) and UIController:GetMoleTPToggle() then
-                teleportFunction()
+                moleToNpc()
             end
         until response or attempts >= 3
 
@@ -1149,7 +1149,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v123",
+            Name = "Blader's Rebirth v2",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
