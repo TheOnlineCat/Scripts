@@ -385,11 +385,12 @@ do
             if (not response) and UIController:GetMoleTPToggle() then
                 moleToNpc()
             end
-            if attempts >= 3 then
-                self._PreviousNPC = self._CurrentNPC
-                self._CurrentNPC = nil
-            end
         until response or attempts >= 3
+
+        if attempts >= 3 then
+            self._PreviousNPC = self._CurrentNPC
+            self._CurrentNPC = nil
+        end
 
         pcall(function()
             self._Maid:GiveTask(task.delay(15, function()
