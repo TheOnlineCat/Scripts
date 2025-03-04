@@ -330,11 +330,13 @@ do
             if Client.Character and Client.Character.HumanoidRootPart then
                 -- Client.Character.HumanoidRootPart.Anchored = false
 
-                local humanoid = Client.Character:FindFirstChild("Humanoid")
+                -- local humanoid = Client.Character:FindFirstChild("Humanoid")
                 -- if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
                 AutofarmController:ToggleGravity(false)
-                local visibleTarget = NPCsFolder:WaitForChild(targetNpc.Name, 4)
                 AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
+                local visibleTarget = NPCsFolder:WaitForChild(targetNpc.Name, 4)
+                warn("Waited completed")
+
                 -- RunService.Heartbeat:Wait()
                 -- task.wait(0.5) 
                 -- Client.Character.HumanoidRootPart.Anchored = true
@@ -1148,7 +1150,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v1234",
+            Name = "Blader's Rebirth v123",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
