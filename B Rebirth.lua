@@ -370,17 +370,15 @@ do
             self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
         end
 
-           
-
         if not self._CurrentNPC  then return end
         local CurrentTarget = self._CurrentNPC 
-
+        task.wait(0.5)
 
         local attempts = 0
         repeat
             attempts += 1
             fireproximityprompt(CurrentTarget.PrimaryPart.Dialogue)
-            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
+            local response = Client.PlayerGui.Dialogue.Dialogue:WaitForChild("Response", 1.5)
 
             if (not response) and UIController:GetMoleTPToggle() then
                 moleToNpc()
@@ -425,7 +423,7 @@ do
         repeat
             attempts += 1
             fireproximityprompt(QuestGiver.PrimaryPart.Dialogue)
-            local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
+            local response = Client.PlayerGui.Dialogue.Dialogue:WaitForChild("Response", 2)
 
             if (not response) and UIController:GetMoleTPToggle() then
                 teleportFunction()
