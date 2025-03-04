@@ -263,7 +263,7 @@ do
         self._Maid:GiveTask(BeybladesFolder.ChildAdded:Connect(function(Beyblade)
             task.wait(0.3)
             if Beyblade:GetAttribute("TargetPlayer") == Client.Name then
-                game.Workspace.Gravity = 196.2
+                AutofarmController:ToggleGravity(true)
                 self._NPCBeyblade = Beyblade
                 Beyblade:GetAttributeChangedSignal("Invisible"):Connect(function()
                     Beyblade:SetAttribute("Invisible", false) 
@@ -280,12 +280,16 @@ do
                 --wait until back
                 EventsFolder.BattleTransition.OnClientEvent:Wait() 
                 if Client.Character and Client.Character.HumanoidRootPart then
-                    game.Workspace.Gravity = 0
+                    if UIController:GetMoleTPToggle() then
+                        AutofarmController:ToggleGravity(false)
+                    end
 
                     Client.Character.HumanoidRootPart:GetPropertyChangedSignal("Anchored"):Wait()
+
                     if UIController:GetMoleTPToggle() then
                         Client.Character.HumanoidRootPart.Anchored = true
                     end
+                    
                     task.wait(UIController:GetFarmDelay())
                     self._IsBattling = false
                     AutofarmController:QueueNextStrategy(true)
@@ -308,8 +312,7 @@ do
         end)
     end
 
-    function BaseNPCBattleStrategy:GetMoleTp(targetNpc)
-        game.Workspace.Gravity = 0
+    function BaseNPCBattleStrategy:GetMoleToNpc(targetNpc)
         -- Get the boss's feet position
         local bossRoot = targetNpc.PrimaryPart
         local feetPosition = bossRoot.Position - Vector3.new(0, targetNpc:GetExtentsSize().Y / 2 - 2, 0)
@@ -323,20 +326,20 @@ do
         -- Determine the ground position
         local groundY = raycastResult and raycastResult.Position.Y - 0.95 or (feetPosition.Y - 1)
         
-        return function(increment)
-            local incre = increment or 0
+        return function()
             if Client.Character and Client.Character.HumanoidRootPart then
-                Client.Character.HumanoidRootPart.Anchored = false
+                -- Client.Character.HumanoidRootPart.Anchored = false
 
                 local humanoid = Client.Character:FindFirstChild("Humanoid")
-                if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
-                RunService.Heartbeat:Wait()
-                task.wait(0.5) 
-                AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY + incre, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
-                RunService.Heartbeat:Wait()
-                task.wait(0.5) 
-                Client.Character.HumanoidRootPart.Anchored = true
-                if humanoid then humanoid.PlatformStand = false end 
+                -- if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
+                AutofarmController:ToggleGravity(false)
+                local visibleTarget = NPCsFolder:WaitForChild(targetNpc.Name, 4)
+                AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
+                -- RunService.Heartbeat:Wait()
+                -- task.wait(0.5) 
+                -- Client.Character.HumanoidRootPart.Anchored = true
+                -- if humanoid then humanoid.PlatformStand = false end 
+                return visibleTarget;
             end
         end
     end
@@ -356,15 +359,15 @@ do
             return
         end
         
-        local teleportFunction
+        local moleToNpc
         if UIController:GetMoleTPToggle() then
-            teleportFunction = self:GetMoleTp(NpcTarget)
-            teleportFunction()
+            moleToNpc = self:GetMoleToNpc(NpcTarget)
+            self._CurrentNPC = moleToNpc()
         else
             if not AutofarmController:TeleportToCFrame(NpcTarget.PrimaryPart.CFrame * CFrame.new(-6, 0, 0)) then return end
+            self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
         end
 
-        self._CurrentNPC = NPCsFolder:WaitForChild(NpcTarget.Name, 7)
            
 
         if not self._CurrentNPC  then return end
@@ -378,7 +381,7 @@ do
             local response = Client.PlayerGui:FindFirstChild("Dialogue"):FindFirstChild("Dialogue"):WaitForChild("Response", 2)
 
             if (not response) and UIController:GetMoleTPToggle() then
-                teleportFunction()
+                moleToNpc()
             end
             if attempts >= 3 then
                 self._PreviousNPC = self._CurrentNPC
@@ -405,7 +408,7 @@ do
 
         local teleportFunction
         if UIController:GetMoleTPToggle() then
-            teleportFunction = self:GetMoleTp(QuestGiver)
+            teleportFunction = self:GetMoleToNpc(QuestGiver)
             teleportFunction()
         else
             if not AutofarmController:TeleportToCFrame(QuestGiver.PrimaryPart.CFrame * CFrame.new(-6, 0, 0)) then return end
@@ -675,6 +678,12 @@ do
         self.TaskRunner = TaskRunner.new()
     end
 
+    function AutofarmController:ToggleGravity(bool)
+        game.Workspace.Gravity = bool and 196.2 or 0;
+        local humanoid = Client.Character:FindFirstChild("Humanoid")
+        if humanoid then humanoid.PlatformStand = not bool end 
+    end
+
     function AutofarmController:Start()
         local CharacterMaid = Maid.new()
         
@@ -714,7 +723,7 @@ do
                 local CurrentStrategy = self.CurrentFarmStrategy
 
                 if not IsEnabled then
-                    game.Workspace.Gravity = 196.2
+                    self:ToggleGravity(true)
                     self:SwitchStrategy(nil) --destroy all strategies
                     return
                 end
@@ -727,7 +736,6 @@ do
             end))
 
             CharacterMaid:GiveTask(workspace.ChildAdded:Connect(function(child)
-                --workspace["572b341d-e0d9-4c75-8ad3-1258b5fdfd53"].Root.Crystal
                 local Root = child:FindFirstChild("Root")
                 if Root then
                     local Crystal = Root:FindFirstChild("Crystal")
@@ -1140,7 +1148,7 @@ do
     
     function UIController:Init()
         local Window = Rayfield:CreateWindow({
-            Name = "Blader's Rebirth v123",
+            Name = "Blader's Rebirth v1234",
             LoadingTitle = "Loading User Interface",
             LoadingSubtitle = "Script Credits: OnlineCat",
     
