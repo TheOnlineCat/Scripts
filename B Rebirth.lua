@@ -328,19 +328,9 @@ do
         
         return function()
             if Client.Character and Client.Character.HumanoidRootPart then
-                -- Client.Character.HumanoidRootPart.Anchored = false
-
-                -- local humanoid = Client.Character:FindFirstChild("Humanoid")
-                -- if humanoid then humanoid.PlatformStand = true end  -- Prevents automatic rotation
                 AutofarmController:ToggleGravity(false)
                 AutofarmController:TeleportToCFrame(CFrame.new(Vector3.new(feetPosition.X, groundY, feetPosition.Z)) * CFrame.Angles(math.rad(90), 0, math.rad(90)))
                 local visibleTarget = NPCsFolder:WaitForChild(targetNpc.Name, 4)
-                warn("Waited completed")
-
-                -- RunService.Heartbeat:Wait()
-                -- task.wait(0.5) 
-                -- Client.Character.HumanoidRootPart.Anchored = true
-                -- if humanoid then humanoid.PlatformStand = false end 
                 return visibleTarget;
             end
         end
@@ -1578,7 +1568,7 @@ do
         -- Boss NPC Autofarm Section
         Tab:CreateSection("Auto Boss Farm")
 	
-        local BossList = {"Volt", "Shin", "Ryuke", "Jinka", "Cupid"}
+        local BossList = {"Volt", "Shin", "Ryuke", "Jinka", "Cupid", "Saint Patrick"}
         for _, folder in ipairs({NPCsFolder, HiddenNPCsFolder}) do
             for _, npc in ipairs(folder:GetChildren()) do
                 if npc.Name:find("^Boss") then
